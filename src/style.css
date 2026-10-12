@@ -512,7 +512,7 @@ img {
 .toast {
   position: fixed;
   z-index: 15;
-  top: calc(max(10px, env(safe-area-inset-top)) + 72px);
+  top: calc(max(10px, env(safe-area-inset-top)) + 118px);
   left: 50%;
   transform: translateX(-50%);
   width: max-content;
@@ -1366,6 +1366,284 @@ img {
   pointer-events: none;
 }
 
+/* ── Walkable island (v2) ────────────────────────────────────────────── */
+
+.game {
+  position: fixed;
+  inset: 0;
+  overflow: hidden;
+  background: #2392d2;
+}
+#world {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+.loading {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  color: #fff;
+  font-family: var(--display);
+  font-size: 22px;
+  text-shadow: var(--stroke);
+}
+
+.hud-right .icon-btn svg {
+  width: 26px;
+  height: 26px;
+  display: block;
+  margin: auto;
+}
+.icon-btn[aria-pressed='true'] {
+  background: linear-gradient(#ffe07a, var(--gold-dark));
+}
+
+/* current clue, under the HUD */
+.game .quest {
+  position: fixed;
+  z-index: 5;
+  top: calc(max(10px, env(safe-area-inset-top)) + 64px);
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(560px, calc(100vw - 24px));
+  min-height: 0;
+  padding: 6px 12px 6px 8px;
+  font-size: 14px;
+  border-radius: 14px;
+}
+.game .quest svg {
+  width: 28px;
+  height: 28px;
+}
+.game .quest span {
+  -webkit-line-clamp: 1;
+}
+
+/* PUBG-style floating thumbstick: touch anywhere on the left */
+.stick-zone {
+  position: fixed;
+  z-index: 3;
+  left: 0;
+  bottom: 0;
+  width: 58%;
+  height: 62%;
+  touch-action: none;
+}
+.stick {
+  --size: 124px;
+  position: fixed;
+  z-index: 4;
+  left: calc(max(16px, env(safe-area-inset-left)) + var(--size) / 2 + 10px);
+  top: calc(100% - max(16px, env(safe-area-inset-bottom)) - var(--size) / 2 - 18px);
+  width: var(--size);
+  height: var(--size);
+  margin: calc(var(--size) / -2) 0 0 calc(var(--size) / -2);
+  border: 3px solid rgba(255, 255, 255, 0.7);
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.28));
+  box-shadow: 0 0 0 3px rgba(59, 36, 20, 0.35);
+  pointer-events: none;
+  opacity: 0.75;
+  transition: opacity 0.2s;
+}
+.stick.active {
+  opacity: 1;
+}
+.knob {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 58px;
+  height: 58px;
+  margin: -29px 0 0 -29px;
+  border: 3px solid var(--ink);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 35%, #fff, #ffd9e8 60%, #ff9cc0);
+  box-shadow: 0 4px 0 var(--ink);
+}
+.stick:not(.active) .knob {
+  transition: transform 0.15s;
+}
+.game.keys .stick,
+.game.keys .stick-zone {
+  display: none;
+}
+.game.touch .keys-hint {
+  display: none;
+}
+.keys-hint {
+  position: fixed;
+  z-index: 4;
+  left: 50%;
+  bottom: 18px;
+  transform: translateX(-50%);
+  margin: 0;
+  padding: 6px 14px;
+  border-radius: 99px;
+  background: rgba(59, 36, 20, 0.7);
+  color: #fff;
+  font-weight: 700;
+  font-size: 14px;
+  white-space: nowrap;
+}
+
+/* right thumb: action + vault */
+.actions {
+  position: fixed;
+  z-index: 5;
+  right: max(14px, env(safe-area-inset-right));
+  bottom: max(16px, env(safe-area-inset-bottom));
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+.actions .vault-btn {
+  width: 66px;
+  height: 66px;
+  font-size: 13px;
+}
+.actions .vault-btn svg {
+  width: 36px;
+  height: 36px;
+}
+.act {
+  display: grid;
+  place-items: center;
+  width: 96px;
+  height: 96px;
+  padding: 6px;
+  border: 4px solid var(--ink);
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 30%, #fff3c4, var(--gold) 55%, var(--gold-dark));
+  box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.6), 0 5px 0 var(--ink);
+  color: #fff;
+  font-family: var(--display);
+  font-size: 19px;
+  line-height: 1.05;
+  text-shadow: var(--stroke);
+  transition: transform 0.12s, filter 0.2s, opacity 0.2s;
+}
+.act:disabled {
+  filter: grayscale(0.85) brightness(0.9);
+  opacity: 0.75;
+  font-size: 14px;
+  cursor: default;
+}
+.act.ready {
+  animation: ready 0.9s ease-in-out infinite alternate;
+}
+@keyframes ready {
+  to {
+    transform: scale(1.08);
+    box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.6), 0 5px 0 var(--ink), 0 0 0 10px rgba(255, 224, 122, 0.45);
+  }
+}
+.act:active:not(:disabled) {
+  transform: translateY(4px);
+  box-shadow: inset 0 4px 0 rgba(255, 255, 255, 0.6), 0 1px 0 var(--ink);
+}
+
+.game.overview .stick,
+.game.overview .stick-zone,
+.game.overview .actions,
+.game.overview .keys-hint {
+  display: none;
+}
+
+/* passphrase */
+.gate {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: min(340px, 100%);
+}
+.gate-label {
+  font-weight: 800;
+  color: var(--ink);
+  font-size: 16px;
+}
+.gate .field {
+  text-align: center;
+  letter-spacing: 1px;
+}
+.gate-error {
+  margin: 0;
+  min-height: 1.3em;
+  font-weight: 800;
+  color: var(--berry-dark);
+}
+.gate.shake {
+  animation: shake 0.45s;
+}
+
+.how {
+  margin: 0;
+  padding: 8px 12px;
+  border-radius: 12px;
+  background: #e6f4ff;
+  border: 2px solid #5ec8f2;
+  font-weight: 700;
+  font-size: 15px;
+}
+.panel-head h2 small {
+  font-size: 0.62em;
+  opacity: 0.9;
+  margin-left: 4px;
+}
+.gem-gain {
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: var(--display);
+  font-size: 22px;
+  color: var(--berry);
+}
+.gem-gain .gem {
+  width: 22px;
+  height: 22px;
+}
+
+.vault-grid {
+  grid-template-columns: repeat(auto-fill, minmax(min(56px, 18%), 1fr));
+  gap: 6px;
+}
+.vault-cell {
+  border-width: 2px;
+  border-radius: 10px;
+}
+.vault-cell .q {
+  margin: 0;
+  font-size: 20px;
+}
+.vault-cell em {
+  font-family: var(--display);
+  font-size: 13px;
+  padding: 1px 4px;
+  text-align: center;
+}
+.vault-cell .rune {
+  width: 22px;
+  height: 22px;
+  font-size: 13px;
+  top: 2px;
+  left: 2px;
+}
+.vault-cell .seal {
+  margin: 0;
+  width: 34px;
+  height: 34px;
+  font-size: 18px;
+}
+
 /* ── Small and short screens ─────────────────────────────────────────── */
 
 @media (max-height: 720px) {
@@ -1492,8 +1770,13 @@ img {
   .polaroid {
     width: min(100%, 300px, calc((var(--vv-h, 100dvh) - 120px) * 1.1));
   }
-  .quest {
-    min-height: 50px;
+  .act {
+    width: 78px;
+    height: 78px;
+    font-size: 16px;
+  }
+  .stick {
+    --size: 104px;
   }
   .vault-btn {
     width: 62px;

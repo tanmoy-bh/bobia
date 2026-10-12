@@ -1,7 +1,7 @@
 {
-  "name": "Birthday Island",
-  "short_name": "Island",
-  "description": "33 years of treasure, hidden across one island.",
+  "name": "Joy's Island",
+  "short_name": "Joy's Island",
+  "description": "33 treasures for 33 years, hidden across one island.",
   "start_url": "./",
   "scope": "./",
   "display": "fullscreen",

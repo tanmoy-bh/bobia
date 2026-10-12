@@ -1,93 +1,438 @@
 // ─────────────────────────────────────────────────────────────
 //  EVERYTHING PERSONAL LIVES IN THIS FILE.
-//  Swap the [placeholders] for real names, memories, clues and photos.
+//
+//  33 treasures: 32 chests along the road + Heart Castle at the end.
+//  Each chest: a puzzle to open it, then a treasure (photo + memory)
+//  that holds the clue for the next chest.
 //
 //  Images: drop files into /public/images and reference them as
 //  'images/your-file.jpg'. Leave `image: null` to show a placeholder.
 //
+//  `landmark` picks the drawing next to the chest. Options:
+//  palms, windmill, lighthouse, lake, falls, cottage, balloon, bench, cake
+//
 //  Answers are compared loosely: case, spaces and punctuation are ignored.
+//  "(While testing: …)" text in the clues is there so you can play
+//  through. Replace every clue before the big day.
 // ─────────────────────────────────────────────────────────────
 
 export default {
-  herName: '[Her name]',
-  fromName: '[Your name]',
+  herName: 'Joy',
+  fromName: 'Tanmoy',
+
+  // Typed on the first screen to enter (case doesn't matter).
+  passphrase: 'HBDJoy',
 
   // HUD: she starts at level 32 and levels up to 33 at the very end.
   startLevel: 32,
   endLevel: 33,
 
-  // Gems pay for wizard hints.
+  // Gems pay for wizard hints. Every chest she opens adds a few more.
   startGems: 33,
   hintCost: 3,
+  gemsPerChest: 1,
 
   intro: {
-    title: "[Her name]'s Island",
-    subtitle: '33 years of treasure, hidden across one island.',
-    // Shown as a scroll right after she taps Start.
+    title: "Joy's Island",
+    subtitle: '33 treasures for 33 years, hidden across one island.',
     letter: [
-      'Chief, the island has been waiting for you.',
-      'Clouds hide most of it. Every chest you open clears the way to the next one, and every treasure inside holds the clue you will need next.',
-      '[Placeholder: a short, warm note from you to kick things off.]',
+      'Happy birthday, Joy. This island is yours.',
+      'Clouds hide most of it. Walk the road, open each chest, and every treasure inside holds the clue for the next one. There are 33 in all, one for every year.',
+      '[Placeholder: a short, warm note from Tanmoy to kick things off.]',
     ],
-    // The clue for the very first puzzle.
+    // The clue for the very first chest.
     firstClue: {
-      text: '[Placeholder clue] Where did it all begin? (While testing, the answer is: beach)',
+      text: '[Placeholder clue for Palm Cove] (While testing, the answer is: beach)',
       image: null,
     },
   },
 
-  // The zones she unlocks, in order. The landmark art and map position are
-  // fixed per slot: cove, windmill, lighthouse, lake, falls.
   zones: [
+    // ── 1 ─────────────────────────────
     {
-      id: 'cove',
-      name: 'Palm Cove',
+      name: "Palm Cove",
+      landmark: 'palms',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. Where did it all begin?',
-        answers: ['beach', 'the beach'],
-        hints: [
-          'Read your first clue again. It is in the scroll at the bottom.',
-          'It has sand and waves.',
-        ],
+        prompt: 'The chest is locked with a word. What is it?',
+        answers: ["beach"],
+        hints: ['Read your clue again.', 'It starts with "B".'],
       },
       treasure: {
         title: '[Memory #1 title]',
         image: null,
-        memory: '[Placeholder: tell the story of this moment in two or three sentences.]',
-        rune: 'S',
+        memory: '[Placeholder: the story behind memory #1, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
         clue: {
-          text: '[Placeholder clue] The windmill lock wants a date: the day and month we met. (While testing: 1402)',
+          text: "[Placeholder clue for Old Windmill] (While testing: the code is 2274)",
           image: null,
         },
       },
     },
+    // ── 2 ─────────────────────────────
     {
-      id: 'windmill',
-      name: 'Old Windmill',
+      name: "Old Windmill",
+      landmark: 'windmill',
       puzzle: {
         type: 'code',
-        prompt: 'A four-dial lock holds the windmill door shut.',
-        answer: '1402',
-        hints: ['Day first, then month.', 'It starts with 14.'],
+        prompt: 'A four-dial lock holds the chest shut.',
+        answer: '2274',
+        hints: ['Think of a date: day then month.', 'It starts with 22.'],
       },
       treasure: {
         title: '[Memory #2 title]',
         image: null,
-        memory: '[Placeholder: the story behind this memory.]',
-        rune: 'M',
+        memory: '[Placeholder: the story behind memory #2, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
         clue: {
-          text: '[Placeholder clue] The lighthouse keeper asks which trip came first. (While testing: Option C)',
+          text: "[Placeholder clue for Lighthouse Point] (While testing: pick Option D)",
           image: null,
         },
       },
     },
+    // ── 3 ─────────────────────────────
     {
-      id: 'lighthouse',
-      name: 'Lighthouse Point',
+      name: "Lighthouse Point",
+      landmark: 'lighthouse',
       puzzle: {
         type: 'choice',
-        prompt: 'The keeper only opens up for the right answer. Which trip came first?',
+        prompt: 'Which one is it?',
+        options: [
+          { label: 'Option A', image: null },
+          { label: 'Option B', image: null },
+          { label: 'Option C', image: null },
+          { label: 'Option D', image: null },
+        ],
+        answer: 3, // index into options, starting at 0
+        hints: ['Trust your first instinct.', 'It is option D.'],
+      },
+      treasure: {
+        title: '[Memory #3 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #3, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Crystal Lake] (While testing: the word is JOYFUL)",
+          image: null,
+        },
+      },
+    },
+    // ── 4 ─────────────────────────────
+    {
+      name: "Crystal Lake",
+      landmark: 'lake',
+      puzzle: {
+        type: 'scramble',
+        prompt: 'Unscramble the letters.',
+        answer: 'JOYFUL',
+        hints: ['Say the letters out loud.', 'It starts with JOY.'],
+      },
+      treasure: {
+        title: '[Memory #4 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #4, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Whisper Falls] (While testing: rebuild the picture, sun top-left)",
+          image: null,
+        },
+      },
+    },
+    // ── 5 ─────────────────────────────
+    {
+      name: "Whisper Falls",
+      landmark: 'falls',
+      puzzle: {
+        type: 'swap',
+        prompt: 'Tap two tiles to swap them until the picture is whole.',
+        image: null, // a square photo works best
+        grid: 3,
+        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+      },
+      treasure: {
+        title: '[Memory #5 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #5, in two or three sentences.]',
+        rune: "A", // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Honey Cottage] (While testing: the answer is: coffee)",
+          image: null,
+        },
+      },
+    },
+    // ── 6 ─────────────────────────────
+    {
+      name: "Honey Cottage",
+      landmark: 'cottage',
+      puzzle: {
+        type: 'text',
+        prompt: 'The chest is locked with a word. What is it?',
+        answers: ["coffee"],
+        hints: ['Read your clue again.', 'It starts with "C".'],
+      },
+      treasure: {
+        title: '[Memory #6 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #6, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Balloon Meadow] (While testing: the code is 2959)",
+          image: null,
+        },
+      },
+    },
+    // ── 7 ─────────────────────────────
+    {
+      name: "Balloon Meadow",
+      landmark: 'balloon',
+      puzzle: {
+        type: 'code',
+        prompt: 'A four-dial lock holds the chest shut.',
+        answer: '2959',
+        hints: ['Think of a date: day then month.', 'It starts with 29.'],
+      },
+      treasure: {
+        title: '[Memory #7 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #7, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Moonlight Bench] (While testing: pick Option A)",
+          image: null,
+        },
+      },
+    },
+    // ── 8 ─────────────────────────────
+    {
+      name: "Moonlight Bench",
+      landmark: 'bench',
+      puzzle: {
+        type: 'choice',
+        prompt: 'Which one is it?',
+        options: [
+          { label: 'Option A', image: null },
+          { label: 'Option B', image: null },
+          { label: 'Option C', image: null },
+          { label: 'Option D', image: null },
+        ],
+        answer: 0, // index into options, starting at 0
+        hints: ['Trust your first instinct.', 'It is option A.'],
+      },
+      treasure: {
+        title: '[Memory #8 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #8, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Cake Hill] (While testing: the word is PANCAKES)",
+          image: null,
+        },
+      },
+    },
+    // ── 9 ─────────────────────────────
+    {
+      name: "Cake Hill",
+      landmark: 'cake',
+      puzzle: {
+        type: 'scramble',
+        prompt: 'Unscramble the letters.',
+        answer: 'PANCAKES',
+        hints: ['Say the letters out loud.', 'It starts with PAN.'],
+      },
+      treasure: {
+        title: '[Memory #9 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #9, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Sunset Beach] (While testing: rebuild the picture, sun top-left)",
+          image: null,
+        },
+      },
+    },
+    // ── 10 ─────────────────────────────
+    {
+      name: "Sunset Beach",
+      landmark: 'palms',
+      puzzle: {
+        type: 'swap',
+        prompt: 'Tap two tiles to swap them until the picture is whole.',
+        image: null, // a square photo works best
+        grid: 3,
+        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+      },
+      treasure: {
+        title: '[Memory #10 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #10, in two or three sentences.]',
+        rune: "L", // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Sugar Mill] (While testing: the answer is: rain)",
+          image: null,
+        },
+      },
+    },
+    // ── 11 ─────────────────────────────
+    {
+      name: "Sugar Mill",
+      landmark: 'windmill',
+      puzzle: {
+        type: 'text',
+        prompt: 'The chest is locked with a word. What is it?',
+        answers: ["rain"],
+        hints: ['Read your clue again.', 'It starts with "R".'],
+      },
+      treasure: {
+        title: '[Memory #11 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #11, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Starlight Tower] (While testing: the code is 3644)",
+          image: null,
+        },
+      },
+    },
+    // ── 12 ─────────────────────────────
+    {
+      name: "Starlight Tower",
+      landmark: 'lighthouse',
+      puzzle: {
+        type: 'code',
+        prompt: 'A four-dial lock holds the chest shut.',
+        answer: '3644',
+        hints: ['Think of a date: day then month.', 'It starts with 36.'],
+      },
+      treasure: {
+        title: '[Memory #12 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #12, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Bubble Pond] (While testing: pick Option B)",
+          image: null,
+        },
+      },
+    },
+    // ── 13 ─────────────────────────────
+    {
+      name: "Bubble Pond",
+      landmark: 'lake',
+      puzzle: {
+        type: 'choice',
+        prompt: 'Which one is it?',
+        options: [
+          { label: 'Option A', image: null },
+          { label: 'Option B', image: null },
+          { label: 'Option C', image: null },
+          { label: 'Option D', image: null },
+        ],
+        answer: 1, // index into options, starting at 0
+        hints: ['Trust your first instinct.', 'It is option B.'],
+      },
+      treasure: {
+        title: '[Memory #13 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #13, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Snowcap Peak] (While testing: the word is SUNSHINE)",
+          image: null,
+        },
+      },
+    },
+    // ── 14 ─────────────────────────────
+    {
+      name: "Snowcap Peak",
+      landmark: 'falls',
+      puzzle: {
+        type: 'scramble',
+        prompt: 'Unscramble the letters.',
+        answer: 'SUNSHINE',
+        hints: ['Say the letters out loud.', 'It starts with SUN.'],
+      },
+      treasure: {
+        title: '[Memory #14 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #14, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Cocoa Cabin] (While testing: rebuild the picture, sun top-left)",
+          image: null,
+        },
+      },
+    },
+    // ── 15 ─────────────────────────────
+    {
+      name: "Cocoa Cabin",
+      landmark: 'cottage',
+      puzzle: {
+        type: 'swap',
+        prompt: 'Tap two tiles to swap them until the picture is whole.',
+        image: null, // a square photo works best
+        grid: 3,
+        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+      },
+      treasure: {
+        title: '[Memory #15 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #15, in two or three sentences.]',
+        rune: "W", // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Kite Ridge] (While testing: the answer is: paris)",
+          image: null,
+        },
+      },
+    },
+    // ── 16 ─────────────────────────────
+    {
+      name: "Kite Ridge",
+      landmark: 'balloon',
+      puzzle: {
+        type: 'text',
+        prompt: 'The chest is locked with a word. What is it?',
+        answers: ["paris"],
+        hints: ['Read your clue again.', 'It starts with "P".'],
+      },
+      treasure: {
+        title: '[Memory #16 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #16, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Firefly Park] (While testing: the code is 4329)",
+          image: null,
+        },
+      },
+    },
+    // ── 17 ─────────────────────────────
+    {
+      name: "Firefly Park",
+      landmark: 'bench',
+      puzzle: {
+        type: 'code',
+        prompt: 'A four-dial lock holds the chest shut.',
+        answer: '4329',
+        hints: ['Think of a date: day then month.', 'It starts with 43.'],
+      },
+      treasure: {
+        title: '[Memory #17 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #17, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Cupcake Corner] (While testing: pick Option C)",
+          image: null,
+        },
+      },
+    },
+    // ── 18 ─────────────────────────────
+    {
+      name: "Cupcake Corner",
+      landmark: 'cake',
+      puzzle: {
+        type: 'choice',
+        prompt: 'Which one is it?',
         options: [
           { label: 'Option A', image: null },
           { label: 'Option B', image: null },
@@ -95,71 +440,338 @@ export default {
           { label: 'Option D', image: null },
         ],
         answer: 2, // index into options, starting at 0
-        hints: ['It was not A.', 'Third time lucky.'],
+        hints: ['Trust your first instinct.', 'It is option C.'],
       },
       treasure: {
-        title: '[Memory #3 title]',
+        title: '[Memory #18 title]',
         image: null,
-        memory: '[Placeholder: the story behind this memory.]',
-        rune: 'I',
+        memory: '[Placeholder: the story behind memory #18, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
         clue: {
-          text: '[Placeholder clue] A photo at the lake fell to pieces. Put it back together. (While testing: the sun goes top-left)',
+          text: "[Placeholder clue for Seashell Bay] (While testing: the word is COFFEE)",
           image: null,
         },
       },
     },
+    // ── 19 ─────────────────────────────
     {
-      id: 'lake',
-      name: 'Crystal Lake',
+      name: "Seashell Bay",
+      landmark: 'palms',
+      puzzle: {
+        type: 'scramble',
+        prompt: 'Unscramble the letters.',
+        answer: 'COFFEE',
+        hints: ['Say the letters out loud.', 'It starts with COF.'],
+      },
+      treasure: {
+        title: '[Memory #19 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #19, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Breezy Mill] (While testing: rebuild the picture, sun top-left)",
+          image: null,
+        },
+      },
+    },
+    // ── 20 ─────────────────────────────
+    {
+      name: "Breezy Mill",
+      landmark: 'windmill',
       puzzle: {
         type: 'swap',
         prompt: 'Tap two tiles to swap them until the picture is whole.',
         image: null, // a square photo works best
         grid: 3,
-        hints: ['Start with the corners.', 'The sun sits in the top-left corner and the heart in the middle.'],
+        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
       },
       treasure: {
-        title: '[Memory #4 title]',
+        title: '[Memory #20 title]',
         image: null,
-        memory: '[Placeholder: the story behind this memory.]',
-        rune: 'L',
+        memory: '[Placeholder: the story behind memory #20, in two or three sentences.]',
+        rune: "A", // a letter for the castle gate, or null
         clue: {
-          text: '[Placeholder clue] The waterfall spirit scrambled your favourite breakfast. (While testing: PANCAKES)',
+          text: "[Placeholder clue for Lantern Rock] (While testing: the answer is: sunset)",
           image: null,
         },
       },
     },
+    // ── 21 ─────────────────────────────
     {
-      id: 'falls',
-      name: 'Whisper Falls',
+      name: "Lantern Rock",
+      landmark: 'lighthouse',
       puzzle: {
-        type: 'scramble',
-        prompt: 'Unscramble the word to calm the falls.',
-        answer: 'PANCAKES',
-        hints: ['Best with syrup.', 'It starts with PAN.'],
+        type: 'text',
+        prompt: 'The chest is locked with a word. What is it?',
+        answers: ["sunset"],
+        hints: ['Read your clue again.', 'It starts with "S".'],
       },
       treasure: {
-        title: '[Memory #5 title]',
+        title: '[Memory #21 title]',
         image: null,
-        memory: '[Placeholder: the story behind this memory.]',
-        rune: 'E',
+        memory: '[Placeholder: the story behind memory #21, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
         clue: {
-          text: 'You hold five runes now. Arrange them at the castle gate.',
+          text: "[Placeholder clue for Swan Lake] (While testing: the code is 5014)",
+          image: null,
+        },
+      },
+    },
+    // ── 22 ─────────────────────────────
+    {
+      name: "Swan Lake",
+      landmark: 'lake',
+      puzzle: {
+        type: 'code',
+        prompt: 'A four-dial lock holds the chest shut.',
+        answer: '5014',
+        hints: ['Think of a date: day then month.', 'It starts with 50.'],
+      },
+      treasure: {
+        title: '[Memory #22 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #22, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Rainbow Falls] (While testing: pick Option D)",
+          image: null,
+        },
+      },
+    },
+    // ── 23 ─────────────────────────────
+    {
+      name: "Rainbow Falls",
+      landmark: 'falls',
+      puzzle: {
+        type: 'choice',
+        prompt: 'Which one is it?',
+        options: [
+          { label: 'Option A', image: null },
+          { label: 'Option B', image: null },
+          { label: 'Option C', image: null },
+          { label: 'Option D', image: null },
+        ],
+        answer: 3, // index into options, starting at 0
+        hints: ['Trust your first instinct.', 'It is option D.'],
+      },
+      treasure: {
+        title: '[Memory #23 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #23, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Cozy Cottage] (While testing: the word is KITTEN)",
+          image: null,
+        },
+      },
+    },
+    // ── 24 ─────────────────────────────
+    {
+      name: "Cozy Cottage",
+      landmark: 'cottage',
+      puzzle: {
+        type: 'scramble',
+        prompt: 'Unscramble the letters.',
+        answer: 'KITTEN',
+        hints: ['Say the letters out loud.', 'It starts with KIT.'],
+      },
+      treasure: {
+        title: '[Memory #24 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #24, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Sky Field] (While testing: rebuild the picture, sun top-left)",
+          image: null,
+        },
+      },
+    },
+    // ── 25 ─────────────────────────────
+    {
+      name: "Sky Field",
+      landmark: 'balloon',
+      puzzle: {
+        type: 'swap',
+        prompt: 'Tap two tiles to swap them until the picture is whole.',
+        image: null, // a square photo works best
+        grid: 3,
+        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+      },
+      treasure: {
+        title: '[Memory #25 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #25, in two or three sentences.]',
+        rune: "Y", // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Sunset Bench] (While testing: the answer is: mango)",
+          image: null,
+        },
+      },
+    },
+    // ── 26 ─────────────────────────────
+    {
+      name: "Sunset Bench",
+      landmark: 'bench',
+      puzzle: {
+        type: 'text',
+        prompt: 'The chest is locked with a word. What is it?',
+        answers: ["mango"],
+        hints: ['Read your clue again.', 'It starts with "M".'],
+      },
+      treasure: {
+        title: '[Memory #26 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #26, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Sweet Spot] (While testing: the code is 5699)",
+          image: null,
+        },
+      },
+    },
+    // ── 27 ─────────────────────────────
+    {
+      name: "Sweet Spot",
+      landmark: 'cake',
+      puzzle: {
+        type: 'code',
+        prompt: 'A four-dial lock holds the chest shut.',
+        answer: '5699',
+        hints: ['Think of a date: day then month.', 'It starts with 56.'],
+      },
+      treasure: {
+        title: '[Memory #27 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #27, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Coconut Corner] (While testing: pick Option A)",
+          image: null,
+        },
+      },
+    },
+    // ── 28 ─────────────────────────────
+    {
+      name: "Coconut Corner",
+      landmark: 'palms',
+      puzzle: {
+        type: 'choice',
+        prompt: 'Which one is it?',
+        options: [
+          { label: 'Option A', image: null },
+          { label: 'Option B', image: null },
+          { label: 'Option C', image: null },
+          { label: 'Option D', image: null },
+        ],
+        answer: 0, // index into options, starting at 0
+        hints: ['Trust your first instinct.', 'It is option A.'],
+      },
+      treasure: {
+        title: '[Memory #28 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #28, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Flour Mill Farm] (While testing: the word is RAINBOW)",
+          image: null,
+        },
+      },
+    },
+    // ── 29 ─────────────────────────────
+    {
+      name: "Flour Mill Farm",
+      landmark: 'windmill',
+      puzzle: {
+        type: 'scramble',
+        prompt: 'Unscramble the letters.',
+        answer: 'RAINBOW',
+        hints: ['Say the letters out loud.', 'It starts with RAI.'],
+      },
+      treasure: {
+        title: '[Memory #29 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #29, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Beacon Hill] (While testing: rebuild the picture, sun top-left)",
+          image: null,
+        },
+      },
+    },
+    // ── 30 ─────────────────────────────
+    {
+      name: "Beacon Hill",
+      landmark: 'lighthouse',
+      puzzle: {
+        type: 'swap',
+        prompt: 'Tap two tiles to swap them until the picture is whole.',
+        image: null, // a square photo works best
+        grid: 3,
+        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+      },
+      treasure: {
+        title: '[Memory #30 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #30, in two or three sentences.]',
+        rune: "S", // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Wishing Pond] (While testing: the answer is: music)",
+          image: null,
+        },
+      },
+    },
+    // ── 31 ─────────────────────────────
+    {
+      name: "Wishing Pond",
+      landmark: 'lake',
+      puzzle: {
+        type: 'text',
+        prompt: 'The chest is locked with a word. What is it?',
+        answers: ["music"],
+        hints: ['Read your clue again.', 'It starts with "M".'],
+      },
+      treasure: {
+        title: '[Memory #31 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #31, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "[Placeholder clue for Misty Mountain] (While testing: the code is 6384)",
+          image: null,
+        },
+      },
+    },
+    // ── 32 ─────────────────────────────
+    {
+      name: "Misty Mountain",
+      landmark: 'falls',
+      puzzle: {
+        type: 'code',
+        prompt: 'A four-dial lock holds the chest shut.',
+        answer: '6384',
+        hints: ['Think of a date: day then month.', 'It starts with 63.'],
+      },
+      treasure: {
+        title: '[Memory #32 title]',
+        image: null,
+        memory: '[Placeholder: the story behind memory #32, in two or three sentences.]',
+        rune: null, // a letter for the castle gate, or null
+        clue: {
+          text: "You have every rune now. Follow the road to Heart Castle and arrange them at the gate.",
           image: null,
         },
       },
     },
   ],
 
-  // The final gate. She arranges the runes from every treasure into this word.
+  // Treasure 33. She arranges the runes from the chests into this word.
   castle: {
-    id: 'castle',
     name: 'Heart Castle',
     puzzle: {
       type: 'runes',
       prompt: 'The gate has a slot for every rune you found. Put them in the right order.',
-      answer: 'SMILE',
-      hints: ['It is the thing you do best.', 'S, M, I, L, E.'],
+      answer: 'ALWAYS',
+      hints: ['How long you will be loved.', 'A, L, W, A, Y, S.'],
     },
   },
 
@@ -167,10 +779,10 @@ export default {
     levelUpText: 'Level 33 unlocked',
     letterTitle: 'Happy 33rd birthday',
     letter: [
-      '[Placeholder: your letter to her. Write as many paragraphs as you like.]',
+      '[Placeholder: your letter to Joy. Write as many paragraphs as you like.]',
       '[Each item in this list becomes its own paragraph.]',
       '[End with something only the two of you would understand.]',
     ],
-    signature: '[Your name]',
+    signature: 'Tanmoy',
   },
 };
