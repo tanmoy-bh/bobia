@@ -100,6 +100,15 @@ export function buildWorld(zones) {
   }
 
   const castle = { x: C.x, y: C.y + 175, k: N + 1, s: total };
+  // birthday party in front of the castle
+  const decor = [
+    ['balloons', -242, 188, 0.85], ['balloons', 242, 188, 0.85],
+    ['cakeTable', -178, 198, 0.9], ['cakeTable', 178, 198, 0.9],
+    ['giftBlue', -108, 236, 0.95], ['giftPurple', 108, 236, 0.95],
+    ['giftPink', -150, 250, 0.8], ['giftPink', 150, 250, 0.8],
+    ['giftGold', -86, 272, 0.7], ['giftBlue', 86, 272, 0.7],
+  ].map(([sprite, dx, dy, k]) => ({ sprite, x: C.x + dx, y: C.y + dy, k }));
+  const plaza = { x: C.x, y: C.y + 238, rx: 270, ry: 82 };
   const camp = { x: C.x + 200, y: C.y + R0 + 105 };
   const start = { x: pts[0].x + 10, y: pts[0].y };
 
@@ -139,7 +148,8 @@ export function buildWorld(zones) {
   const blockers = [
     ...chests.map((c) => ({ x: c.landmark.x, y: c.landmark.y, r: 150 })),
     ...chests.map((c) => ({ x: c.x, y: c.y, r: 70 })),
-    { x: castle.x, y: castle.y - 120, r: 300 },
+    { x: castle.x, y: castle.y - 120, r: 330 },
+    { x: plaza.x, y: plaza.y, r: 300 },
     { x: camp.x, y: camp.y, r: 150 },
   ];
   const clear = (p, pad) => {
@@ -188,5 +198,5 @@ export function buildWorld(zones) {
     if (Math.hypot(x - C.x, y - C.y) > islandR(a) + 60) waves.push({ x, y, ph: rand() * 6 });
   }
 
-  return { pts, s, total, roadPath, chests, castle, camp, start, gate, nearest, zoneOfS, trees, flowers, puffs, waves };
+  return { pts, s, total, roadPath, chests, castle, decor, plaza, camp, start, gate, nearest, zoneOfS, trees, flowers, puffs, waves };
 }

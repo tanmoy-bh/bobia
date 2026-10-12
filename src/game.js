@@ -108,7 +108,16 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
         drawSprite(ctx, sprites[open ? 'chestOpen' : 'chest'], c.x, c.y, 0.85);
       },
     })),
-    { y: world.castle.y, x: world.castle.x, r: 260, draw: () => drawSprite(ctx, sprites[getProgress().done ? 'castleOpen' : 'castle'], world.castle.x, world.castle.y, 1) },
+    { y: world.castle.y, x: world.castle.x, r: 420, draw: () => drawSprite(ctx, sprites[getProgress().done ? 'castleOpen' : 'castle'], world.castle.x, world.castle.y, 1) },
+    ...world.decor.map((d) => ({
+      y: d.y,
+      x: d.x,
+      r: 120,
+      draw: () => {
+        const bob = d.sprite === 'balloons' && !reduceMotion ? Math.sin(performance.now() / 700 + d.x) * 4 : 0;
+        drawSprite(ctx, sprites[d.sprite], d.x, d.y + bob, d.k);
+      },
+    })),
     { y: world.camp.y, x: world.camp.x, r: 160, draw: () => drawSprite(ctx, sprites.camp, world.camp.x, world.camp.y, 0.9) },
   ];
 
@@ -289,6 +298,23 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       }
     }
 
+    // party plaza in front of the castle
+    const pz = world.plaza;
+    if (vis(pz.x, pz.y, pz.rx + 20)) {
+      ctx.beginPath();
+      ctx.ellipse(pz.x, pz.y, pz.rx, pz.ry, 0, 0, Math.PI * 2);
+      ctx.fillStyle = '#F1E2C2';
+      ctx.fill();
+      ctx.lineWidth = 6;
+      ctx.strokeStyle = '#3B2414';
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.ellipse(pz.x, pz.y, pz.rx - 34, pz.ry - 22, 0, 0, Math.PI * 2);
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = '#DCC79F';
+      ctx.stroke();
+    }
+
     // road
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
@@ -307,6 +333,21 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     ctx.stroke(world.roadPath);
     ctx.setLineDash([]);
 
+    // pink carpet up to the castle gate
+    if (vis(world.gate.x, world.gate.y + 60, 120)) {
+      const gx = world.gate.x;
+      const top = world.castle.y + 20;
+      const bot = world.plaza.y + world.plaza.ry - 6;
+      ctx.fillStyle = '#E84A7F';
+      ctx.fillRect(gx - 26, top, 52, bot - top);
+      ctx.fillStyle = '#FFC83D';
+      ctx.fillRect(gx - 26, top, 5, bot - top);
+      ctx.fillRect(gx + 21, top, 5, bot - top);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = '#3B2414';
+      ctx.strokeRect(gx - 26, top, 52, bot - top);
+    }
+
     // things standing on the ground, back to front
     const items = statics.filter((o) => vis(o.x, o.y, o.r));
     items.push({ y: me.y, draw: () => drawGirl(ctx, me.x, me.y, me.dir, me.phase, me.moving, now / 1000) });
@@ -319,7 +360,29 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       if (!zoneRevealed(c.k) || !vis(c.landmark.x, c.landmark.y, 200)) continue;
       sign(c.landmark.x, c.landmark.y + 22, names[c.k]);
     }
-    if (zoneRevealed(N + 1) && vis(world.castle.x, world.castle.y, 300)) sign(world.castle.x, world.castle.y + 20, names[N + 1]);
+    if (zoneRevealed(N + 1) && vis(world.castle.x, world.castle.y, 300)) sign(world.castle.x, world.plaza.y + world.plaza.ry + 8, names[N + 1]);
+    if (p.done && vis(world.castle.x, world.castle.y - 200, 400)) {
+      for (let i = 0; i < 16; i++) {
+        const a = (i / 16) * Math.PI * 2;
+        const x = world.castle.x + Math.cos(a) * (230 + (i % 3) * 30);
+        const y = world.castle.y - 190 + Math.sin(a) * (170 + (i % 2) * 30);
+        const tw = 0.5 + 0.5 * Math.sin(now / 300 + i * 1.7);
+        ctx.save();
+        ctx.translate(x, y);
+        ctx.rotate(now / 1500 + i);
+        ctx.globalAlpha = tw;
+        ctx.fillStyle = i % 2 ? '#FFE07A' : '#FFFFFF';
+        ctx.beginPath();
+        for (let j = 0; j < 8; j++) {
+          const r = j % 2 ? 4 : 11 * (0.6 + tw * 0.4);
+          ctx.lineTo(Math.cos((j * Math.PI) / 4) * r, Math.sin((j * Math.PI) / 4) * r);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
     if (!p.done) {
       const cur = p.solved + 1;
       if (cur <= N) {

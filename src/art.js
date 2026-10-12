@@ -20,28 +20,138 @@ function palm(x, lean, sc = 1) {
 }
 
 function castleSVG(open) {
-  const flag = (x, y) => `<path d="M${x} ${y} V${y - 34}" ${s(4)}/><path d="M${x} ${y - 34} L${x + 34} ${y - 25} L${x} ${y - 14} Z" fill="#FFC83D" ${s(3)}/>`;
-  let cren = '';
-  for (let x = -128; x < 128; x += 26) cren += `<rect x="${x}" y="-128" width="16" height="18" fill="#E9DCC6" ${s(4)}/>`;
+  const flag = (x, y, c = '#FFC83D') => `<path d="M${x} ${y} V${y - 36}" ${s(4)}/><path d="M${x} ${y - 36} L${x + 36} ${y - 26} L${x} ${y - 16} Z" fill="${c}" ${s(3)}/>`;
+  const crenels = (x0, x1, y, fill) => {
+    let d = '';
+    for (let x = x0; x <= x1 - 16; x += 26) d += `<rect x="${x}" y="${y - 18}" width="16" height="20" fill="${fill}" ${s(4)}/>`;
+    return d;
+  };
+  const heartPath = (x, y, k) => `M${x} ${y + 9 * k} c ${-12 * k} ${-9 * k} ${-12 * k} ${-21 * k} ${-5 * k} ${-21 * k} c ${3 * k} 0 ${5 * k} ${2 * k} ${5 * k} ${4 * k} c 0 ${-2 * k} ${2 * k} ${-4 * k} ${5 * k} ${-4 * k} c ${7 * k} 0 ${7 * k} ${12 * k} ${-5 * k} ${21 * k} Z`;
+  const heartWin = (x, y, k = 1) => `<path d="${heartPath(x, y, k)}" fill="#FFE07A" ${s(3)}/>`;
+  const bricks = (x0, x1, y0, y1) => {
+    let d = '';
+    for (let y = y0 + 22, row = 0; y < y1 - 8; y += 24, row++) {
+      for (let x = x0 + 14 + (row % 2) * 22; x < x1 - 20; x += 46) d += `M${x} ${y} h18 `;
+    }
+    return `<path d="${d}" stroke="#CDBBA0" stroke-width="3" stroke-linecap="round"/>`;
+  };
+  const balloon = (x, y, c) => `<path d="M${x} ${y + 26} q 4 14 -2 26" fill="none" ${s(2)}/><ellipse cx="${x}" cy="${y}" rx="15" ry="18" fill="${c}" ${s(3)}/><path d="M${x - 4} ${y + 17} l4 6 l4 -6 Z" fill="${c}" ${s(2)}/><ellipse cx="${x - 5}" cy="${y - 6}" rx="3.5" ry="6" fill="#fff" opacity=".6"/>`;
+  const bunting = (() => {
+    const pts = [];
+    const cols = ['#E84A7F', '#FFC83D', '#5EC8F2', '#C58BF2', '#79C24A'];
+    let d = '';
+    for (let i = 0; i <= 12; i++) {
+      const t = i / 12;
+      const x = -150 + 300 * t;
+      const y = -148 + Math.sin(t * Math.PI) * 26;
+      pts.push([x, y]);
+    }
+    const line = `<path d="M${pts.map((p) => p.join(' ')).join(' L')}" fill="none" ${s(2.5)}/>`;
+    for (let i = 0; i < pts.length - 1; i++) {
+      const [x1, y1] = pts[i];
+      const [x2, y2] = pts[i + 1];
+      d += `<path d="M${x1 + 2} ${y1} L${x2 - 2} ${y2} L${(x1 + x2) / 2} ${(y1 + y2) / 2 + 20} Z" fill="${cols[i % cols.length]}" ${s(2.5)}/>`;
+    }
+    return line + d;
+  })();
+  const banner = (x) => `<path d="M${x - 15} -116 h30 v66 l-15 -11 l-15 11 Z" fill="#E84A7F" ${s(4)}/><path d="${heartPath(x, -92, 0.7)}" fill="#FFE07A" ${s(2)}/>`;
   const gate = open
-    ? `<path d="M-38 0 V-50 a38 38 0 0 1 76 0 V0 Z" fill="#2A1A0E" ${s()}/><path d="M-30 0 V-48 a30 30 0 0 1 60 0 V0 Z" fill="#FFE07A"/><path d="M-20 0 V-44 a20 20 0 0 1 40 0 V0 Z" fill="#FFF6C8"/>`
-    : `<path d="M-38 0 V-50 a38 38 0 0 1 76 0 V0 Z" fill="#8A5A2B" ${s()}/><path d="M-19 -2 V-80 M0 -2 V-88 M19 -2 V-80 M-36 -34 H36" ${s(4)}/>`;
+    ? `<path d="M-44 0 V-56 a44 44 0 0 1 88 0 V0 Z" fill="#2A1A0E" ${s()}/>
+       <path d="M-36 0 V-54 a36 36 0 0 1 72 0 V0 Z" fill="#FFE07A"/>
+       <path d="M-24 0 V-50 a24 24 0 0 1 48 0 V0 Z" fill="#FFF6C8"/>`
+    : `<path d="M-44 0 V-56 a44 44 0 0 1 88 0 V0 Z" fill="#9C6430" ${s()}/>
+       <path d="M0 -98 V0 M-22 -88 V0 M22 -88 V0" ${s(3)}/>
+       <circle cx="-9" cy="-44" r="4" fill="#FFC83D" ${s(2)}/><circle cx="9" cy="-44" r="4" fill="#FFC83D" ${s(2)}/>`;
+  const rose = (x) => `<g transform="translate(${x} 0)"><ellipse cx="0" cy="-14" rx="30" ry="20" fill="#4E9F3D" ${s(4)}/><circle cx="-12" cy="-20" r="5" fill="#E84A7F" ${s(2)}/><circle cx="6" cy="-26" r="5" fill="#FF8FB8" ${s(2)}/><circle cx="14" cy="-12" r="5" fill="#E84A7F" ${s(2)}/><circle cx="-2" cy="-10" r="4" fill="#FFC83D" ${s(2)}/></g>`;
   return `
-    <ellipse cx="0" cy="6" rx="200" ry="30" fill="#000" opacity=".15"/>
-    ${cren}
-    <rect x="-130" y="-114" width="260" height="114" fill="#E9DCC6" ${s()}/>
-    <rect x="-46" y="-214" width="92" height="104" fill="#F3E9D8" ${s()}/>
-    <path d="M-56 -212 L0 -294 L56 -212 Z" fill="#E84A7F" ${s()}/>
-    ${flag(0, -292)}
-    <rect x="-172" y="-176" width="62" height="176" fill="#F3E9D8" ${s()}/>
-    <path d="M-180 -174 L-141 -244 L-102 -174 Z" fill="#E84A7F" ${s()}/>
-    ${flag(-141, -242)}
-    <rect x="110" y="-176" width="62" height="176" fill="#F3E9D8" ${s()}/>
-    <path d="M102 -174 L141 -244 L180 -174 Z" fill="#E84A7F" ${s()}/>
-    ${flag(141, -242)}
-    <path d="M-148 -120 v-22 a7 7 0 0 1 14 0 v22 Z M134 -120 v-22 a7 7 0 0 1 14 0 v22 Z M-8 -160 v-26 a8 8 0 0 1 16 0 v26 Z" fill="#5A3A22"/>
-    <path d="M0 -112 c -10 -14 -30 -4 -18 12 L0 -84 L18 -100 c 12 -16 -8 -26 -18 -12 Z" fill="#E84A7F" ${s(3)}/>
-    ${gate}`;
+    <ellipse cx="0" cy="10" rx="250" ry="34" fill="#000" opacity=".15"/>
+
+    <!-- tower balloons -->
+    ${balloon(-226, -330, '#FF8FB8')}${balloon(-198, -350, '#FFC83D')}${balloon(-176, -326, '#5EC8F2')}
+    ${balloon(176, -326, '#C58BF2')}${balloon(198, -350, '#FF8FB8')}${balloon(226, -330, '#FFC83D')}
+
+    <!-- keep -->
+    <rect x="-58" y="-262" width="116" height="150" fill="#F6EEDF" ${s()}/>
+    ${crenels(-58, 58, -262, '#F6EEDF')}
+    <path d="M-70 -270 L0 -372 L70 -270 Z" fill="#E84A7F" ${s()}/>
+    <path d="M-46 -270 L0 -340 M0 -270 V-372 M46 -270 L0 -340" stroke="#C2386A" stroke-width="4"/>
+    <circle cx="0" cy="-372" r="7" fill="#FFC83D" ${s(3)}/>
+    ${flag(0, -378, '#FF8FB8')}
+    <path d="M-16 -196 v-26 a16 16 0 0 1 32 0 v26 Z" fill="#5A3A22" ${s(4)}/>
+    ${heartWin(0, -216, 0.8)}
+
+    <!-- side towers -->
+    ${[-1, 1]
+      .map(
+        (d) => `
+      <rect x="${d * 175 - 38}" y="-212" width="76" height="212" fill="#F6EEDF" ${s()}/>
+      ${bricks(d * 175 - 38, d * 175 + 38, -212, 0)}
+      ${crenels(d * 175 - 44, d * 175 + 44, -212, '#F6EEDF')}
+      <rect x="${d * 175 - 44}" y="-214" width="88" height="12" fill="#E9DCC6" ${s(4)}/>
+      <path d="M${d * 175 - 50} -226 L${d * 175} -310 L${d * 175 + 50} -226 Z" fill="#E84A7F" ${s()}/>
+      <path d="M${d * 175 - 25} -226 L${d * 175} -290 L${d * 175 + 25} -226" fill="none" stroke="#C2386A" stroke-width="4"/>
+      <circle cx="${d * 175}" cy="-310" r="6" fill="#FFC83D" ${s(3)}/>
+      ${flag(d * 175, -316)}
+      ${heartWin(d * 175, -160, 1)}
+      <path d="M${d * 175 - 11} -60 v-24 a11 11 0 0 1 22 0 v24 Z" fill="#5A3A22" ${s(3)}/>`,
+      )
+      .join('')}
+
+    <!-- front wall -->
+    ${crenels(-137, 137, -128, '#EFE4D0')}
+    <rect x="-137" y="-130" width="274" height="130" fill="#EFE4D0" ${s()}/>
+    ${bricks(-137, 137, -130, 0)}
+    ${bunting}
+    ${banner(-92)}${banner(92)}
+
+    <!-- gate -->
+    <path d="M-56 0 V-62 a56 56 0 0 1 112 0 V0" fill="#E2D2B6" ${s(4)}/>
+    ${gate}
+    <path d="M-44 0 V-56 a44 44 0 0 1 88 0 V0" fill="none" stroke="#FFC83D" stroke-width="5"/>
+    <path d="${heartPath(0, -134, 1.15)}" fill="#E84A7F" ${s(3)}/>
+
+    <!-- steps + roses -->
+    <rect x="-62" y="0" width="124" height="12" rx="3" fill="#D9CBB2" ${s(4)}/>
+    <rect x="-74" y="10" width="148" height="12" rx="3" fill="#CDBBA0" ${s(4)}/>
+    ${rose(-118)}${rose(118)}`;
+}
+
+function giftSVG(box, ribbon) {
+  return `
+    <ellipse cx="0" cy="3" rx="34" ry="7" fill="#000" opacity=".16"/>
+    <rect x="-26" y="-44" width="52" height="44" rx="4" fill="${box}" ${s(4)}/>
+    <rect x="-31" y="-54" width="62" height="13" rx="4" fill="${box}" ${s(4)}/>
+    <rect x="-6" y="-54" width="12" height="54" fill="${ribbon}" ${s(3)}/>
+    <path d="M0 -55 c -10 -18 -30 -10 -18 0 Z M0 -55 c 10 -18 30 -10 18 0 Z" fill="${ribbon}" ${s(3)}/>
+    <circle cx="0" cy="-55" r="4" fill="${ribbon}" ${s(2)}/>`;
+}
+
+function cakeTableSVG() {
+  return `
+    <ellipse cx="0" cy="4" rx="58" ry="10" fill="#000" opacity=".16"/>
+    <rect x="-6" y="-46" width="12" height="46" fill="#C48A4A" ${s(3)}/>
+    <path d="M-52 -48 h104 l-6 30 q -46 12 -92 0 Z" fill="#FFFFFF" ${s(4)}/>
+    <path d="M-46 -26 q 10 8 20 0 q 10 8 20 0 q 10 8 20 0 q 10 8 20 0 q 10 8 20 0" fill="none" stroke="#FF8FB8" stroke-width="3"/>
+    <ellipse cx="0" cy="-48" rx="54" ry="10" fill="#FFF3F8" ${s(4)}/>
+    <rect x="-34" y="-86" width="68" height="36" rx="7" fill="#FFB3CF" ${s(4)}/>
+    <path d="M-34 -78 q 8 10 17 0 q 8 10 17 0 q 8 10 17 0 q 8 10 17 0 V-86 H-34 Z" fill="#FFFFFF" ${s(3)}/>
+    <rect x="-22" y="-112" width="44" height="28" rx="6" fill="#FFF3C4" ${s(4)}/>
+    <path d="M-22 -104 q 6 8 11 0 q 6 8 11 0 q 6 8 11 0 q 6 8 11 0 V-112 H-22 Z" fill="#E84A7F" ${s(3)}/>
+    ${[-10, 0, 10]
+      .map((x, i) => `<rect x="${x - 3}" y="-128" width="6" height="17" rx="2" fill="${['#7FD3F7', '#C58BF2', '#79C24A'][i]}" ${s(2)}/>
+        <path d="M${x} -130 c -6 -7 -2 -13 0 -17 c 2 4 6 10 0 17 Z" fill="#FF8A2B" ${s(1.5)}/>`)
+      .join('')}
+    <ellipse cx="-44" cy="-54" rx="7" ry="3" fill="#FFC83D" ${s(2)}/>
+    <ellipse cx="40" cy="-54" rx="7" ry="3" fill="#FF8FB8" ${s(2)}/>`;
+}
+
+function balloonsSVG() {
+  const b = (x, y, c, rot) => `<path d="M${x} ${y + 26} Q ${x * 0.5} ${(y + 26) / 2 - 10} 0 -10" fill="none" ${s(2)}/>
+    <g transform="rotate(${rot} ${x} ${y})"><ellipse cx="${x}" cy="${y}" rx="20" ry="24" fill="${c}" ${s(3)}/><path d="M${x - 5} ${y + 23} l5 7 l5 -7 Z" fill="${c}" ${s(2)}/><ellipse cx="${x - 7}" cy="${y - 8}" rx="4.5" ry="8" fill="#fff" opacity=".6"/></g>`;
+  return `
+    <ellipse cx="0" cy="2" rx="16" ry="5" fill="#000" opacity=".16"/>
+    ${b(-30, -120, '#5EC8F2', -12)}${b(30, -122, '#C58BF2', 12)}${b(0, -150, '#E84A7F', 0)}${b(-14, -95, '#FFC83D', -6)}${b(18, -98, '#79C24A', 8)}
+    <path d="M-8 -10 h16 l-3 10 h-10 Z" fill="#A8743A" ${s(3)}/>`;
 }
 
 function chestSVG(open) {
@@ -64,8 +174,14 @@ function chestSVG(open) {
 const DEFS = {
   chest: [chestSVG(false), -48, -94, 96, 106],
   chestOpen: [chestSVG(true), -48, -94, 96, 106],
-  castle: [castleSVG(false), -205, -340, 410, 380],
-  castleOpen: [castleSVG(true), -205, -340, 410, 380],
+  castle: [castleSVG(false), -265, -420, 530, 465],
+  castleOpen: [castleSVG(true), -265, -420, 530, 465],
+  giftPink: [giftSVG('#E84A7F', '#FFC83D'), -40, -78, 80, 90],
+  giftBlue: [giftSVG('#5EC8F2', '#FFFFFF'), -40, -78, 80, 90],
+  giftPurple: [giftSVG('#C58BF2', '#FF8FB8'), -40, -78, 80, 90],
+  giftGold: [giftSVG('#FFC83D', '#E84A7F'), -40, -78, 80, 90],
+  cakeTable: [cakeTableSVG(), -62, -152, 124, 164],
+  balloons: [balloonsSVG(), -60, -182, 120, 192],
 
   tree: [
     `<ellipse cx="0" cy="4" rx="34" ry="8" fill="#000" opacity=".15"/>
