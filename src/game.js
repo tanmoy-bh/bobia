@@ -1,7 +1,7 @@
 // The walkable island: canvas rendering, camera, movement along the road,
 // clouds over every zone she hasn't reached, and chest proximity.
 
-import { WORLD, C, ROAD_HALF, CHEST_REACH, islandPath, islandR } from './world.js';
+import { WORLD, C, ISLE, ROAD_HALF, CHEST_REACH, islandPath, islandR } from './world.js';
 import { drawSprite } from './art.js';
 import { drawGirl } from './character.js';
 import { createHabitats } from './habitats.js';
@@ -18,7 +18,7 @@ if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D
   };
 }
 
-const SPEED = 290; // world units per second
+const SPEED = 330; // world units per second
 const CLEAR_MS = 1900;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -192,7 +192,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
 
     // camera
     const target = overview
-      ? { x: C.x, y: C.y, scale: Math.min(vw, vh - 120) / (2 * 1720) }
+      ? { x: C.x, y: C.y, scale: Math.min(vw, vh - 120) / (2 * (ISLE + 160)) }
       : { x: me.x, y: me.y - 50, scale: baseScale };
     const f = 1 - Math.pow(0.0015, dt);
     cam.x += (target.x - cam.x) * f;

@@ -4,8 +4,9 @@
 
 import { HABITAT_FOR, HABITAT_R } from './habitats.js';
 
-export const WORLD = 3400;
+export const WORLD = 4200;
 export const C = { x: WORLD / 2, y: WORLD / 2 }; // island centre (castle)
+export const ISLE = 1950; // island radius
 export const ROAD_HALF = 26; // how far from the road's centre line she can walk
 export const CHEST_REACH = 105; // how close she must be to open a chest
 
@@ -20,7 +21,7 @@ function rng(seed) {
 }
 
 export function islandR(a) {
-  return 1560 + 42 * Math.sin(3 * a) + 26 * Math.sin(7 * a + 1) + 14 * Math.sin(11 * a + 2);
+  return ISLE + 42 * Math.sin(3 * a) + 26 * Math.sin(7 * a + 1) + 14 * Math.sin(11 * a + 2);
 }
 
 export function islandPath(inset = 0, step = 0.02) {
@@ -42,8 +43,8 @@ export function buildWorld(zones) {
   const rand = rng(33);
 
   // ── Road: an inward spiral from the south shore to the castle gate ──
-  const R0 = 1300;
-  const R1 = 330;
+  const R0 = 1680;
+  const R1 = 420;
   const TURNS = 2;
   const SPAN = TURNS * Math.PI * 2;
   const b = (R0 - R1) / SPAN;
@@ -94,8 +95,8 @@ export function buildWorld(zones) {
     const r = dist(P, C);
     // landmark side: alternate, but stay on land near the shore and clear of the castle
     let side = k % 2 ? 1 : -1;
-    if (r > 1150) side = -1;
-    if (r - 215 < 470 && side === -1) side = 1;
+    if (r > R0 - 150) side = -1;
+    if (r - 215 < R1 + 140 && side === -1) side = 1;
     const lm = { x: P.x + n.x * side * 215, y: P.y + n.y * side * 215 };
     const chest = { x: P.x - n.x * side * 60, y: P.y - n.y * side * 60 };
     chests.push({ k, s: sk, road: { x: P.x, y: P.y }, n, t, side, x: chest.x, y: chest.y, landmark: { x: lm.x, y: lm.y, type: zones[k - 1].landmark || 'palms' } });
@@ -207,14 +208,14 @@ export function buildWorld(zones) {
     return blockers.every((b) => Math.hypot(p.x - b.x, p.y - b.y) > b.r + pad);
   };
   const trees = [];
-  for (let i = 0; i < 900 && trees.length < 230; i++) {
+  for (let i = 0; i < 1500 && trees.length < 360; i++) {
     const a = rand() * Math.PI * 2;
     const r = Math.sqrt(rand()) * (islandR(a) - 120);
     const p = { x: C.x + r * Math.cos(a), y: C.y + r * Math.sin(a), k: 0.7 + rand() * 0.45, kind: rand() < 0.18 ? 'pine' : 'round' };
     if (clear(p, 10) && trees.every((t) => Math.hypot(t.x - p.x, t.y - p.y) > 75)) trees.push(p);
   }
   const flowers = [];
-  for (let i = 0; i < 500 && flowers.length < 160; i++) {
+  for (let i = 0; i < 800 && flowers.length < 250; i++) {
     const a = rand() * Math.PI * 2;
     const r = Math.sqrt(rand()) * (islandR(a) - 110);
     const p = { x: C.x + r * Math.cos(a), y: C.y + r * Math.sin(a), c: ['#FFC83D', '#E84A7F', '#FFFFFF', '#C58BF2'][(rand() * 4) | 0] };
@@ -240,7 +241,7 @@ export function buildWorld(zones) {
 
   // sea waves
   const waves = [];
-  for (let i = 0; i < 140; i++) {
+  for (let i = 0; i < 210; i++) {
     const x = rand() * WORLD;
     const y = rand() * WORLD;
     const a = Math.atan2(y - C.y, x - C.x);
