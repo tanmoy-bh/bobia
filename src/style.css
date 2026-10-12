@@ -143,8 +143,11 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
-  padding: max(20px, env(safe-area-inset-top)) 0 calc(var(--sea-h) + 52px);
+  /* the card centres itself with auto margins, so on a short screen it
+     starts at the top instead of spilling off it */
+  justify-content: flex-start;
+  /* leave room above the sea for the cake */
+  padding: max(16px, env(safe-area-inset-top)) 0 calc(var(--sea-h) + 88px);
   overflow: hidden;
   background: linear-gradient(#7fd0ff, #bfe8ff);
 }
@@ -190,6 +193,7 @@ img {
 
 .title-card {
   position: relative;
+  margin-block: auto;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -249,6 +253,8 @@ img {
 /* cake, lambs and birds */
 .icon-btn.title-mute {
   position: absolute;
+  width: 44px;
+  height: 44px;
   z-index: 3;
   top: max(14px, env(safe-area-inset-top));
   right: max(14px, env(safe-area-inset-right));
@@ -627,6 +633,12 @@ img {
   font-family: var(--display);
   font-size: 20px;
   text-shadow: 0 2px 0 var(--ink);
+}
+/* a bigger invisible tap area so a thumb never misses */
+.icon-btn::after {
+  content: '';
+  position: absolute;
+  inset: -3px;
 }
 .icon-btn s {
   position: absolute;
@@ -1946,11 +1958,57 @@ img {
   }
 }
 
-/* phones held sideways */
-@media (max-height: 500px) and (orientation: landscape) {
+/* short phones, e.g. an iPhone SE with Safari's toolbars showing */
+@media (max-height: 760px) and (orientation: portrait) {
   .title-screen {
     --sea-h: 18dvh;
-    padding-bottom: calc(var(--sea-h) + 30px);
+    --k: 0.85;
+    padding-bottom: calc(var(--sea-h) + 84px);
+  }
+  .title-card {
+    gap: 8px;
+  }
+  .title-badge {
+    width: 56px;
+    height: 56px;
+    font-size: 26px;
+  }
+  .title {
+    font-size: min(11.5vw, 7.6dvh);
+  }
+  .subtitle {
+    margin-bottom: 2px;
+    font-size: 16px;
+  }
+}
+
+@media (max-height: 580px) and (orientation: portrait) {
+  .title-badge {
+    display: none;
+  }
+}
+
+/* the keyboard is open while she types the passphrase */
+@media (max-height: 430px) and (max-width: 519px) {
+  .title-badge,
+  .subtitle,
+  .isle {
+    display: none;
+  }
+  .title-screen {
+    --sea-h: 10dvh;
+    padding-bottom: calc(var(--sea-h) + 12px);
+  }
+}
+
+/* phones held sideways */
+@media (max-height: 500px) and (min-width: 520px) and (orientation: landscape) {
+  .title-screen {
+    --sea-h: 16dvh;
+    padding-bottom: calc(var(--sea-h) + 50px);
+  }
+  .title-card {
+    gap: 6px;
   }
   .title-badge {
     display: none;
@@ -1969,7 +2027,7 @@ img {
     height: 80px;
   }
   .cake {
-    width: 64px;
+    width: 56px;
   }
   .map-frame {
     width: min(100vw, 620px);
@@ -2065,6 +2123,28 @@ img {
     width: 420px;
     height: 420px;
     margin: -210px 0 0 -210px;
+  }
+}
+
+/* phones held sideways: tuck the clue into the HUD row so the island
+   keeps most of the short screen */
+@media (max-height: 500px) and (min-width: 640px) and (orientation: landscape) {
+  .game .quest {
+    top: calc(max(10px, env(safe-area-inset-top)) + 8px);
+    left: calc(max(12px, env(safe-area-inset-left)) + 226px);
+    right: calc(max(12px, env(safe-area-inset-right)) + 204px);
+    width: auto;
+    transform: none;
+  }
+}
+
+/* very short landscape screens, e.g. with the browser bars showing */
+@media (max-height: 360px) and (min-width: 520px) and (orientation: landscape) {
+  .subtitle {
+    display: none;
+  }
+  .title {
+    font-size: 34px;
   }
 }
 
