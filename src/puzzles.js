@@ -42,7 +42,8 @@ export const imgSrc = (src, label) => (src ? src : placeholderArt(label));
 // ── text ─────────────────────────────────────────────────────────────────
 function text(root, p, { onSolve, onWrong }) {
   const el = h(`<form class="pz-text" autocomplete="off">
-    <input class="field" type="text" placeholder="Type your answer" aria-label="Your answer" autocapitalize="off" spellcheck="false"/>
+    <input class="field" type="text" placeholder="Type your answer" aria-label="Your answer"
+      autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" enterkeyhint="go"/>
     <button class="btn" type="submit">Unlock</button>
   </form>`);
   const input = el.querySelector('input');
@@ -52,8 +53,11 @@ function text(root, p, { onSolve, onWrong }) {
     const ok = p.answers.some((a) => norm(a) === norm(input.value));
     ok ? onSolve() : (onWrong(), input.select());
   });
+  // When the phone keyboard opens, keep the field in view.
+  input.addEventListener('focus', () => setTimeout(() => input.scrollIntoView({ block: 'center', behavior: 'smooth' }), 350));
   root.append(el);
-  setTimeout(() => input.focus(), 350);
+  // Only auto-focus with a real keyboard; on phones it would cover the clue.
+  if (matchMedia('(hover: hover) and (pointer: fine)').matches) setTimeout(() => input.focus(), 350);
 }
 
 // ── code lock ────────────────────────────────────────────────────────────
@@ -159,7 +163,7 @@ function letters(root, p, { onSolve, onWrong }, pool) {
   const answer = String(p.answer).toUpperCase().replace(/\s/g, '');
   const tiles = shuffle(pool, answer.split('')).map((ch, id) => ({ ch, id, used: false }));
   const slots = Array(answer.length).fill(null);
-  const el = h(`<div class="pz-letters ${p.type === 'runes' ? 'runes' : ''}">
+  const el = h(`<div class="pz-letters ${p.type === 'runes' ? 'runes' : ''}" style="--n:${Math.max(answer.length, pool.length)}">
     <div class="slots"></div><div class="pool"></div>
   </div>`);
   const draw = () => {

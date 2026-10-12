@@ -33,6 +33,24 @@ body {
   color: var(--ink);
   font-family: var(--body);
   overscroll-behavior: none;
+  overflow: hidden;
+  /* game feel on phones: no double-tap zoom, no pinch-zoom of the UI,
+     no text-selection or image callouts on long press */
+  touch-action: pan-x pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+  -webkit-touch-callout: none;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+input {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+button {
+  touch-action: manipulation;
 }
 
 button {
@@ -119,35 +137,47 @@ img {
 /* ── Title screen ────────────────────────────────────────────────────── */
 
 .title-screen {
+  --sea-h: 22dvh;
   position: fixed;
   inset: 0;
-  display: grid;
-  place-items: start center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: max(20px, env(safe-area-inset-top)) 0 calc(var(--sea-h) + 52px);
   overflow: hidden;
-  background: linear-gradient(#7fd0ff, #bfe8ff 76%, #43b3e8 76.2%, #1f86c7);
+  background: linear-gradient(#7fd0ff, #bfe8ff);
 }
-.title-sea::before,
-.title-sea::after {
-  content: '';
+.title-sea {
   position: absolute;
-  border: 5px solid var(--ink);
-  border-radius: 50%;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: var(--sea-h);
+  background: linear-gradient(#43b3e8, #1f86c7);
 }
 .title-sea::before {
+  /* the island sitting on the horizon */
+  content: '';
+  position: absolute;
   left: 50%;
-  top: 73%;
-  width: 640px;
-  height: 150px;
+  top: -40px;
+  width: min(640px, 150vw);
+  height: 130px;
   transform: translateX(-50%);
+  border: 5px solid var(--ink);
+  border-radius: 50%;
   background: radial-gradient(ellipse at 50% 30%, #8bd158 0 55%, #f2d28b 56%);
 }
-.title-sea::after {
+.title-screen::before {
   /* a drifting cloud */
-  top: 14%;
+  content: '';
+  position: absolute;
+  top: 12%;
   left: -30%;
   width: 180px;
   height: 64px;
-  border: 0;
+  border-radius: 50%;
   background: #fff;
   box-shadow: 60px -26px 0 6px #fff, 120px 0 0 -4px #fff, 340px 60px 0 -8px #fff, 400px 40px 0 -2px #fff;
   animation: drift 38s linear infinite;
@@ -163,8 +193,7 @@ img {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 14px;
-  margin-top: 8vh;
+  gap: clamp(8px, 2dvh, 14px);
   padding: 0 24px;
   text-align: center;
   animation: rise 0.8s cubic-bezier(0.2, 1.4, 0.4, 1) both;
@@ -178,12 +207,12 @@ img {
 .title-badge {
   display: grid;
   place-items: center;
-  width: 96px;
-  height: 96px;
+  width: clamp(64px, 12dvh, 96px);
+  height: clamp(64px, 12dvh, 96px);
   clip-path: var(--star);
   background: var(--ink);
   font-family: var(--display);
-  font-size: 44px;
+  font-size: clamp(30px, 5.4dvh, 44px);
   color: #fff;
   text-shadow: var(--stroke);
   position: relative;
@@ -201,7 +230,7 @@ img {
   margin: 0;
   font-family: var(--display);
   font-weight: 400;
-  font-size: clamp(44px, 12vw, 84px);
+  font-size: clamp(40px, min(12vw, 8.5dvh), 84px);
   line-height: 0.95;
   color: var(--gold);
   text-shadow: -4px -4px 0 var(--ink), 4px -4px 0 var(--ink), -4px 4px 0 var(--ink), 4px 4px 0 var(--ink),
@@ -232,13 +261,14 @@ img {
 .map-frame {
   /* Phones: the island fills the screen height and pans sideways a little.
      Wider screens: up to 760px wide, scrolling vertically. */
-  width: max(min(100vw, 760px), calc((100dvh - 170px) / 1.5));
+  --chrome: calc(170px + env(safe-area-inset-top) + env(safe-area-inset-bottom));
+  width: max(min(100vw, 760px), calc((100dvh - var(--chrome)) / 1.5));
   margin: 0 auto;
-  padding: 72px 0 98px;
+  padding: calc(72px + env(safe-area-inset-top)) 0 calc(98px + env(safe-area-inset-bottom));
 }
 @media (min-aspect-ratio: 4/5) {
   .map-frame {
-    width: max(320px, calc((100dvh - 170px) / 1.5));
+    width: max(320px, calc((100dvh - var(--chrome)) / 1.5));
   }
 }
 .zone:not(.revealed) .beam {
@@ -261,7 +291,7 @@ img {
   justify-content: space-between;
   align-items: flex-start;
   gap: 10px;
-  padding: max(10px, env(safe-area-inset-top)) 12px 0;
+  padding: max(10px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) 0 max(12px, env(safe-area-inset-left));
   pointer-events: none;
 }
 .hud > * {
@@ -406,7 +436,7 @@ img {
   display: flex;
   gap: 10px;
   align-items: flex-end;
-  padding: 0 12px max(12px, env(safe-area-inset-bottom));
+  padding: 0 max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
   pointer-events: none;
   max-width: 760px;
   margin: 0 auto;
@@ -674,11 +704,19 @@ img {
 
 .modal {
   position: fixed;
-  inset: 0;
+  left: 0;
+  right: 0;
+  top: var(--vv-top, 0px);
+  height: var(--vv-h, 100dvh);
   z-index: 20;
   display: grid;
   place-items: center;
-  padding: 24px 14px;
+  padding: max(16px, env(safe-area-inset-top)) 14px max(16px, env(safe-area-inset-bottom));
+}
+.backdrop {
+  /* cover the whole screen even when the modal shrinks for the keyboard */
+  top: -100vh !important;
+  bottom: -100vh !important;
 }
 .backdrop {
   position: absolute;
@@ -709,7 +747,7 @@ img {
   display: flex;
   flex-direction: column;
   width: min(440px, 100%);
-  max-height: calc(100dvh - 60px);
+  max-height: calc(var(--vv-h, 100dvh) - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   border: 4px solid var(--ink);
   border-radius: 22px;
   background: var(--parchment);
@@ -756,6 +794,8 @@ img {
   gap: 14px;
   padding: 18px;
   overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
 }
 .panel.shake {
   animation: shake 0.45s;
@@ -877,7 +917,7 @@ img {
 }
 .dial-btn {
   width: 52px;
-  height: 34px;
+  height: 42px;
   border: 3px solid var(--ink);
   border-radius: 10px;
   background: linear-gradient(var(--wood-light), var(--wood));
@@ -929,7 +969,7 @@ img {
 }
 .opt img {
   width: 100%;
-  aspect-ratio: 1;
+  aspect-ratio: 4 / 3;
   object-fit: cover;
   border: 2px solid var(--ink);
   border-radius: 9px;
@@ -986,14 +1026,21 @@ img {
 }
 .slots,
 .pool {
+  width: 100%;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
   gap: 6px;
 }
+.slot,
+.ltile {
+  width: min(46px, calc((100% - (var(--n) - 1) * 6px) / var(--n)));
+  height: auto;
+  aspect-ratio: 0.84;
+  padding: 0;
+  font-size: clamp(18px, 6.5vw, 28px) !important;
+}
 .slot {
-  width: 42px;
-  height: 52px;
   border: 3px dashed var(--wood);
   border-radius: 10px;
   background: rgba(168, 116, 58, 0.12);
@@ -1006,8 +1053,6 @@ img {
   background: linear-gradient(#fff3c4, var(--gold));
 }
 .ltile {
-  width: 46px;
-  height: 52px;
   border: 3px solid var(--ink);
   border-radius: 10px;
   background: linear-gradient(var(--wood-light), var(--wood));
@@ -1064,6 +1109,7 @@ img {
   z-index: -1;
   border-radius: 50%;
   background: repeating-conic-gradient(rgba(255, 224, 122, 0.55) 0 10deg, transparent 10deg 24deg);
+  pointer-events: none;
   -webkit-mask: radial-gradient(closest-side, #000 20%, transparent);
   mask: radial-gradient(closest-side, #000 20%, transparent);
   animation: spin 14s linear infinite;
@@ -1102,7 +1148,7 @@ img {
 
 .polaroid {
   margin: 4px auto 0;
-  width: min(100%, 300px);
+  width: min(100%, 300px, 40dvh);
   padding: 10px 10px 4px;
   background: #fff;
   border: 3px solid var(--ink);
@@ -1262,8 +1308,10 @@ img {
 .love-letter {
   position: relative;
   width: min(520px, 100%);
-  max-height: calc(100dvh - 60px);
+  max-height: calc(var(--vv-h, 100dvh) - 48px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
   overflow-y: auto;
+  -webkit-user-select: text;
+  user-select: text;
   padding: 34px 28px 40px;
   border: 4px solid var(--ink);
   border-radius: 8px 8px 22px 22px;
@@ -1316,6 +1364,164 @@ img {
   width: 100%;
   height: 100%;
   pointer-events: none;
+}
+
+/* ── Small and short screens ─────────────────────────────────────────── */
+
+@media (max-height: 720px) {
+  .panel-head h2 {
+    font-size: 23px;
+  }
+  .panel-body {
+    gap: 11px;
+    padding: 14px 15px 16px;
+  }
+  .prompt,
+  .letter-text p,
+  .memory {
+    font-size: 16px;
+  }
+  .clue-card {
+    padding: 8px 12px 10px;
+  }
+  .clue-card p {
+    font-size: 15px;
+  }
+  .opt img {
+    aspect-ratio: 16 / 10;
+  }
+  .btn {
+    min-height: 48px;
+    font-size: 19px;
+  }
+  .big-chest {
+    width: 180px;
+  }
+}
+
+@media (max-width: 360px) {
+  .lvl-info {
+    min-width: 0;
+  }
+  .pill {
+    padding: 0 10px 0 6px;
+  }
+  .quest {
+    font-size: 14px;
+  }
+}
+
+/* phones held sideways */
+@media (max-height: 500px) and (orientation: landscape) {
+  .title-screen {
+    --sea-h: 18dvh;
+    padding-bottom: calc(var(--sea-h) + 30px);
+  }
+  .title-badge {
+    display: none;
+  }
+  .title {
+    max-width: none;
+  }
+  .subtitle {
+    margin-bottom: 4px;
+    font-size: 16px;
+    max-width: 50ch;
+  }
+  .title-sea::before {
+    top: -26px;
+    height: 80px;
+  }
+  .map-frame {
+    width: min(100vw, 620px);
+  }
+  .modal {
+    padding: 8px max(14px, env(safe-area-inset-right)) 8px max(14px, env(safe-area-inset-left));
+  }
+  .panel,
+  .love-letter {
+    width: min(620px, 100%);
+    max-height: calc(var(--vv-h, 100dvh) - 26px);
+  }
+  .panel-head {
+    padding: 5px 56px 7px;
+  }
+  .panel-head h2 {
+    font-size: 21px;
+  }
+  .x {
+    width: 34px;
+    height: 34px;
+  }
+  /* side by side: clue on the left, puzzle on the right */
+  .puzzle-modal .panel,
+  .treasure-modal .panel {
+    width: min(760px, 100%);
+  }
+  .puzzle-modal .panel-body,
+  .treasure .panel-body {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    column-gap: 18px;
+    row-gap: 0;
+    align-content: start;
+  }
+  .puzzle-modal .panel-body > *,
+  .treasure .panel-body > * {
+    grid-column: 1;
+    margin-bottom: 12px;
+  }
+  .puzzle-modal .puzzle-root {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    margin: 0;
+    align-self: center;
+  }
+  .puzzle-modal #wizard,
+  .treasure .btn {
+    justify-self: center;
+  }
+  .treasure .polaroid {
+    grid-column: 2;
+    grid-row: 1 / span 6;
+    align-self: center;
+  }
+  .pz-swap {
+    width: min(100%, calc(var(--vv-h, 100dvh) - 110px));
+  }
+  .polaroid {
+    width: min(100%, 300px, calc((var(--vv-h, 100dvh) - 120px) * 1.1));
+  }
+  .quest {
+    min-height: 50px;
+  }
+  .vault-btn {
+    width: 62px;
+    height: 62px;
+  }
+  .vault-btn svg {
+    width: 34px;
+    height: 34px;
+  }
+  .lvl-star.huge {
+    width: 96px;
+    height: 96px;
+  }
+  .lvl-star.huge span {
+    font-size: 40px;
+  }
+  .levelup-title {
+    font-size: 30px;
+    margin-top: 0;
+  }
+  .levelup-sub {
+    margin-bottom: 8px;
+  }
+  .rays {
+    width: 420px;
+    height: 420px;
+    margin: -210px 0 0 -210px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

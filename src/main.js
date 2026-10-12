@@ -27,6 +27,18 @@ if (params.has('skip')) {
 }
 if (params.has('reset') || params.has('skip')) history.replaceState(null, '', location.pathname);
 
+// Keep modals inside the part of the screen the phone keyboard leaves visible.
+const vv = window.visualViewport;
+if (vv) {
+  const syncViewport = () => {
+    document.documentElement.style.setProperty('--vv-h', `${vv.height}px`);
+    document.documentElement.style.setProperty('--vv-top', `${vv.offsetTop}px`);
+  };
+  vv.addEventListener('resize', syncViewport);
+  vv.addEventListener('scroll', syncViewport);
+  syncViewport();
+}
+
 const save = () => {
   try {
     localStorage.setItem(KEY, JSON.stringify(state));
@@ -321,6 +333,7 @@ function showPuzzle(i) {
     {
       onWrong: () => {
         sound('wrong');
+        navigator.vibrate?.(120);
         fb.textContent = WRONG[wrongs++ % WRONG.length];
         const pnl = $('.panel', el);
         pnl.classList.remove('shake');

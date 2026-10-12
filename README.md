@@ -39,6 +39,12 @@ Every puzzle takes `hints: [...]`, which the wizard reveals one at a time for ge
 
 Progress is saved in the browser, so she can close the tab and continue later.
 
+## On her phone
+
+The game is built phone-first (tested on small, standard and large phones, upright and sideways). For the best experience, open the link on her phone and use **Share → Add to Home Screen** (iPhone) or **⋮ → Add to Home screen** (Android). It then opens full screen from its own island icon, like an app. Progress is saved per browser, so set it up in the browser she'll actually play in.
+
+Edit the home-screen name in `public/manifest.webmanifest` and `apple-mobile-web-app-title` in `index.html`.
+
 ## Deploy
 
 Pushing to `main` runs `.github/workflows/deploy.yml`, which builds and publishes to GitHub Pages at `https://tanmoy-git.github.io/bobia/`.
