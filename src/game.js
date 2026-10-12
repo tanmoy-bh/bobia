@@ -4,6 +4,7 @@
 import { WORLD, C, ROAD_HALF, CHEST_REACH, islandPath, islandR } from './world.js';
 import { drawSprite } from './art.js';
 import { drawGirl } from './character.js';
+import { createHabitats } from './habitats.js';
 
 if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
@@ -72,8 +73,11 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   });
   window.addEventListener('blur', () => keys.clear());
 
+  const habitats = createHabitats(ctx, world, sprites);
+
   // ── static drawables, sorted by y each frame ──
   const statics = [
+    ...habitats.statics,
     ...world.trees.map((t) => ({ y: t.y, x: t.x, r: 70, draw: () => drawSprite(ctx, sprites[t.kind === 'pine' ? 'pine' : 'tree'], t.x, t.y, t.k) })),
     ...world.chests.map((c) => ({
       y: c.landmark.y,
@@ -184,6 +188,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       me.phase += dt * 11 * Math.min(1, mag + 0.3);
     }
     updateNear();
+    habitats.update(me, zoneRevealed, performance.now());
 
     // camera
     const target = overview
@@ -298,6 +303,9 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       }
     }
 
+    const T = reduceMotion ? 0 : now / 1000;
+    habitats.ground(vis, T);
+
     // party plaza in front of the castle
     const pz = world.plaza;
     if (vis(pz.x, pz.y, pz.rx + 20)) {
@@ -350,9 +358,11 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
 
     // things standing on the ground, back to front
     const items = statics.filter((o) => vis(o.x, o.y, o.r));
+    items.push(...habitats.movers(vis, T));
     items.push({ y: me.y, draw: () => drawGirl(ctx, me.x, me.y, me.dir, me.phase, me.moving, now / 1000) });
     items.sort((a, b) => a.y - b.y);
     for (const o of items) o.draw();
+    habitats.air(vis, T, now);
 
     // signs + marker for revealed zones
     const p = getProgress();

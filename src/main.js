@@ -4,7 +4,8 @@ import { buildWorld } from './world.js';
 import { loadSprites, chestSVG } from './art.js';
 import { createGame } from './game.js';
 import { mountPuzzle, imgSrc, norm } from './puzzles.js';
-import { sound, confetti, isMuted, setMuted } from './fx.js';
+import { sound, confetti, isMuted, setMuted, startMusic } from './fx.js';
+import { skyHTML, isleHTML } from './title-scene.js';
 
 // ── State ────────────────────────────────────────────────────────────────
 
@@ -137,7 +138,9 @@ function renderTitle() {
   const locked = !state.gate;
   app.innerHTML = `
     <main class="title-screen">
-      <div class="title-sea"></div>
+      ${skyHTML()}
+      <button class="icon-btn title-mute" id="mute" aria-label="Music"></button>
+      <div class="title-sea">${isleHTML()}</div>
       <div class="title-card">
         <div class="title-badge">${config.endLevel}</div>
         <h1 class="title">${esc(config.intro.title)}</h1>
@@ -155,8 +158,23 @@ function renderTitle() {
       </div>
     </main>`;
 
+  updateMute();
+  $('#mute').addEventListener('click', () => {
+    setMuted(!isMuted());
+    updateMute();
+  });
+  app.querySelectorAll('.lamb').forEach((lamb) =>
+    lamb.addEventListener('click', () => {
+      sound('baa');
+      lamb.classList.remove('baa');
+      void lamb.offsetWidth;
+      lamb.classList.add('baa');
+    }),
+  );
+
   const enter = () => {
     sound('tap');
+    startMusic();
     if (state.started) return renderGame();
     state.started = true;
     save();
@@ -299,6 +317,11 @@ function confirmReset() {
   });
 }
 
+function updateMute() {
+  $('#mute').innerHTML = isMuted() ? '<span aria-hidden="true">♪</span><s></s>' : '<span aria-hidden="true">♪</span>';
+  $('#mute').setAttribute('aria-pressed', String(!isMuted()));
+}
+
 function toggleMap() {
   sound('tap');
   const v = !game.overview;
@@ -312,8 +335,7 @@ function updateHud() {
   $('#xp-fill').style.width = Math.round((found() / TOTAL) * 100) + '%';
   $('#xp-text').textContent = `${found()} / ${TOTAL} treasures`;
   $('#gems').textContent = state.gems;
-  $('#mute').innerHTML = isMuted() ? '<span aria-hidden="true">♪</span><s></s>' : '<span aria-hidden="true">♪</span>';
-  $('#mute').setAttribute('aria-pressed', String(!isMuted()));
+  updateMute();
   $('#vault-count').textContent = state.solved;
   $('#quest-text').textContent = state.done ? 'Your letter is waiting at the castle' : clueFor(current()).text;
 }
@@ -615,6 +637,13 @@ function showLetter() {
 
 document.title = config.intro.title;
 state.gate && state.started ? renderGame() : renderTitle();
+
+// Browsers only allow sound after a tap, so the tune starts on the first one.
+for (const type of ['pointerdown', 'click', 'keydown']) {
+  addEventListener(type, (e) => {
+    if (!e.target.closest?.('#mute')) startMusic();
+  });
+}
 
 // test hook
 window.__joy = { state: () => state, game: () => game, world: () => world };

@@ -2,6 +2,8 @@
 // trees and clouds sit. Everything is deterministic so the island looks
 // the same on every visit.
 
+import { HABITAT_FOR, HABITAT_R } from './habitats.js';
+
 export const WORLD = 3400;
 export const C = { x: WORLD / 2, y: WORLD / 2 }; // island centre (castle)
 export const ROAD_HALF = 26; // how far from the road's centre line she can walk
@@ -96,7 +98,7 @@ export function buildWorld(zones) {
     if (r - 215 < 470 && side === -1) side = 1;
     const lm = { x: P.x + n.x * side * 215, y: P.y + n.y * side * 215 };
     const chest = { x: P.x - n.x * side * 60, y: P.y - n.y * side * 60 };
-    chests.push({ k, s: sk, road: { x: P.x, y: P.y }, x: chest.x, y: chest.y, landmark: { x: lm.x, y: lm.y, type: zones[k - 1].landmark || 'palms' } });
+    chests.push({ k, s: sk, road: { x: P.x, y: P.y }, n, t, side, x: chest.x, y: chest.y, landmark: { x: lm.x, y: lm.y, type: zones[k - 1].landmark || 'palms' } });
   }
 
   const castle = { x: C.x, y: C.y + 175, k: N + 1, s: total };
@@ -144,8 +146,55 @@ export function buildWorld(zones) {
     return best;
   }
 
+  // ── Habitats: a little scene with animals beside each landmark ──
+  const habitats = [];
+  // how far each landmark sprite reaches sideways and upwards (plus its sign below)
+  const FOOT = { palms: [150, 175], windmill: [95, 215], lighthouse: [80, 200], lake: [120, 90], falls: [145, 205], cottage: [95, 160], balloon: [85, 220], bench: [95, 175], cake: [100, 165] };
+  const TALL = { farm: 100, birds: 100, beach: 90, bees: 80 }; // tallest prop in a habitat
+  const box = (m) => {
+    const [w, up] = FOOT[m.type] || [120, 200];
+    return [m.x - w, m.y - up, m.x + w, m.y + 62];
+  };
+  const marks = chests.map((c) => box(c.landmark));
+  const fits = (p, r, type, pad = 30) => {
+    const a = Math.atan2(p.y - C.y, p.x - C.x);
+    if (dist(p, C) > islandR(a) - (type === 'beach' ? 30 : 62) - r * 0.6) return false;
+    const onCastle = Math.abs(p.x - C.x) < 290 + r && p.y > C.y - 270 - r * 0.6 && p.y < C.y + 340 + r * 0.6;
+    if (onCastle || dist(p, camp) < r + 150) return false;
+    const hb = [p.x - r - pad, p.y - r * 0.62 - (TALL[type] || 45) - pad, p.x + r + pad, p.y + r * 0.62 + pad];
+    if (marks.some((m) => hb[0] < m[2] && hb[2] > m[0] && hb[1] < m[3] && hb[3] > m[1])) return false;
+    if (chests.some((c) => dist(p, c) < r + 45)) return false;
+    if (!habitats.every((h) => dist(p, h) > r + h.r + 30)) return false;
+    return nearest(p).d > 46 + r;
+  };
+  for (const c of chests) {
+    const type = zones[c.k - 1].habitat || HABITAT_FOR[c.landmark.type] || 'garden';
+    const spots = [];
+    for (let d = 140; d <= 620; d += 30) {
+      for (let i = 0; i < 32; i++) {
+        const a = (i / 32) * Math.PI * 2;
+        spots.push({ x: c.road.x + d * Math.cos(a), y: c.road.y + d * Math.sin(a), d });
+      }
+    }
+    spots.sort((p, q) => p.d - q.d);
+    // stay close to its own stop if at all possible: full size first, then
+    // smaller and tucked tighter, and only then look further away
+    const tries = [];
+    for (const reach of [420, 620]) for (const [k, pad] of [[1, 30], [0.85, 30], [0.7, 20], [0.6, 0], [0.55, -15]]) tries.push([reach, k, pad]);
+    tries.push([620, 0.5, -30]);
+    for (const [reach, k, pad] of tries) {
+      const r = HABITAT_R[type] * k;
+      const hit = spots.find((p) => p.d <= reach && fits(p, r, type, pad));
+      if (hit) {
+        habitats.push({ k: c.k, type, x: hit.x, y: hit.y, r });
+        break;
+      }
+    }
+  }
+
   // ── Trees + flowers (kept off the road and away from landmarks) ──
   const blockers = [
+    ...habitats.map((h) => ({ x: h.x, y: h.y, r: h.r + 25 })),
     ...chests.map((c) => ({ x: c.landmark.x, y: c.landmark.y, r: 150 })),
     ...chests.map((c) => ({ x: c.x, y: c.y, r: 70 })),
     { x: castle.x, y: castle.y - 120, r: 330 },
@@ -198,5 +247,5 @@ export function buildWorld(zones) {
     if (Math.hypot(x - C.x, y - C.y) > islandR(a) + 60) waves.push({ x, y, ph: rand() * 6 });
   }
 
-  return { pts, s, total, roadPath, chests, castle, decor, plaza, camp, start, gate, nearest, zoneOfS, trees, flowers, puffs, waves };
+  return { pts, s, total, roadPath, chests, castle, decor, plaza, camp, start, gate, nearest, zoneOfS, trees, flowers, puffs, waves, habitats };
 }

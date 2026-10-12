@@ -33,7 +33,7 @@ export default {
   gemsPerChest: 1,
 
   intro: {
-    title: "Joy's Island",
+    title: "Joy's Birthday Island",
     subtitle: '33 treasures for 33 years, hidden across one island.',
     letter: [
       'Happy birthday, Joy. This island is yours.',
@@ -52,6 +52,7 @@ export default {
     {
       name: "Palm Cove",
       landmark: 'palms',
+      habitat: 'garden', // garden, pond, pasture, farm, bees, mud, beach, birds or fireflies
       puzzle: {
         type: 'text',
         prompt: 'The chest is locked with a word. What is it?',
@@ -73,6 +74,7 @@ export default {
     {
       name: "Old Windmill",
       landmark: 'windmill',
+      habitat: 'farm',
       puzzle: {
         type: 'code',
         prompt: 'A four-dial lock holds the chest shut.',
@@ -94,6 +96,7 @@ export default {
     {
       name: "Lighthouse Point",
       landmark: 'lighthouse',
+      habitat: 'beach',
       puzzle: {
         type: 'choice',
         prompt: 'Which one is it?',
@@ -121,6 +124,7 @@ export default {
     {
       name: "Crystal Lake",
       landmark: 'lake',
+      habitat: 'pond',
       puzzle: {
         type: 'scramble',
         prompt: 'Unscramble the letters.',
@@ -142,6 +146,7 @@ export default {
     {
       name: "Whisper Falls",
       landmark: 'falls',
+      habitat: 'birds',
       puzzle: {
         type: 'swap',
         prompt: 'Tap two tiles to swap them until the picture is whole.',
@@ -164,6 +169,7 @@ export default {
     {
       name: "Honey Cottage",
       landmark: 'cottage',
+      habitat: 'bees',
       puzzle: {
         type: 'text',
         prompt: 'The chest is locked with a word. What is it?',
@@ -185,6 +191,7 @@ export default {
     {
       name: "Balloon Meadow",
       landmark: 'balloon',
+      habitat: 'pasture',
       puzzle: {
         type: 'code',
         prompt: 'A four-dial lock holds the chest shut.',
@@ -206,6 +213,7 @@ export default {
     {
       name: "Moonlight Bench",
       landmark: 'bench',
+      habitat: 'fireflies',
       puzzle: {
         type: 'choice',
         prompt: 'Which one is it?',
@@ -233,6 +241,7 @@ export default {
     {
       name: "Cake Hill",
       landmark: 'cake',
+      habitat: 'bees',
       puzzle: {
         type: 'scramble',
         prompt: 'Unscramble the letters.',
@@ -254,6 +263,7 @@ export default {
     {
       name: "Sunset Beach",
       landmark: 'palms',
+      habitat: 'beach',
       puzzle: {
         type: 'swap',
         prompt: 'Tap two tiles to swap them until the picture is whole.',
@@ -276,6 +286,7 @@ export default {
     {
       name: "Sugar Mill",
       landmark: 'windmill',
+      habitat: 'farm',
       puzzle: {
         type: 'text',
         prompt: 'The chest is locked with a word. What is it?',
@@ -297,6 +308,7 @@ export default {
     {
       name: "Starlight Tower",
       landmark: 'lighthouse',
+      habitat: 'fireflies',
       puzzle: {
         type: 'code',
         prompt: 'A four-dial lock holds the chest shut.',
@@ -318,6 +330,7 @@ export default {
     {
       name: "Bubble Pond",
       landmark: 'lake',
+      habitat: 'pond',
       puzzle: {
         type: 'choice',
         prompt: 'Which one is it?',
@@ -345,6 +358,7 @@ export default {
     {
       name: "Snowcap Peak",
       landmark: 'falls',
+      habitat: 'birds',
       puzzle: {
         type: 'scramble',
         prompt: 'Unscramble the letters.',
@@ -366,6 +380,7 @@ export default {
     {
       name: "Cocoa Cabin",
       landmark: 'cottage',
+      habitat: 'garden',
       puzzle: {
         type: 'swap',
         prompt: 'Tap two tiles to swap them until the picture is whole.',
@@ -388,6 +403,7 @@ export default {
     {
       name: "Kite Ridge",
       landmark: 'balloon',
+      habitat: 'pasture',
       puzzle: {
         type: 'text',
         prompt: 'The chest is locked with a word. What is it?',
@@ -409,6 +425,7 @@ export default {
     {
       name: "Firefly Park",
       landmark: 'bench',
+      habitat: 'fireflies',
       puzzle: {
         type: 'code',
         prompt: 'A four-dial lock holds the chest shut.',
@@ -430,6 +447,7 @@ export default {
     {
       name: "Cupcake Corner",
       landmark: 'cake',
+      habitat: 'bees',
       puzzle: {
         type: 'choice',
         prompt: 'Which one is it?',
@@ -457,6 +475,7 @@ export default {
     {
       name: "Seashell Bay",
       landmark: 'palms',
+      habitat: 'beach',
       puzzle: {
         type: 'scramble',
         prompt: 'Unscramble the letters.',
@@ -478,6 +497,7 @@ export default {
     {
       name: "Breezy Mill",
       landmark: 'windmill',
+      habitat: 'farm',
       puzzle: {
         type: 'swap',
         prompt: 'Tap two tiles to swap them until the picture is whole.',
@@ -500,6 +520,7 @@ export default {
     {
       name: "Lantern Rock",
       landmark: 'lighthouse',
+      habitat: 'mud',
       puzzle: {
         type: 'text',
         prompt: 'The chest is locked with a word. What is it?',
@@ -521,6 +542,7 @@ export default {
     {
       name: "Swan Lake",
       landmark: 'lake',
+      habitat: 'pond',
       puzzle: {
         type: 'code',
         prompt: 'A four-dial lock holds the chest shut.',
@@ -542,6 +564,7 @@ export default {
     {
       name: "Rainbow Falls",
       landmark: 'falls',
+      habitat: 'mud',
       puzzle: {
         type: 'choice',
         prompt: 'Which one is it?',
@@ -569,6 +592,7 @@ export default {
     {
       name: "Cozy Cottage",
       landmark: 'cottage',
+      habitat: 'garden',
       puzzle: {
         type: 'scramble',
         prompt: 'Unscramble the letters.',
@@ -590,6 +614,7 @@ export default {
     {
       name: "Sky Field",
       landmark: 'balloon',
+      habitat: 'pasture',
       puzzle: {
         type: 'swap',
         prompt: 'Tap two tiles to swap them until the picture is whole.',
@@ -612,6 +637,7 @@ export default {
     {
       name: "Sunset Bench",
       landmark: 'bench',
+      habitat: 'garden',
       puzzle: {
         type: 'text',
         prompt: 'The chest is locked with a word. What is it?',
@@ -633,6 +659,7 @@ export default {
     {
       name: "Sweet Spot",
       landmark: 'cake',
+      habitat: 'birds',
       puzzle: {
         type: 'code',
         prompt: 'A four-dial lock holds the chest shut.',
@@ -654,6 +681,7 @@ export default {
     {
       name: "Coconut Corner",
       landmark: 'palms',
+      habitat: 'beach',
       puzzle: {
         type: 'choice',
         prompt: 'Which one is it?',
@@ -681,6 +709,7 @@ export default {
     {
       name: "Flour Mill Farm",
       landmark: 'windmill',
+      habitat: 'farm',
       puzzle: {
         type: 'scramble',
         prompt: 'Unscramble the letters.',
@@ -702,6 +731,7 @@ export default {
     {
       name: "Beacon Hill",
       landmark: 'lighthouse',
+      habitat: 'pasture',
       puzzle: {
         type: 'swap',
         prompt: 'Tap two tiles to swap them until the picture is whole.',
@@ -724,6 +754,7 @@ export default {
     {
       name: "Wishing Pond",
       landmark: 'lake',
+      habitat: 'mud',
       puzzle: {
         type: 'text',
         prompt: 'The chest is locked with a word. What is it?',
@@ -745,6 +776,7 @@ export default {
     {
       name: "Misty Mountain",
       landmark: 'falls',
+      habitat: 'pond',
       puzzle: {
         type: 'code',
         prompt: 'A four-dial lock holds the chest shut.',

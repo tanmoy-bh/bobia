@@ -246,6 +246,218 @@ img {
   text-shadow: 0 2px 0 rgba(31, 134, 199, 0.9), 0 0 12px rgba(31, 134, 199, 0.8);
 }
 
+/* cake, lambs and birds */
+.icon-btn.title-mute {
+  position: absolute;
+  z-index: 3;
+  top: max(14px, env(safe-area-inset-top));
+  right: max(14px, env(safe-area-inset-right));
+}
+.isle {
+  /* same box as the island drawn by .title-sea::before */
+  position: absolute;
+  left: 50%;
+  top: -40px;
+  width: min(640px, 150vw);
+  height: 130px;
+  transform: translateX(-50%);
+  container-type: inline-size;
+}
+.title-screen {
+  --k: 1;
+}
+@media (min-width: 700px) and (min-height: 600px) {
+  .title-screen {
+    --k: 1.4;
+  }
+}
+.cake {
+  position: absolute;
+  z-index: 60;
+  left: 50%;
+  bottom: 42%;
+  width: calc(clamp(84px, 22vw, 116px) * var(--k));
+  transform: translateX(-50%);
+  overflow: visible;
+  filter: drop-shadow(0 4px 0 rgba(59, 36, 20, 0.25));
+}
+.flame {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: candle 0.5s ease-in-out infinite alternate;
+}
+.cake g:nth-of-type(3) .flame {
+  animation-delay: -0.25s;
+}
+@keyframes candle {
+  from {
+    transform: scale(0.9, 1.05) rotate(-4deg);
+  }
+  to {
+    transform: scale(1.05, 0.92) rotate(4deg);
+  }
+}
+
+.lamb {
+  position: absolute;
+  left: var(--x);
+  top: var(--y);
+  width: calc(var(--size) * var(--k));
+  margin: calc(var(--size) * var(--k) * -0.8) 0 0 calc(var(--size) * var(--k) / -2);
+  padding: 0;
+  border: 0;
+  background: none;
+  cursor: pointer;
+  animation: wander var(--dur) ease-in-out var(--delay) infinite;
+}
+.lamb-body {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  animation: face var(--dur) ease-in-out var(--delay) infinite, hop 0.36s ease-in-out infinite alternate;
+}
+.lamb .leg {
+  transform-box: fill-box;
+  transform-origin: 50% 0;
+  animation: step 0.36s ease-in-out infinite alternate;
+}
+.lamb .leg.b {
+  animation-direction: alternate-reverse;
+}
+@keyframes wander {
+  0%,
+  8% {
+    translate: 0 0;
+  }
+  42%,
+  58% {
+    translate: calc(var(--d) * 1cqw) 0;
+  }
+  92%,
+  100% {
+    translate: 0 0;
+  }
+}
+@keyframes face {
+  0%,
+  44% {
+    scale: 1 1;
+  }
+  47%,
+  94% {
+    scale: -1 1;
+  }
+  97%,
+  100% {
+    scale: 1 1;
+  }
+}
+@keyframes hop {
+  to {
+    translate: 0 -3px;
+  }
+}
+@keyframes step {
+  from {
+    transform: rotate(-14deg);
+  }
+  to {
+    transform: rotate(14deg);
+  }
+}
+.baa-bubble {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  padding: 2px 9px;
+  border: 3px solid var(--ink);
+  border-radius: 14px;
+  background: #fff;
+  font-family: var(--display);
+  font-size: 15px;
+  color: var(--ink);
+  white-space: nowrap;
+  opacity: 0;
+  transform: translate(-50%, 6px) scale(0.6);
+  pointer-events: none;
+}
+.lamb.baa .baa-bubble {
+  animation: baa 1.2s ease-out;
+}
+.lamb.baa .lamb-body {
+  animation: face var(--dur) ease-in-out var(--delay) infinite, jump 0.45s ease-out;
+}
+@keyframes baa {
+  15%,
+  75% {
+    opacity: 1;
+    transform: translate(-50%, -4px) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translate(-50%, -14px) scale(1);
+  }
+}
+@keyframes jump {
+  40% {
+    translate: 0 -14px;
+  }
+}
+
+.flock {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.bird {
+  position: absolute;
+  left: 0;
+  top: var(--y);
+  width: calc(var(--size) * var(--k));
+  animation: fly var(--dur) linear var(--delay) infinite;
+}
+.bird.rtl {
+  animation-direction: reverse;
+}
+.bird-body {
+  display: block;
+  width: 100%;
+  overflow: visible;
+  animation: glide 1.4s ease-in-out infinite alternate;
+}
+.bird.rtl .bird-body {
+  scale: -1 1;
+}
+.bird .wing {
+  transform-box: fill-box;
+  transform-origin: 70% 100%;
+  animation: flap 0.22s ease-in-out infinite alternate;
+}
+@keyframes fly {
+  from {
+    translate: calc(var(--size) * var(--k) * -1.5) 0;
+  }
+  to {
+    translate: calc(100vw + var(--size) * var(--k)) 0;
+  }
+}
+@keyframes glide {
+  from {
+    translate: 0 -8px;
+  }
+  to {
+    translate: 0 8px;
+  }
+}
+@keyframes flap {
+  from {
+    transform: rotate(-10deg);
+  }
+  to {
+    transform: scaleY(-0.8) rotate(10deg);
+  }
+}
+
 /* ── Game layout ─────────────────────────────────────────────────────── */
 
 .map-scroll {
@@ -1751,9 +1963,13 @@ img {
     font-size: 16px;
     max-width: 50ch;
   }
-  .title-sea::before {
+  .title-sea::before,
+  .isle {
     top: -26px;
     height: 80px;
+  }
+  .cake {
+    width: 64px;
   }
   .map-frame {
     width: min(100vw, 620px);
