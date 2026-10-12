@@ -92,6 +92,8 @@ function openModal(html, { cls = '', onClose, dismissable = true } = {}) {
   requestAnimationFrame(() => wrap.classList.add('in'));
   const close = () => {
     wrap.classList.remove('in');
+    // let touches reach the game straight away while the pop-up fades out
+    wrap.style.pointerEvents = 'none';
     setTimeout(() => wrap.remove(), 220);
     modalClose = null;
     onClose && onClose();

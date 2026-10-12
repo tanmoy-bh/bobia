@@ -59,12 +59,12 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   const joy = { x: 0, y: 0 };
   const KEYMAP = { ArrowUp: 'u', KeyW: 'u', ArrowDown: 'd', KeyS: 'd', ArrowLeft: 'l', KeyA: 'l', ArrowRight: 'r', KeyD: 'r' };
   window.addEventListener('keydown', (e) => {
-    if (isBlocked() || e.target.closest?.('input')) return;
+    if (e.target.closest?.('input')) return;
     const k = KEYMAP[e.code];
-    if (k) {
-      keys.add(k);
-      e.preventDefault();
-    }
+    if (!k) return;
+    // remember held keys even behind a pop-up, so she walks the moment it closes
+    keys.add(k);
+    if (!isBlocked()) e.preventDefault();
   });
   window.addEventListener('keyup', (e) => {
     const k = KEYMAP[e.code];
