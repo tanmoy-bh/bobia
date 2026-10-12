@@ -1644,6 +1644,41 @@ img {
   font-size: 18px;
 }
 
+/* HUD: four round buttons must fit beside the level badge on small phones */
+.hud .lvl-info {
+  min-width: 0;
+  width: clamp(96px, calc(100vw - 300px), 170px);
+}
+.hud-right {
+  gap: 6px;
+}
+.hud-right .icon-btn {
+  width: 38px;
+  height: 38px;
+  flex: none;
+}
+.hud-right .pill {
+  height: 36px;
+  padding: 0 11px 0 6px;
+  font-size: 17px;
+}
+.hud-right .pill .gem {
+  width: 21px;
+  height: 21px;
+}
+.btn.red {
+  --top: #ff9b9b;
+  --mid: #f25f5f;
+  --low: #e04444;
+  --bot: #c93535;
+}
+.confirm-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 12px;
+}
+
 /* ── Small and short screens ─────────────────────────────────────────── */
 
 @media (max-height: 720px) {
@@ -1677,7 +1712,17 @@ img {
   }
 }
 
-@media (max-width: 360px) {
+@media (max-width: 380px) {
+  .hud .lvl-info {
+    width: 96px;
+  }
+  .hud-right .pill {
+    padding: 0 8px 0 4px;
+  }
+  .hud-right .icon-btn {
+    width: 35px;
+    height: 35px;
+  }
   .lvl-info {
     min-width: 0;
   }

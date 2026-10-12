@@ -68,6 +68,7 @@ const isTouch = matchMedia('(pointer: coarse)').matches || navigator.maxTouchPoi
 const GEM = `<svg class="gem" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12l4 6-10 12L2 9z" fill="#E84A7F" stroke="#3B2414" stroke-width="2" stroke-linejoin="round"/><path d="M2 9h20M9 3 7 9l5 12 5-12-2-6" fill="none" stroke="#3B2414" stroke-width="1.5" stroke-linejoin="round"/><path d="M7 5.5 9 4" stroke="#fff" stroke-width="2" stroke-linecap="round"/></svg>`;
 const SCROLL = `<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="5" width="20" height="22" rx="3" fill="#FBEBC8" stroke="#3B2414" stroke-width="2.5"/><path d="M10 11h12M10 16h12M10 21h8" stroke="#A8743A" stroke-width="2.5" stroke-linecap="round"/><rect x="3" y="3" width="26" height="5" rx="2.5" fill="#D9A55B" stroke="#3B2414" stroke-width="2.5"/><rect x="3" y="24" width="26" height="5" rx="2.5" fill="#D9A55B" stroke="#3B2414" stroke-width="2.5"/></svg>`;
 const CHEST_ICON = `<svg viewBox="-46 -80 92 92" aria-hidden="true">${chestSVG(false)}</svg>`;
+const RESET_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#3B2414" stroke-width="6" stroke-linecap="round"/><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#FBEBC8" stroke-width="3" stroke-linecap="round"/><path d="M27.5 4.5 26.5 13 18.5 11.5Z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2" stroke-linejoin="round"/></svg>`;
 const MAP_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8l8-3 8 3 8-3v19l-8 3-8-3-8 3z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 5v19M20 8v19" stroke="#3B2414" stroke-width="2"/><path d="M23 12c0 2-3 5-3 5s-3-3-3-5a3 3 0 0 1 6 0z" fill="#E84A7F" stroke="#3B2414" stroke-width="1.6"/></svg>`;
 
 function toast(msg) {
@@ -218,6 +219,7 @@ async function renderGame() {
         <div class="hud-right">
           <div class="pill">${GEM}<span id="gems"></span></div>
           <button class="icon-btn" id="map-btn" aria-label="Island map" aria-pressed="false">${MAP_ICON}</button>
+          <button class="icon-btn" id="reset-btn" aria-label="Start over">${RESET_ICON}</button>
           <button class="icon-btn" id="mute" aria-label="Sound"></button>
         </div>
       </header>
@@ -264,12 +266,37 @@ async function renderGame() {
   $('#quest').addEventListener('click', showQuest);
   $('#vault').addEventListener('click', showVault);
   $('#map-btn').addEventListener('click', toggleMap);
+  $('#reset-btn').addEventListener('click', confirmReset);
   $('#mute').addEventListener('click', () => {
     setMuted(!isMuted());
     updateHud();
   });
   updateHud();
   updateAction(null);
+}
+
+function confirmReset() {
+  sound('tap');
+  const { el } = openModal(
+    panel(
+      'Start over?',
+      `<p class="prompt">This closes every chest, brings the clouds back and returns to the passphrase screen. It can't be undone.</p>
+       <div class="confirm-row">
+         <button class="btn green" data-close>Keep playing</button>
+         <button class="btn red" id="do-reset">Start over</button>
+       </div>`,
+    ),
+  );
+  $('#do-reset', el).addEventListener('click', () => {
+    closeModal(true);
+    game?.stop();
+    game = null;
+    state = fresh();
+    save();
+    window.onkeydown = null;
+    sound('reveal');
+    renderTitle();
+  });
 }
 
 function toggleMap() {
