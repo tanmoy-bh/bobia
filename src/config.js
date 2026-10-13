@@ -38,11 +38,12 @@ export default {
     letter: [
       'Happy birthday, Joy. This island is yours.',
       'Clouds hide most of it. Walk the road, open each chest, and every treasure inside holds the clue for the next one. There are 33 in all, one for every year.',
-      '[Placeholder: a short, warm note from Tanmoy to kick things off.]',
+      'I built this little world for you, one chest at a time, thinking of all the years that made you the person I love. Take your time, smile at the silly bits, and know that every road here leads back to me.',
+      'I love you, today and every day after. Yours, Tanmoy',
     ],
     // The clue for the very first chest.
     firstClue: {
-      text: '[Placeholder clue for Palm Cove] (While testing, the answer is: beach)',
+      text: 'Start where the palm trees lean and the waves come to say hello. Sand between your toes, sun on your face. Where are you? One word.',
       image: null,
     },
   },
