@@ -48,7 +48,20 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   const prog = getProgress();
   const startAt = prog.solved > 0 ? world.chests[Math.min(prog.solved, N) - 1].road : world.start;
   const me = { x: startAt.x, y: startAt.y, dir: 'up', phase: 0, moving: false };
-  const cam = { x: me.x, y: me.y - 60, scale: baseScale };
+  // pinch (or ctrl + scroll) to zoom the island; remembered between visits
+  const ZOOM_MIN = 0.55;
+  const ZOOM_MAX = 2.2;
+  let zoom = 1;
+  try {
+    zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Number(localStorage.getItem('bobia-zoom')) || 1));
+  } catch {}
+  const setZoom = (z) => {
+    zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, z));
+    try {
+      localStorage.setItem('bobia-zoom', zoom.toFixed(3));
+    } catch {}
+  };
+  const cam = { x: me.x, y: me.y - 60, scale: baseScale * zoom };
   let overview = false;
 
   // ── clouds ──
@@ -72,6 +85,43 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     if (k) keys.delete(k);
   });
   window.addEventListener('blur', () => keys.clear());
+
+  // two fingers anywhere on the island zoom in and out
+  const fingers = new Map();
+  let pinch = null;
+  const spread = () => {
+    const [a, b] = [...fingers.values()];
+    return Math.hypot(a.x - b.x, a.y - b.y) || 1;
+  };
+  const onIsland = (e) => e.target.closest?.('#world, .stick-zone');
+  const down = (e) => {
+    if (e.pointerType !== 'touch' || !onIsland(e) || isBlocked() || overview) return;
+    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (fingers.size === 2) pinch = { d0: spread(), z0: zoom };
+  };
+  const move = (e) => {
+    if (!fingers.has(e.pointerId)) return;
+    fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (pinch && fingers.size >= 2) setZoom((pinch.z0 * spread()) / pinch.d0);
+  };
+  const up = (e) => {
+    fingers.delete(e.pointerId);
+    if (fingers.size < 2) pinch = null;
+  };
+  window.addEventListener('pointerdown', down);
+  window.addEventListener('pointermove', move);
+  window.addEventListener('pointerup', up);
+  window.addEventListener('pointercancel', up);
+  // trackpad pinch arrives as ctrl + wheel; a mouse wheel zooms too
+  canvas.addEventListener(
+    'wheel',
+    (e) => {
+      if (isBlocked() || overview) return;
+      e.preventDefault();
+      setZoom(zoom * Math.exp(-e.deltaY * (e.ctrlKey ? 0.01 : 0.0015)));
+    },
+    { passive: false },
+  );
 
   const habitats = createHabitats(ctx, world, sprites);
 
@@ -193,7 +243,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     // camera
     const target = overview
       ? { x: C.x, y: C.y, scale: Math.min(vw, vh - 120) / (2 * (ISLE + 160)) }
-      : { x: me.x, y: me.y - 50, scale: baseScale };
+      : { x: me.x, y: me.y - 50, scale: baseScale * zoom };
     const f = 1 - Math.pow(0.0015, dt);
     cam.x += (target.x - cam.x) * f;
     cam.y += (target.y - cam.y) * f;
@@ -478,6 +528,10 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     get overview() {
       return overview;
     },
+    // true while two fingers are pinching, so the thumbstick lets go
+    get pinching() {
+      return !!pinch;
+    },
     position: () => ({ x: me.x, y: me.y }),
     // for tests: teleport next to the current target
     _warp(x, y) {
@@ -486,6 +540,10 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     },
     stop() {
       cancelAnimationFrame(raf);
+      window.removeEventListener('pointerdown', down);
+      window.removeEventListener('pointermove', move);
+      window.removeEventListener('pointerup', up);
+      window.removeEventListener('pointercancel', up);
     },
   };
 }

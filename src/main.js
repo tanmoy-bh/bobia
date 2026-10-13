@@ -360,7 +360,7 @@ function setupStick() {
     game.joy.y = 0;
   };
   zone.addEventListener('pointerdown', (e) => {
-    if (id !== null || modalClose) return;
+    if (id !== null || modalClose || game.pinching) return;
     id = e.pointerId;
     zone.setPointerCapture(id);
     ox = e.clientX;
@@ -372,6 +372,12 @@ function setupStick() {
   });
   zone.addEventListener('pointermove', (e) => {
     if (e.pointerId !== id) return;
+    if (game.pinching) {
+      // a second finger came down: this is a zoom, not a walk
+      if (zone.hasPointerCapture?.(id)) zone.releasePointerCapture(id);
+      id = null;
+      return home();
+    }
     let dx = e.clientX - ox;
     let dy = e.clientY - oy;
     const d = Math.hypot(dx, dy);
