@@ -391,7 +391,7 @@ function carrier(ctx, dir, side) {
 
 const T_SKIN = '#D9A27A';
 const T_SHADE = '#B9805A';
-const T_HAIR = '#2A1A12';
+const T_HAIR = '#22150E';
 const T_HAIR_HI = '#5C3D2C';
 const TEE = '#2A2A2A';
 const JEANS = '#3E5277';
@@ -422,97 +422,91 @@ function tanBrow(ctx, x, y, flip) {
   ctx.restore();
 }
 
-// his face from the front: cheekbones, a tapered jaw and a chin
+// his face from the front: cheekbones tapering to a slim, V-shaped jaw
 function tanFace(ctx, hy) {
   ctx.beginPath();
   ctx.moveTo(0, hy - 25);
-  ctx.quadraticCurveTo(19, hy - 25, 19, hy - 6);
-  ctx.lineTo(18.5, hy + 3);
-  ctx.quadraticCurveTo(18, hy + 12, 13, hy + 15);
-  ctx.quadraticCurveTo(8, hy + 27, 0, hy + 27.5);
-  ctx.quadraticCurveTo(-8, hy + 27, -13, hy + 15);
-  ctx.quadraticCurveTo(-18, hy + 12, -18.5, hy + 3);
-  ctx.lineTo(-19, hy - 6);
-  ctx.quadraticCurveTo(-19, hy - 25, 0, hy - 25);
+  ctx.quadraticCurveTo(18, hy - 25, 18, hy - 6);
+  ctx.quadraticCurveTo(18, hy + 12, 10.5, hy + 16);
+  ctx.quadraticCurveTo(5.5, hy + 28, 0, hy + 28);
+  ctx.quadraticCurveTo(-5.5, hy + 28, -10.5, hy + 16);
+  ctx.quadraticCurveTo(-18, hy + 12, -18, hy - 6);
+  ctx.quadraticCurveTo(-18, hy - 25, 0, hy - 25);
   ctx.closePath();
 }
 
-// light stubble: a soft see-through shadow on the jaw with a fine speckle,
-// clipped to the face so it has no hard edge
-function stubble(ctx, clipFace, region, speckles) {
+// a dark full beard: the lower face, leaving the cheeks and mouth clear
+function tanBeard(ctx, outline, cutout, shine) {
   ctx.save();
-  clipFace();
+  outline();
   ctx.clip();
-  region();
-  ctx.globalAlpha = 0.28;
+  cutout();
   ctx.fillStyle = T_HAIR;
   ctx.fill('evenodd');
-  ctx.globalAlpha = 0.22;
-  for (const [sx, sy] of speckles) {
-    ctx.beginPath();
-    ctx.arc(sx, sy, 0.32, 0, Math.PI * 2);
-    ctx.fill();
-  }
+  shine();
   ctx.restore();
 }
-
-// fixed speckle spots so the stubble does not shimmer
-const SPECKLES = (() => {
-  let seed = 7;
-  const r = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
-  return Array.from({ length: 140 }, () => [r() * 36 - 18, r() * 26 + 2]);
-})();
 
 function tanHead(ctx, dir, hy) {
   ctx.lineJoin = 'round';
   if (dir === 'down') {
-    ellipse(ctx, -18.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
-    ellipse(ctx, 18.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
+    ellipse(ctx, -17.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
+    ellipse(ctx, 17.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
     tanFace(ctx, hy);
     fillStroke(ctx, T_SKIN);
-    stubble(
+    tanBeard(
       ctx,
       () => tanFace(ctx, hy),
       () => {
         ctx.beginPath();
-        ctx.rect(-25, hy - 1, 50, 32);
-        // cheeks stay clear down to the mouth
-        ctx.moveTo(-15, hy - 1);
-        ctx.quadraticCurveTo(-15, hy + 9, -8, hy + 10);
+        ctx.rect(-30, hy - 1, 60, 40);
+        ctx.moveTo(-14, hy - 1);
+        ctx.quadraticCurveTo(-14, hy + 8, -8, hy + 10);
         ctx.quadraticCurveTo(0, hy + 11.5, 8, hy + 10);
-        ctx.quadraticCurveTo(15, hy + 9, 15, hy - 1);
+        ctx.quadraticCurveTo(14, hy + 8, 14, hy - 1);
         ctx.closePath();
       },
-      SPECKLES.map(([sx, sy]) => [sx, hy + sy]).filter(([sx, sy]) => sy > hy + 10 || Math.abs(sx) > 14),
+      () => {
+        ctx.beginPath();
+        ctx.moveTo(-8, hy + 21);
+        ctx.quadraticCurveTo(-4, hy + 24.5, 0, hy + 25);
+        ctx.quadraticCurveTo(4, hy + 24.5, 8, hy + 21);
+        line(ctx, T_HAIR_HI, 1.4);
+      },
     );
     tanFace(ctx, hy);
     line(ctx, INK, 2.4);
-    // short hair with a little quiff, temples slightly back
+    // moustache joined into the beard
     ctx.beginPath();
-    ctx.moveTo(-19, hy - 3);
-    ctx.quadraticCurveTo(-21, hy - 24, -6, hy - 29);
-    ctx.quadraticCurveTo(6, hy - 36, 16, hy - 28);
-    ctx.quadraticCurveTo(21, hy - 20, 19, hy - 3);
-    ctx.quadraticCurveTo(17, hy - 13, 9, hy - 15);
+    ctx.moveTo(-8, hy + 10.5);
+    ctx.quadraticCurveTo(-3, hy + 7.4, 0, hy + 8.4);
+    ctx.quadraticCurveTo(3, hy + 7.4, 8, hy + 10.5);
+    ctx.quadraticCurveTo(0, hy + 9.6, -8, hy + 10.5);
+    ctx.fillStyle = T_HAIR;
+    ctx.fill();
+    // short hair with a little lift at the front
+    ctx.beginPath();
+    ctx.moveTo(-18, hy - 3);
+    ctx.quadraticCurveTo(-20, hy - 24, -6, hy - 29);
+    ctx.quadraticCurveTo(6, hy - 35, 16, hy - 28);
+    ctx.quadraticCurveTo(20, hy - 20, 18, hy - 3);
+    ctx.quadraticCurveTo(16, hy - 13, 9, hy - 15);
     ctx.quadraticCurveTo(2, hy - 18, -6, hy - 15);
-    ctx.quadraticCurveTo(-17, hy - 13, -19, hy - 3);
+    ctx.quadraticCurveTo(-16, hy - 13, -18, hy - 3);
     fillStroke(ctx, T_HAIR, 2);
     ctx.beginPath();
     ctx.moveTo(-8, hy - 23);
     ctx.quadraticCurveTo(0, hy - 28, 9, hy - 26);
     line(ctx, T_HAIR_HI, 1.6);
-    // moustache, a little darker than the stubble
-    ctx.save();
-    ctx.globalAlpha = 0.75;
+    // brows, eyes, nose, smile
+    tanBrow(ctx, -7.5, hy - 6, false);
+    tanBrow(ctx, 7.5, hy - 6, true);
+    tanEye(ctx, -7.5, hy + 0.5);
+    tanEye(ctx, 7.5, hy + 0.5);
     ctx.beginPath();
-    ctx.moveTo(-7, hy + 10.5);
-    ctx.quadraticCurveTo(-3, hy + 7.8, 0, hy + 8.8);
-    ctx.quadraticCurveTo(3, hy + 7.8, 7, hy + 10.5);
-    ctx.quadraticCurveTo(0, hy + 9.8, -7, hy + 10.5);
-    ctx.fillStyle = T_HAIR;
-    ctx.fill();
-    ctx.restore();
-    // smile, brows, eyes, nose
+    ctx.moveTo(0.5, hy + 1);
+    ctx.quadraticCurveTo(2.8, hy + 5, -1, hy + 6);
+    line(ctx, T_SHADE, 1.6);
     ctx.beginPath();
     ctx.moveTo(-5.5, hy + 12.5);
     ctx.quadraticCurveTo(0, hy + 18, 5.5, hy + 12.5);
@@ -522,66 +516,63 @@ function tanHead(ctx, dir, hy) {
     ctx.lineWidth = 1.4;
     ctx.strokeStyle = '#8E2A3E';
     ctx.stroke();
-    tanBrow(ctx, -7.5, hy - 6, false);
-    tanBrow(ctx, 7.5, hy - 6, true);
-    tanEye(ctx, -7.5, hy + 0.5);
-    tanEye(ctx, 7.5, hy + 0.5);
-    ctx.beginPath();
-    ctx.moveTo(0.5, hy + 1);
-    ctx.quadraticCurveTo(2.8, hy + 5, -1, hy + 6);
-    line(ctx, T_SHADE, 1.6);
   } else if (dir === 'up') {
-    ellipse(ctx, -18.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
-    ellipse(ctx, 18.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
+    ellipse(ctx, -17.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
+    ellipse(ctx, 17.5, hy + 1, 3, 4.6, T_SKIN, INK, 2);
     tanFace(ctx, hy);
     fillStroke(ctx, T_SKIN);
     ctx.beginPath();
-    ctx.moveTo(-19, hy + 8);
-    ctx.quadraticCurveTo(-22, hy - 22, -6, hy - 29);
+    ctx.moveTo(-17, hy + 12);
+    ctx.quadraticCurveTo(-21, hy - 22, -6, hy - 29);
     ctx.quadraticCurveTo(6, hy - 34, 16, hy - 27);
-    ctx.quadraticCurveTo(22, hy - 18, 19, hy + 8);
-    ctx.quadraticCurveTo(0, hy + 12, -19, hy + 8);
+    ctx.quadraticCurveTo(21, hy - 18, 17, hy + 12);
+    ctx.quadraticCurveTo(0, hy + 22, -17, hy + 12);
     fillStroke(ctx, T_HAIR, 2);
     ctx.beginPath();
     ctx.moveTo(-8, hy - 21);
     ctx.quadraticCurveTo(0, hy - 25, 8, hy - 22);
     line(ctx, T_HAIR_HI, 1.6);
   } else {
-    // side view, facing right: a jaw that angles down to the chin
+    // side view, facing right: the jaw angles down to a slim chin
     const profile = () => {
       ctx.beginPath();
-      ctx.moveTo(-17, hy - 6);
-      ctx.quadraticCurveTo(-18, hy - 26, 2, hy - 26);
+      ctx.moveTo(-16, hy - 6);
+      ctx.quadraticCurveTo(-17, hy - 26, 2, hy - 26);
       ctx.quadraticCurveTo(18, hy - 25, 19, hy - 8);
       ctx.quadraticCurveTo(22.5, hy - 1, 22.5, hy + 3);
       ctx.quadraticCurveTo(21, hy + 6, 20, hy + 9);
-      ctx.quadraticCurveTo(20, hy + 18, 17, hy + 24);
-      ctx.quadraticCurveTo(10, hy + 27, 4, hy + 22);
-      ctx.quadraticCurveTo(-4, hy + 18, -8, hy + 14);
-      ctx.quadraticCurveTo(-16, hy + 8, -17, hy - 6);
+      ctx.quadraticCurveTo(20, hy + 20, 15, hy + 28);
+      ctx.quadraticCurveTo(9, hy + 29, 4, hy + 22);
+      ctx.quadraticCurveTo(-4, hy + 16, -8, hy + 12);
+      ctx.quadraticCurveTo(-15, hy + 6, -16, hy - 6);
       ctx.closePath();
     };
     profile();
     fillStroke(ctx, T_SKIN);
-    stubble(
+    tanBeard(
       ctx,
       profile,
       () => {
         ctx.beginPath();
-        ctx.moveTo(-6, hy + 2);
+        ctx.moveTo(-7, hy + 2);
         ctx.quadraticCurveTo(4, hy + 10, 13, hy + 10);
-        ctx.lineTo(25, hy + 10);
-        ctx.lineTo(25, hy + 30);
-        ctx.lineTo(-10, hy + 30);
+        ctx.lineTo(26, hy + 10);
+        ctx.lineTo(26, hy + 34);
+        ctx.lineTo(-12, hy + 34);
         ctx.closePath();
       },
-      SPECKLES.map(([sx, sy]) => [sx + 6, hy + sy + 4]).filter(([sx, sy]) => sy > hy + 9 || sx < 2),
+      () => {
+        ctx.beginPath();
+        ctx.moveTo(4, hy + 20);
+        ctx.quadraticCurveTo(9, hy + 25, 14, hy + 25);
+        line(ctx, T_HAIR_HI, 1.4);
+      },
     );
     profile();
     line(ctx, INK, 2.4);
     ctx.beginPath();
-    ctx.moveTo(-16, hy + 1);
-    ctx.bezierCurveTo(-20, hy - 16, -10, hy - 30, 4, hy - 29);
+    ctx.moveTo(-15, hy + 1);
+    ctx.bezierCurveTo(-19, hy - 16, -10, hy - 30, 4, hy - 29);
     ctx.quadraticCurveTo(15, hy - 32, 21, hy - 20);
     ctx.quadraticCurveTo(14, hy - 18, 9, hy - 16);
     ctx.quadraticCurveTo(0, hy - 13, -4, hy - 2);
@@ -592,15 +583,12 @@ function tanHead(ctx, dir, hy) {
     ctx.quadraticCurveTo(3, hy - 27, 12, hy - 25);
     line(ctx, T_HAIR_HI, 1.6);
     ellipse(ctx, -5, hy + 3, 3, 4.6, T_SKIN, INK, 2);
-    ctx.save();
-    ctx.globalAlpha = 0.75;
     ctx.beginPath();
-    ctx.moveTo(14, hy + 11);
-    ctx.quadraticCurveTo(18, hy + 8.8, 21, hy + 10.5);
-    ctx.quadraticCurveTo(18, hy + 10.5, 14, hy + 11);
+    ctx.moveTo(13, hy + 11);
+    ctx.quadraticCurveTo(18, hy + 8.6, 21.5, hy + 10.5);
+    ctx.quadraticCurveTo(18, hy + 10.4, 13, hy + 11);
     ctx.fillStyle = T_HAIR;
     ctx.fill();
-    ctx.restore();
     ctx.beginPath();
     ctx.moveTo(14, hy + 13.5);
     ctx.quadraticCurveTo(17, hy + 16.5, 20, hy + 13.5);
@@ -612,6 +600,10 @@ function tanHead(ctx, dir, hy) {
     ctx.stroke();
     tanBrow(ctx, 13, hy - 6, false);
     tanEye(ctx, 13, hy + 0.5);
+    ctx.beginPath();
+    ctx.moveTo(20.5, hy + 0);
+    ctx.quadraticCurveTo(24.5, hy + 4, 20.5, hy + 6);
+    line(ctx, T_SHADE, 1.6);
   }
 }
 
