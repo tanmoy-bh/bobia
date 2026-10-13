@@ -94,19 +94,58 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     return Math.hypot(a.x - b.x, a.y - b.y) || 1;
   };
   const onIsland = (e) => e.target.closest?.('#world, .stick-zone');
+  // one finger (or the mouse) dragged on the island pans the view; it
+  // glides back to Joy as soon as she walks again
+  const pan = { x: 0, y: 0 };
+  let drag = null;
   const down = (e) => {
-    if (e.pointerType !== 'touch' || !onIsland(e) || isBlocked() || overview) return;
+    if (!onIsland(e) || isBlocked() || overview) return;
+    if (e.target === canvas && !drag && (e.pointerType !== 'mouse' || e.button === 0)) {
+      drag = { id: e.pointerId, x: e.clientX, y: e.clientY };
+      canvas.classList.add('dragging');
+    }
+    if (e.pointerType !== 'touch') return;
     fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
-    if (fingers.size === 2) pinch = { d0: spread(), z0: zoom };
+    if (fingers.size === 2) {
+      pinch = { d0: spread(), z0: zoom };
+      endDrag();
+    }
   };
   const move = (e) => {
+    if (drag && e.pointerId === drag.id && !pinch) {
+      const dx = (e.clientX - drag.x) / cam.scale;
+      const dy = (e.clientY - drag.y) / cam.scale;
+      drag.x = e.clientX;
+      drag.y = e.clientY;
+      pan.x -= dx;
+      pan.y -= dy;
+      cam.x -= dx;
+      cam.y -= dy;
+      clampPan();
+    }
     if (!fingers.has(e.pointerId)) return;
     fingers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     if (pinch && fingers.size >= 2) setZoom((pinch.z0 * spread()) / pinch.d0);
   };
+  const endDrag = () => {
+    drag = null;
+    canvas.classList.remove('dragging');
+  };
   const up = (e) => {
+    if (drag && e.pointerId === drag.id) endDrag();
     fingers.delete(e.pointerId);
     if (fingers.size < 2) pinch = null;
+  };
+  // keep the view over the island
+  const clampPan = () => {
+    const x = me.x + pan.x - C.x;
+    const y = me.y - 50 + pan.y - C.y;
+    const d = Math.hypot(x, y);
+    const max = ISLE + 100;
+    if (d > max) {
+      pan.x -= (x * (d - max)) / d;
+      pan.y -= (y * (d - max)) / d;
+    }
   };
   window.addEventListener('pointerdown', down);
   window.addEventListener('pointermove', move);
@@ -241,9 +280,14 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     habitats.update(me, zoneRevealed, performance.now());
 
     // camera
+    if (me.moving && !drag) {
+      const k = Math.pow(0.004, dt);
+      pan.x *= k;
+      pan.y *= k;
+    }
     const target = overview
       ? { x: C.x, y: C.y, scale: Math.min(vw, vh - 120) / (2 * (ISLE + 160)) }
-      : { x: me.x, y: me.y - 50, scale: baseScale * zoom };
+      : { x: me.x + pan.x, y: me.y - 50 + pan.y, scale: baseScale * zoom };
     const f = 1 - Math.pow(0.0015, dt);
     cam.x += (target.x - cam.x) * f;
     cam.y += (target.y - cam.y) * f;
@@ -524,6 +568,8 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     },
     setOverview(v) {
       overview = v;
+      pan.x = pan.y = 0;
+      endDrag();
     },
     get overview() {
       return overview;

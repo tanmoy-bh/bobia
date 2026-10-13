@@ -1625,6 +1625,10 @@ img {
   height: 100%;
   display: block;
   touch-action: none;
+  cursor: grab;
+}
+#world.dragging {
+  cursor: grabbing;
 }
 .loading {
   position: absolute;
