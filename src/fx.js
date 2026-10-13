@@ -69,6 +69,11 @@ export function sound(name) {
     case 'tap':
       tone(660, 0, 0.05, 'triangle', 0.08);
       break;
+    case 'grow':
+      // a quick, wobbly power-up climb while she grows
+      [392, 523, 440, 587, 494, 659, 554, 740, 659, 880].forEach((f, i) => tone(f, i * 0.085, 0.11, 'square', 0.06));
+      tone(1047, 0.85, 0.35, 'triangle', 0.1);
+      break;
     case 'baa':
       baa();
       break;

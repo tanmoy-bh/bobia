@@ -5,6 +5,7 @@ import { WORLD, C, ISLE, ROAD_HALF, CHEST_REACH, islandPath, islandR } from './w
 import { drawSprite } from './art.js';
 import { drawGirl } from './character.js';
 import { createHabitats } from './habitats.js';
+import { sound } from './fx.js';
 
 if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
@@ -54,7 +55,16 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   const GROWN_AT = 25;
   const crawling = () => getProgress().solved < 2;
   const ageFor = () => Math.max(0, Math.min(1, (getProgress().solved - 2) / (GROWN_AT - 2)));
-  let age = ageFor();
+  const lookFor = () => ({ age: ageFor(), crawl: crawling() });
+  let look = lookFor(); // how she looks right now
+
+  // After a chest she grows Mario style: a short freeze while she flickers
+  // small, medium, big a few times (each pulse a little exaggerated, so even
+  // a small step shows), then settles at her new size.
+  const GROW_MS = 1100;
+  const GROW_SEQ = [0, 1, 2, 0, 1, 2, 0, 1, 2, 2];
+  const GROW_SIZE = [1, 1.09, 1.18];
+  let grow = null;
   // pinch (or ctrl + scroll) to zoom the island; remembered between visits
   const ZOOM_MIN = 0.55;
   const ZOOM_MAX = 2.2;
@@ -254,7 +264,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   function step(dt) {
     let ix = 0;
     let iy = 0;
-    if (!isBlocked() && !overview) {
+    if (!isBlocked() && !overview && !grow) {
       if (Math.hypot(joy.x, joy.y) > 0.12) {
         ix = joy.x;
         iy = joy.y;
@@ -270,7 +280,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     }
     me.moving = mag > 0.05;
     if (me.moving) {
-      const speed = SPEED * (crawling() ? 0.8 : 0.85 + 0.15 * age);
+      const speed = SPEED * (look.crawl ? 0.8 : 0.85 + 0.15 * look.age);
       const nx = me.x + ix * speed * dt;
       const ny = me.y + iy * speed * dt;
       const q = world.nearest({ x: nx, y: ny }, unlockedS());
@@ -286,7 +296,18 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     }
     updateNear();
     habitats.update(me, zoneRevealed, performance.now());
-    age += (ageFor() - age) * (1 - Math.pow(0.25, dt)); // grow smoothly, not in a jump
+    // grow as soon as the treasure closes
+    const want = lookFor();
+    const nowMs = performance.now();
+    if (!grow && !isBlocked() && (Math.abs(want.age - look.age) > 1e-3 || want.crawl !== look.crawl)) {
+      grow = { t0: nowMs, from: look, to: want };
+      me.moving = false;
+      sound('grow');
+    }
+    if (grow && nowMs - grow.t0 > GROW_MS) {
+      look = grow.to;
+      grow = null;
+    }
 
     // camera
     if (me.moving && !drag) {
@@ -326,6 +347,46 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     ctx.strokeText(text, x, y + 26);
     ctx.fillStyle = '#FFFFFF';
     ctx.fillText(text, x, y + 26);
+  }
+
+  function drawJoy(now) {
+    let st = look;
+    let k = 1;
+    if (grow) {
+      const frame = Math.min(GROW_SEQ.length - 1, Math.floor(((now - grow.t0) / GROW_MS) * GROW_SEQ.length));
+      const i = GROW_SEQ[Math.max(0, frame)];
+      const mid = { age: grow.from.crawl ? 0 : (grow.from.age + grow.to.age) / 2, crawl: false };
+      st = [grow.from, mid, grow.to][i];
+      k = GROW_SIZE[i];
+    }
+    ctx.save();
+    ctx.translate(me.x, me.y);
+    ctx.scale(k, k);
+    drawGirl(ctx, 0, 0, me.dir, me.phase, me.moving, now / 1000, st.age, st.crawl);
+    ctx.restore();
+    if (grow) {
+      // sparkles circling her while she grows
+      const e = Math.min(1, (now - grow.t0) / GROW_MS);
+      for (let i = 0; i < 8; i++) {
+        const a = (i / 8) * Math.PI * 2 + e * 5;
+        const r = 34 + e * 26;
+        const tw = 0.5 + 0.5 * Math.sin(now / 70 + i);
+        ctx.save();
+        ctx.translate(me.x + Math.cos(a) * r, me.y - 42 + Math.sin(a) * r * 0.8);
+        ctx.rotate(now / 300 + i);
+        ctx.globalAlpha = (1 - e * 0.6) * tw;
+        ctx.fillStyle = i % 2 ? '#FFE07A' : '#FFFFFF';
+        ctx.beginPath();
+        for (let j = 0; j < 8; j++) {
+          const rr = j % 2 ? 2.5 : 8;
+          ctx.lineTo(Math.cos((j * Math.PI) / 4) * rr, Math.sin((j * Math.PI) / 4) * rr);
+        }
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+      }
+      ctx.globalAlpha = 1;
+    }
   }
 
   function marker(x, y, now) {
@@ -462,7 +523,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     // things standing on the ground, back to front
     const items = statics.filter((o) => vis(o.x, o.y, o.r));
     items.push(...habitats.movers(vis, T));
-    items.push({ y: me.y, draw: () => drawGirl(ctx, me.x, me.y, me.dir, me.phase, me.moving, now / 1000, age, crawling()) });
+    items.push({ y: me.y, draw: () => drawJoy(now) });
     items.sort((a, b) => a.y - b.y);
     for (const o of items) o.draw();
     habitats.air(vis, T, now);
