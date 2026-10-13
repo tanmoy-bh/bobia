@@ -233,6 +233,10 @@ export function buildWorld(zones) {
       const q = nearest(p);
       let zone = zoneOfS(q.s);
       if (Math.hypot(p.x - camp.x, p.y - camp.y) < 260) zone = 1;
+      // clouds over a stop's landmark and animal habitat belong to that stop,
+      // so they clear while she is heading there, not after she solves it
+      for (const h of habitats) if (h.k < zone && Math.hypot(p.x - h.x, p.y - h.y) < h.r + 110) zone = h.k;
+      for (const c of chests) if (c.k < zone && Math.hypot(p.x - c.landmark.x, p.y - (c.landmark.y - 90)) < 210) zone = c.k;
       const dl = Math.hypot(p.x - q.x, p.y - q.y) || 1;
       const dir = dl > 5 ? { x: (p.x - q.x) / dl, y: (p.y - q.y) / dl } : { x: rand() - 0.5, y: -1 };
       puffs.push({ x: p.x, y: p.y, r: 105 + rand() * 45, zone, dx: dir.x, dy: dir.y, wob: rand() * Math.PI * 2 });
