@@ -21,11 +21,27 @@ export function setMusicOff(v) {
 function audio() {
   try {
     ctx = ctx || new (window.AudioContext || window.webkitAudioContext)();
-    if (ctx.state === 'suspended') ctx.resume();
+    // 'suspended' before her first tap, 'interrupted' on iPhones after a call
+    // or the screen locking
+    if (ctx.state !== 'running') ctx.resume()?.catch?.(() => {});
     return ctx;
   } catch {
     return null;
   }
+}
+
+// Phones (iPhones above all) only let a page make sound if its audio is
+// started or resumed during a tap. Call this from every tap, whether or not
+// the music is on, so the animal calls and other sounds always work.
+let unlocked = false;
+export function unlockAudio() {
+  const c = audio();
+  if (!c || unlocked) return;
+  const s = c.createBufferSource(); // a silent blip finishes the unlock on older iPhones
+  s.buffer = c.createBuffer(1, 1, 22050);
+  s.connect(c.destination);
+  s.start(0);
+  unlocked = true;
 }
 
 function tone(freq, start, dur, type = 'triangle', vol = 0.18) {

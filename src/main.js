@@ -4,7 +4,7 @@ import { buildWorld } from './world.js';
 import { loadSprites, chestSVG } from './art.js';
 import { createGame } from './game.js';
 import { mountPuzzle, imgSrc, norm } from './puzzles.js';
-import { sound, confetti, isMusicOff, setMusicOff, startMusic } from './fx.js';
+import { sound, confetti, isMusicOff, setMusicOff, startMusic, unlockAudio } from './fx.js';
 import { skyHTML, isleHTML } from './title-scene.js';
 
 // ── State ────────────────────────────────────────────────────────────────
@@ -703,11 +703,17 @@ function showLetter() {
 document.title = config.intro.title;
 state.gate && state.started ? renderGame() : renderTitle();
 
-// Browsers only allow sound after a tap, so the tune starts on the first one.
-for (const type of ['pointerdown', 'click', 'keydown']) {
-  addEventListener(type, (e) => {
-    if (!e.target.closest?.('#mute')) startMusic();
-  });
+// Browsers only allow sound after a tap. Every tap wakes the audio up (so
+// animal calls play even with the music off), and the first one starts the tune.
+for (const type of ['pointerdown', 'pointerup', 'touchend', 'click', 'keydown']) {
+  addEventListener(
+    type,
+    (e) => {
+      unlockAudio();
+      if (!e.target.closest?.('#mute')) startMusic();
+    },
+    { passive: true },
+  );
 }
 
 // test hook
