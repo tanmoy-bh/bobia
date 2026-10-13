@@ -219,8 +219,8 @@ function head(ctx, dir, hy, len = 1) {
  * age: 0 = toddler .. 1 = grown up (bigger head, shorter body and hair when young)
  * crawl: draw her as a crawling baby instead
  */
-export function drawGirl(ctx, x, y, dir, phase, moving, t, age = 1, crawl = false) {
-  if (crawl) return drawBaby(ctx, x, y, dir, phase, moving, t);
+export function drawGirl(ctx, x, y, dir, phase, moving, t, age = 1, crawl = false, shadow = true) {
+  if (crawl) return drawBaby(ctx, x, y, dir, phase, moving, t, shadow);
   const B = 0.55 + 0.45 * age; // body
   const H = 0.78 + 0.22 * age; // head
   const L = 0.25 + 0.75 * age; // hair length
@@ -230,11 +230,13 @@ export function drawGirl(ctx, x, y, dir, phase, moving, t, age = 1, crawl = fals
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
 
-  // shadow
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 22 * B, 7 * B, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,.2)';
-  ctx.fill();
+  // shadow (left off mid-jump; the game draws it on the ground instead)
+  if (shadow) {
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 22 * B, 7 * B, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.fill();
+  }
 
   const bob = (moving ? -Math.abs(Math.sin(phase)) * 4 : Math.sin(t * 2.2) * 0.8) * B;
   const step = moving ? Math.sin(phase) : 0;
@@ -354,17 +356,19 @@ function babyHair(ctx, x, y) {
   ellipse(ctx, x + 7, y + 1, 2, 2, DRESS_DARK, INK, 1.4);
 }
 
-function drawBaby(ctx, x, y, dir, phase, moving, t) {
+function drawBaby(ctx, x, y, dir, phase, moving, t, shadow = true) {
   ctx.save();
   ctx.translate(x, y);
   ctx.scale(1.25, 1.25); // a touch bigger than life, so she's easy to spot on a phone
   ctx.lineJoin = 'round';
   ctx.lineCap = 'round';
 
-  ctx.beginPath();
-  ctx.ellipse(0, 0, 20, 6, 0, 0, Math.PI * 2);
-  ctx.fillStyle = 'rgba(0,0,0,.2)';
-  ctx.fill();
+  if (shadow) {
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 20, 6, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.fill();
+  }
 
   const c = moving ? Math.sin(phase * 0.7) : 0; // crawl cycle
   const bob = moving ? -Math.abs(Math.sin(phase * 0.7)) * 2 : Math.sin(t * 2.2) * 0.6;

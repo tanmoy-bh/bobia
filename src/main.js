@@ -70,6 +70,7 @@ const GEM = `<svg class="gem" viewBox="0 0 24 24" aria-hidden="true"><path d="M6
 const SCROLL = `<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="5" width="20" height="22" rx="3" fill="#FBEBC8" stroke="#3B2414" stroke-width="2.5"/><path d="M10 11h12M10 16h12M10 21h8" stroke="#A8743A" stroke-width="2.5" stroke-linecap="round"/><rect x="3" y="3" width="26" height="5" rx="2.5" fill="#D9A55B" stroke="#3B2414" stroke-width="2.5"/><rect x="3" y="24" width="26" height="5" rx="2.5" fill="#D9A55B" stroke="#3B2414" stroke-width="2.5"/></svg>`;
 const CHEST_ICON = `<svg viewBox="-46 -80 92 92" aria-hidden="true">${chestSVG(false)}</svg>`;
 const RESET_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#3B2414" stroke-width="6" stroke-linecap="round"/><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#FBEBC8" stroke-width="3" stroke-linecap="round"/><path d="M27.5 4.5 26.5 13 18.5 11.5Z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2" stroke-linejoin="round"/></svg>`;
+const JUMP_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 5 7 15h6v7h6v-7h6z" fill="#fff" stroke="#3B2414" stroke-width="2.5" stroke-linejoin="round"/><path d="M9 27h14" stroke="#3B2414" stroke-width="3" stroke-linecap="round"/></svg>`;
 const MAP_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8l8-3 8 3 8-3v19l-8 3-8-3-8 3z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 5v19M20 8v19" stroke="#3B2414" stroke-width="2"/><path d="M23 12c0 2-3 5-3 5s-3-3-3-5a3 3 0 0 1 6 0z" fill="#E84A7F" stroke="#3B2414" stroke-width="1.6"/></svg>`;
 
 const ARROW = `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 13 10 6.5 16 13" fill="none" stroke="#3B2414" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
@@ -214,8 +215,8 @@ function renderTitle() {
 
 function showWelcome(first = false) {
   const how = isTouch
-    ? 'Drag anywhere on the left side of the screen to walk. Tap the gold button when you reach a chest.'
-    : 'Use the arrow keys or W A S D to walk. Press Space when you reach a chest.';
+    ? 'Drag anywhere on the left side of the screen to walk, and tap Jump to hop over rocks, logs and puddles. Tap the gold button when you reach a chest.'
+    : 'Use the arrow keys or W A S D to walk, and Space to jump over rocks, logs and puddles. Press Enter when you reach a chest.';
   const body = `
     <div class="letter-text">${config.intro.letter.map((p) => `<p>${esc(p)}</p>`).join('')}</div>
     <p class="how">${how}</p>
@@ -229,6 +230,7 @@ function showWelcome(first = false) {
 let game;
 let world;
 let sprites;
+let lastBumpTip = 0;
 
 async function renderGame() {
   app.innerHTML = `
@@ -259,7 +261,8 @@ async function renderGame() {
         <button class="vault-btn" id="vault">${CHEST_ICON}<span>Vault</span><b id="vault-count"></b></button>
         <button class="act" id="act" disabled><span id="act-label">Walk to a chest</span></button>
       </div>
-      <p class="keys-hint">Arrow keys or WASD to walk · Space to open</p>
+      <button class="jump-btn" id="jump" aria-label="Jump">${JUMP_ICON}<span>Jump</span></button>
+      <p class="keys-hint">Arrow keys or WASD to walk · Space to jump · Enter to open</p>
       <div class="loading" id="loading">Drawing the island…</div>
     </div>`;
 
@@ -280,13 +283,27 @@ async function renderGame() {
     getProgress: () => state,
     isBlocked: () => !!modalClose,
     onNear: updateAction,
+    onBump: () => {
+      const t = performance.now();
+      if (t - lastBumpTip < 6000) return;
+      lastBumpTip = t;
+      toast(isTouch ? 'Tap Jump to hop over it' : 'Press Space to jump over it');
+    },
   });
 
   setupStick();
   $('#act').addEventListener('click', act);
+  $('#jump').addEventListener('pointerdown', (e) => {
+    e.preventDefault();
+    game.jump();
+  });
   window.onkeydown = (e) => {
     if (modalClose || e.target.closest?.('input')) return;
-    if (e.code === 'Space' || e.code === 'Enter') {
+    if (e.code === 'Space') {
+      e.preventDefault();
+      if (!e.repeat) game.jump();
+    }
+    if (e.code === 'Enter') {
       e.preventDefault();
       act();
     }

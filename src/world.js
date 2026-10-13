@@ -102,6 +102,22 @@ export function buildWorld(zones) {
     chests.push({ k, s: sk, road: { x: P.x, y: P.y }, n, t, side, x: chest.x, y: chest.y, landmark: { x: lm.x, y: lm.y, type: zones[k - 1].landmark || 'palms' } });
   }
 
+  // ── Obstacles: one on the road between each pair of chests, from the
+  // third stretch on (baby Joy only crawls the first two). Rocks and logs
+  // must be jumped; a puddle can be waded through, slowly. ──
+  const KINDS = ['rock', 'puddle', 'log'];
+  const obstacles = [];
+  for (let k = 3; k <= N; k++) {
+    const sv = (chests[k - 2].s + chests[k - 1].s) / 2;
+    const i = indexAt(sv);
+    const A = pts[Math.max(0, i - 2)];
+    const B = pts[Math.min(pts.length - 1, i + 2)];
+    const tl = Math.hypot(B.x - A.x, B.y - A.y) || 1;
+    const t = { x: (B.x - A.x) / tl, y: (B.y - A.y) / tl };
+    const type = KINDS[(k - 3) % KINDS.length];
+    obstacles.push({ k, type, s: sv, x: pts[i].x, y: pts[i].y, t, n: { x: -t.y, y: t.x }, half: { rock: 28, log: 20, puddle: 46 }[type], solid: type !== 'puddle' });
+  }
+
   const castle = { x: C.x, y: C.y + 175, k: N + 1, s: total };
   // birthday party in front of the castle
   const decor = [
@@ -252,5 +268,5 @@ export function buildWorld(zones) {
     if (Math.hypot(x - C.x, y - C.y) > islandR(a) + 60) waves.push({ x, y, ph: rand() * 6 });
   }
 
-  return { pts, s, total, roadPath, chests, castle, decor, plaza, camp, start, gate, nearest, zoneOfS, trees, flowers, puffs, waves, habitats };
+  return { pts, s, total, roadPath, chests, castle, decor, plaza, camp, start, gate, nearest, zoneOfS, trees, flowers, puffs, waves, habitats, obstacles };
 }

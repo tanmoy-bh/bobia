@@ -6,6 +6,7 @@ import { drawSprite } from './art.js';
 import { drawGirl } from './character.js';
 import { createHabitats } from './habitats.js';
 import { sound } from './fx.js';
+import { drawObstacle, drawPuddle } from './obstacles.js';
 
 if (typeof CanvasRenderingContext2D !== 'undefined' && !CanvasRenderingContext2D.prototype.roundRect) {
   CanvasRenderingContext2D.prototype.roundRect = function (x, y, w, h, r) {
@@ -23,7 +24,7 @@ const SPEED = 330; // world units per second
 const CLEAR_MS = 1900;
 const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-export function createGame(canvas, { world, sprites, names, getProgress, isBlocked, onNear }) {
+export function createGame(canvas, { world, sprites, names, getProgress, isBlocked, onNear, onBump }) {
   const ctx = canvas.getContext('2d');
   const N = world.chests.length;
   const sand = islandPath(0);
@@ -48,7 +49,11 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   // ── player ──
   const prog = getProgress();
   const startAt = prog.solved > 0 ? world.chests[Math.min(prog.solved, N) - 1].road : world.start;
-  const me = { x: startAt.x, y: startAt.y, dir: 'up', phase: 0, moving: false };
+  const me = { x: startAt.x, y: startAt.y, dir: 'up', phase: 0, moving: false, z: 0, vz: 0 };
+  me.s = world.nearest(me).s; // how far along the road she is
+  const GRAVITY = 1500;
+  let bumpedAt = 0;
+  const puddleAt = (sv) => world.obstacles.find((o) => o.type === 'puddle' && Math.abs(sv - o.s) < o.half);
 
   // Joy grows up along the way: a crawling baby for the first two chests,
   // then a toddler who grows a little with every chest until the 25th
@@ -280,19 +285,44 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     }
     me.moving = mag > 0.05;
     if (me.moving) {
-      const speed = SPEED * (look.crawl ? 0.8 : 0.85 + 0.15 * look.age);
+      const onGround = me.z < 12;
+      const wading = onGround && puddleAt(me.s);
+      const speed = SPEED * (look.crawl ? 0.8 : 0.85 + 0.15 * look.age) * (wading ? 0.4 : 1);
       const nx = me.x + ix * speed * dt;
       const ny = me.y + iy * speed * dt;
       const q = world.nearest({ x: nx, y: ny }, unlockedS());
-      if (q.d > ROAD_HALF) {
-        me.x = q.x + ((nx - q.x) * ROAD_HALF) / q.d;
-        me.y = q.y + ((ny - q.y) * ROAD_HALF) / q.d;
+      // rocks and logs stop her unless she is in the air
+      const rock = onGround && world.obstacles.find((o) => o.solid && Math.abs(q.s - o.s) < o.half && Math.abs(me.s - o.s) >= o.half - 0.5);
+      if (rock) {
+        const now = performance.now();
+        if (now - bumpedAt > 900) {
+          bumpedAt = now;
+          sound('bonk');
+          onBump?.(rock);
+        }
       } else {
-        me.x = nx;
-        me.y = ny;
+        if (q.d > ROAD_HALF) {
+          me.x = q.x + ((nx - q.x) * ROAD_HALF) / q.d;
+          me.y = q.y + ((ny - q.y) * ROAD_HALF) / q.d;
+        } else {
+          me.x = nx;
+          me.y = ny;
+        }
+        if (onGround && !wading && puddleAt(q.s)) sound('splash');
+        me.s = q.s;
       }
       me.dir = Math.abs(ix) > Math.abs(iy) ? (ix > 0 ? 'right' : 'left') : iy > 0 ? 'down' : 'up';
       me.phase += dt * 11 * Math.min(1, mag + 0.3);
+    }
+    // jumping
+    if (me.z > 0 || me.vz > 0) {
+      me.vz -= GRAVITY * dt;
+      me.z += me.vz * dt;
+      if (me.z <= 0) {
+        me.z = 0;
+        me.vz = 0;
+        sound(puddleAt(me.s) ? 'splash' : 'land');
+      }
     }
     updateNear();
     habitats.update(me, zoneRevealed, performance.now());
@@ -359,10 +389,18 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       st = [grow.from, mid, grow.to][i];
       k = GROW_SIZE[i];
     }
+    if (me.z > 0) {
+      // her shadow stays on the ground and shrinks as she rises
+      const f = Math.max(0.35, 1 - me.z / 110);
+      ctx.beginPath();
+      ctx.ellipse(me.x, me.y, 20 * f, 6.5 * f, 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,0,0,${0.22 * f})`;
+      ctx.fill();
+    }
     ctx.save();
-    ctx.translate(me.x, me.y);
+    ctx.translate(me.x, me.y - me.z);
     ctx.scale(k, k);
-    drawGirl(ctx, 0, 0, me.dir, me.phase, me.moving, now / 1000, st.age, st.crawl);
+    drawGirl(ctx, 0, 0, me.dir, me.phase, me.moving && me.z === 0, now / 1000, st.age, st.crawl, me.z === 0);
     ctx.restore();
     if (grow) {
       // sparkles circling her while she grows
@@ -505,6 +543,9 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     ctx.stroke(world.roadPath);
     ctx.setLineDash([]);
 
+    // puddles lie on the road
+    for (const o of world.obstacles) if (o.type === 'puddle' && vis(o.x, o.y, 60)) drawPuddle(ctx, o, T);
+
     // pink carpet up to the castle gate
     if (vis(world.gate.x, world.gate.y + 60, 120)) {
       const gx = world.gate.x;
@@ -523,6 +564,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     // things standing on the ground, back to front
     const items = statics.filter((o) => vis(o.x, o.y, o.r));
     items.push(...habitats.movers(vis, T));
+    for (const o of world.obstacles) if (o.solid && vis(o.x, o.y, 70)) items.push({ y: o.y, draw: () => drawObstacle(ctx, o) });
     items.push({ y: me.y, draw: () => drawJoy(now) });
     items.sort((a, b) => a.y - b.y);
     for (const o of items) o.draw();
@@ -649,6 +691,12 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       return !!pinch;
     },
     position: () => ({ x: me.x, y: me.y }),
+    // hop (a baby only manages a little bounce)
+    jump() {
+      if (me.z > 0 || me.vz > 0 || grow || isBlocked() || overview) return;
+      me.vz = look.crawl ? 170 : 430;
+      sound('jump');
+    },
     // hold or let go of a direction ('u', 'd', 'l', 'r'), as the arrow keys do
     press(k, on) {
       on ? keys.add(k) : keys.delete(k);
@@ -657,6 +705,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     _warp(x, y) {
       me.x = x;
       me.y = y;
+      me.s = world.nearest(me).s;
     },
     stop() {
       cancelAnimationFrame(raf);

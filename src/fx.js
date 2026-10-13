@@ -90,6 +90,20 @@ export function sound(name) {
     case 'grow':
       growUp();
       break;
+    case 'jump':
+      voice({ type: 'square', fs: [300, 780], dur: 0.16, vol: 0.07, filter: ['lowpass', 2200] });
+      break;
+    case 'land':
+      voice({ type: 'sine', fs: [170, 70], dur: 0.12, vol: 0.28 });
+      break;
+    case 'bonk':
+      voice({ type: 'triangle', fs: [240, 130], dur: 0.14, vol: 0.22 });
+      noise(0, 0.08, 0.08, 900, 400);
+      break;
+    case 'splash':
+      noise(0, 0.4, 0.2, 2600, 500);
+      for (const [f, at] of [[1500, 0.04], [2100, 0.11], [1750, 0.19]]) voice({ type: 'sine', fs: [f, f * 1.5], at, dur: 0.06, vol: 0.06 });
+      break;
     case 'baa':
       baa();
       break;
