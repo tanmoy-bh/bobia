@@ -48,6 +48,13 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   const prog = getProgress();
   const startAt = prog.solved > 0 ? world.chests[Math.min(prog.solved, N) - 1].road : world.start;
   const me = { x: startAt.x, y: startAt.y, dir: 'up', phase: 0, moving: false };
+
+  // Joy grows up along the way: a crawling baby for the first two chests,
+  // then a toddler who grows a little with every chest until the 25th
+  const GROWN_AT = 25;
+  const crawling = () => getProgress().solved < 2;
+  const ageFor = () => Math.max(0, Math.min(1, (getProgress().solved - 2) / (GROWN_AT - 2)));
+  let age = ageFor();
   // pinch (or ctrl + scroll) to zoom the island; remembered between visits
   const ZOOM_MIN = 0.55;
   const ZOOM_MAX = 2.2;
@@ -263,8 +270,9 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     }
     me.moving = mag > 0.05;
     if (me.moving) {
-      const nx = me.x + ix * SPEED * dt;
-      const ny = me.y + iy * SPEED * dt;
+      const speed = SPEED * (crawling() ? 0.8 : 0.85 + 0.15 * age);
+      const nx = me.x + ix * speed * dt;
+      const ny = me.y + iy * speed * dt;
       const q = world.nearest({ x: nx, y: ny }, unlockedS());
       if (q.d > ROAD_HALF) {
         me.x = q.x + ((nx - q.x) * ROAD_HALF) / q.d;
@@ -278,6 +286,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     }
     updateNear();
     habitats.update(me, zoneRevealed, performance.now());
+    age += (ageFor() - age) * (1 - Math.pow(0.25, dt)); // grow smoothly, not in a jump
 
     // camera
     if (me.moving && !drag) {
@@ -453,7 +462,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     // things standing on the ground, back to front
     const items = statics.filter((o) => vis(o.x, o.y, o.r));
     items.push(...habitats.movers(vis, T));
-    items.push({ y: me.y, draw: () => drawGirl(ctx, me.x, me.y, me.dir, me.phase, me.moving, now / 1000) });
+    items.push({ y: me.y, draw: () => drawGirl(ctx, me.x, me.y, me.dir, me.phase, me.moving, now / 1000, age, crawling()) });
     items.sort((a, b) => a.y - b.y);
     for (const o of items) o.draw();
     habitats.air(vis, T, now);

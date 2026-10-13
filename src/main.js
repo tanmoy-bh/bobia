@@ -605,6 +605,8 @@ function showTreasure(i, fresh = false) {
       game.reveal(i + 1);
       sound('reveal');
       toast(i + 1 === CASTLE ? `${names[CASTLE]} rises from the clouds` : `The clouds over ${names[i + 1]} cleared`);
+      const grew = { 2: `${config.herName} took her first steps!`, 25: `${config.herName} is all grown up!` }[i];
+      if (grew) setTimeout(() => toast(grew), 3000);
     },
   });
 }
