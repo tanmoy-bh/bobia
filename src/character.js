@@ -422,86 +422,102 @@ function tanBeard(ctx, hy) {
 }
 
 function tanHead(ctx, dir, hy) {
+  // his face is a longer oval than Joy's round one: the head, hair and beard
+  // are drawn narrower and taller, the eyes and smile at their usual size
+  const oval = (fn, cx = 0) => {
+    ctx.save();
+    ctx.translate(cx, hy);
+    ctx.scale(0.86, 1.12);
+    ctx.translate(-cx, -hy);
+    fn();
+    ctx.restore();
+  };
   if (dir === 'down') {
-    ellipse(ctx, -21.5, hy + 2, 3.6, 5, T_SKIN);
-    ellipse(ctx, 21.5, hy + 2, 3.6, 5, T_SKIN);
-    ellipse(ctx, 0, hy + 1, 22, 21.5, T_SKIN);
-    // short, neat hair with a little lift on top
-    ctx.beginPath();
-    ctx.moveTo(-21, hy - 3);
-    ctx.quadraticCurveTo(-24, hy - 23, -2, hy - 27);
-    ctx.quadraticCurveTo(10, hy - 30, 18, hy - 22);
-    ctx.quadraticCurveTo(24, hy - 15, 21, hy - 3);
-    ctx.quadraticCurveTo(19, hy - 12, 13, hy - 15);
-    ctx.quadraticCurveTo(3, hy - 19, -8, hy - 16);
-    ctx.quadraticCurveTo(-17, hy - 13, -21, hy - 3);
-    fillStroke(ctx, T_HAIR);
-    ctx.beginPath();
-    ctx.moveTo(-10, hy - 21);
-    ctx.quadraticCurveTo(0, hy - 25, 10, hy - 22);
-    line(ctx, T_HAIR_HI, 2);
-    tanBeard(ctx, hy);
+    oval(() => {
+      ellipse(ctx, -21.5, hy + 2, 3.6, 5, T_SKIN);
+      ellipse(ctx, 21.5, hy + 2, 3.6, 5, T_SKIN);
+      ellipse(ctx, 0, hy + 1, 22, 21.5, T_SKIN);
+      // short, neat hair with a little lift on top
+      ctx.beginPath();
+      ctx.moveTo(-21, hy - 3);
+      ctx.quadraticCurveTo(-24, hy - 23, -2, hy - 27);
+      ctx.quadraticCurveTo(10, hy - 30, 18, hy - 22);
+      ctx.quadraticCurveTo(24, hy - 15, 21, hy - 3);
+      ctx.quadraticCurveTo(19, hy - 12, 13, hy - 15);
+      ctx.quadraticCurveTo(3, hy - 19, -8, hy - 16);
+      ctx.quadraticCurveTo(-17, hy - 13, -21, hy - 3);
+      fillStroke(ctx, T_HAIR);
+      ctx.beginPath();
+      ctx.moveTo(-10, hy - 21);
+      ctx.quadraticCurveTo(0, hy - 25, 10, hy - 22);
+      line(ctx, T_HAIR_HI, 2);
+      tanBeard(ctx, hy);
+    });
     // the same happy face as Joy's
     for (const sx of [-1, 1]) {
       ctx.beginPath();
-      ctx.moveTo(sx * 4.5, hy - 5.5);
-      ctx.quadraticCurveTo(sx * 9, hy - 8, sx * 13, hy - 5.5);
+      ctx.moveTo(sx * 4, hy - 6.5);
+      ctx.quadraticCurveTo(sx * 8, hy - 9, sx * 11.5, hy - 6.5);
       line(ctx, T_HAIR, 2);
     }
-    cuteEye(ctx, -8.5, hy + 1.5);
-    cuteEye(ctx, 8.5, hy + 1.5);
-    blush(ctx, [[-14.5, hy + 8], [14.5, hy + 8]]);
-    cuteSmile(ctx, 0, hy + 11, 5.6);
+    cuteEye(ctx, -7.6, hy + 1.5);
+    cuteEye(ctx, 7.6, hy + 1.5);
+    blush(ctx, [[-12.5, hy + 9], [12.5, hy + 9]]);
+    cuteSmile(ctx, 0, hy + 12.5, 5.2);
   } else if (dir === 'up') {
-    ellipse(ctx, -21.5, hy + 2, 3.6, 5, T_SKIN);
-    ellipse(ctx, 21.5, hy + 2, 3.6, 5, T_SKIN);
-    ellipse(ctx, 0, hy + 1, 22, 21.5, T_SKIN);
-    ctx.beginPath();
-    ctx.moveTo(-22, hy + 9);
-    ctx.quadraticCurveTo(-25, hy - 23, 0, hy - 25);
-    ctx.quadraticCurveTo(25, hy - 23, 22, hy + 9);
-    ctx.quadraticCurveTo(0, hy + 14, -22, hy + 9);
-    fillStroke(ctx, T_HAIR);
-    ctx.beginPath();
-    ctx.moveTo(-8, hy - 18);
-    ctx.quadraticCurveTo(0, hy - 21, 8, hy - 18);
-    line(ctx, T_HAIR_HI, 2);
+    oval(() => {
+      ellipse(ctx, -21.5, hy + 2, 3.6, 5, T_SKIN);
+      ellipse(ctx, 21.5, hy + 2, 3.6, 5, T_SKIN);
+      ellipse(ctx, 0, hy + 1, 22, 21.5, T_SKIN);
+      ctx.beginPath();
+      ctx.moveTo(-22, hy + 9);
+      ctx.quadraticCurveTo(-25, hy - 23, 0, hy - 25);
+      ctx.quadraticCurveTo(25, hy - 23, 22, hy + 9);
+      ctx.quadraticCurveTo(0, hy + 14, -22, hy + 9);
+      fillStroke(ctx, T_HAIR);
+      ctx.beginPath();
+      ctx.moveTo(-8, hy - 18);
+      ctx.quadraticCurveTo(0, hy - 21, 8, hy - 18);
+      line(ctx, T_HAIR_HI, 2);
+    });
   } else {
     // side view, facing right
-    ellipse(ctx, 2, hy + 1, 22, 21.5, T_SKIN);
-    // short hair on top and at the back, above the ear
+    oval(() => {
+      ellipse(ctx, 2, hy + 1, 22, 21.5, T_SKIN);
+      // short hair on top and at the back, above the ear
+      ctx.beginPath();
+      ctx.moveTo(-18, hy - 1);
+      ctx.bezierCurveTo(-23, hy - 17, -10, hy - 28, 6, hy - 26);
+      ctx.quadraticCurveTo(19, hy - 24, 22, hy - 12);
+      ctx.quadraticCurveTo(14, hy - 16, 6, hy - 15);
+      ctx.quadraticCurveTo(-4, hy - 13, -7, hy - 2);
+      ctx.closePath();
+      fillStroke(ctx, T_HAIR);
+      ctx.beginPath();
+      ctx.arc(-3, hy - 12, 9, Math.PI * 1.1, Math.PI * 1.5);
+      line(ctx, T_HAIR_HI, 2);
+      ellipse(ctx, -5, hy + 3, 3.6, 5, T_SKIN);
+      // a slim beard along the jaw to the chin
+      ctx.beginPath();
+      ctx.moveTo(-3, hy + 5);
+      ctx.quadraticCurveTo(-1, hy + 19, 11, hy + 22);
+      ctx.quadraticCurveTo(20, hy + 22, 22, hy + 14);
+      ctx.quadraticCurveTo(17, hy + 15, 13, hy + 14);
+      ctx.quadraticCurveTo(5, hy + 12, 1, hy + 5);
+      ctx.closePath();
+      fillStroke(ctx, T_HAIR, 2.2);
+      ctx.beginPath();
+      ctx.moveTo(14, hy + 9.5);
+      ctx.quadraticCurveTo(18, hy + 7.5, 21.5, hy + 9.5);
+      line(ctx, T_HAIR, 2.2);
+    }, 2);
     ctx.beginPath();
-    ctx.moveTo(-18, hy - 1);
-    ctx.bezierCurveTo(-23, hy - 17, -10, hy - 28, 6, hy - 26);
-    ctx.quadraticCurveTo(19, hy - 24, 22, hy - 12);
-    ctx.quadraticCurveTo(14, hy - 16, 6, hy - 15);
-    ctx.quadraticCurveTo(-4, hy - 13, -7, hy - 2);
-    ctx.closePath();
-    fillStroke(ctx, T_HAIR);
-    ctx.beginPath();
-    ctx.arc(-3, hy - 12, 9, Math.PI * 1.1, Math.PI * 1.5);
-    line(ctx, T_HAIR_HI, 2);
-    ellipse(ctx, -5, hy + 3, 3.6, 5, T_SKIN);
-    // a slim beard along the jaw to the chin
-    ctx.beginPath();
-    ctx.moveTo(-3, hy + 5);
-    ctx.quadraticCurveTo(-1, hy + 19, 11, hy + 22);
-    ctx.quadraticCurveTo(20, hy + 22, 22, hy + 14);
-    ctx.quadraticCurveTo(17, hy + 15, 13, hy + 14);
-    ctx.quadraticCurveTo(5, hy + 12, 1, hy + 5);
-    ctx.closePath();
-    fillStroke(ctx, T_HAIR, 2.2);
-    ctx.beginPath();
-    ctx.moveTo(14, hy + 9.5);
-    ctx.quadraticCurveTo(18, hy + 7.5, 21.5, hy + 9.5);
-    line(ctx, T_HAIR, 2.2);
-    ctx.beginPath();
-    ctx.moveTo(10, hy - 6);
-    ctx.quadraticCurveTo(14, hy - 8, 18, hy - 5.5);
+    ctx.moveTo(9.5, hy - 6.5);
+    ctx.quadraticCurveTo(13, hy - 9, 16.5, hy - 6);
     line(ctx, T_HAIR, 2);
-    cuteEye(ctx, 13, hy + 2);
-    blush(ctx, [[11, hy + 8]]);
-    cuteSmile(ctx, 17.5, hy + 11.5, 3.6);
+    cuteEye(ctx, 12, hy + 2);
+    blush(ctx, [[10.5, hy + 9]]);
+    cuteSmile(ctx, 16, hy + 12.8, 3.4);
   }
 }
 
