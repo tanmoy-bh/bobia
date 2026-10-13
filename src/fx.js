@@ -58,7 +58,7 @@ function tone(freq, start, dur, type = 'triangle', vol = 0.18) {
 }
 
 export function sound(name) {
-  if (!audio()) return;
+  if (document.hidden || !audio()) return;
   switch (name) {
     case 'tick':
       tone(880, 0, 0.06, 'square', 0.05);
@@ -356,7 +356,7 @@ function schedule() {
 }
 
 export function startMusic() {
-  if (musicOff || timer || !audio()) return;
+  if (musicOff || timer || document.hidden || !audio()) return;
   if (!bus) {
     bus = ctx.createGain();
     const echo = ctx.createDelay();
@@ -383,16 +383,24 @@ export function stopMusic() {
   bus.gain.setTargetAtTime(0, ctx.currentTime, 0.08);
 }
 
-// Pause while the tab is hidden; carry on when she comes back.
+// Go completely quiet while the page is hidden (another tab or app, or the
+// phone locked): stop the tune, and suspend the audio so nothing already
+// queued or newly called can play. Carry on when she comes back.
 let wasPlaying = false;
+const hide = () => {
+  if (timer) wasPlaying = true;
+  stopMusic();
+  ctx?.suspend?.().catch?.(() => {});
+};
 document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    wasPlaying = !!timer;
-    stopMusic();
-  } else if (wasPlaying) {
+  if (document.hidden) return hide();
+  audio();
+  if (wasPlaying) {
+    wasPlaying = false;
     startMusic();
   }
 });
+addEventListener('pagehide', hide);
 
 export function confetti(duration = 3500) {
   if (matchMedia('(prefers-reduced-motion: reduce)').matches) return;
