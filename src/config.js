@@ -51,7 +51,7 @@ export default {
   zones: [
     // ── 1 ─────────────────────────────
     {
-      name: "Palm Cove",
+      name: "Wood Apple Cove",
       landmark: 'palms',
       habitat: 'garden', // garden, pond, pasture, farm, bees, mud, beach, birds or fireflies
       puzzle: {
