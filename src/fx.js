@@ -72,9 +72,7 @@ export function sound(name) {
       tone(660, 0, 0.05, 'triangle', 0.08);
       break;
     case 'grow':
-      // a quick, wobbly power-up climb while she grows
-      [392, 523, 440, 587, 494, 659, 554, 740, 659, 880].forEach((f, i) => tone(f, i * 0.085, 0.11, 'square', 0.06));
-      tone(1047, 0.85, 0.35, 'triangle', 0.1);
+      growUp();
       break;
     case 'baa':
       baa();
@@ -202,6 +200,23 @@ const ANIMALS = {
     }
   },
 };
+
+// Joy growing up: bloops that climb in step with her small / medium / big
+// flicker (each round higher than the last), a whoosh rising underneath,
+// then a bright ta-da with sparkly bells and a soft thump as she settles.
+function growUp() {
+  const STEP = 0.11; // one flicker frame
+  [0, 4, 7, 5, 9, 12, 10, 14, 17].forEach((semi, i) => {
+    const f = 392 * 2 ** (semi / 12);
+    tone(f, i * STEP, 0.1, 'square', 0.09);
+    tone(f * 2, i * STEP, 0.08, 'triangle', 0.05);
+  });
+  noise(0, 1.1, 0.08, 500, 5000);
+  const end = 1.0;
+  [1047, 1319, 1568, 2093].forEach((f, i) => tone(f, end + i * 0.03, 0.9, 'triangle', 0.08));
+  [2637, 3136, 3520, 4186, 3136].forEach((f, i) => tone(f, end + 0.12 + i * 0.07, 0.35, 'sine', 0.05));
+  tone(98, end, 0.5, 'sine', 0.25);
+}
 
 // A little lamb's "baa": a wobbly buzzy note through a vowel-ish filter.
 function baa() {
