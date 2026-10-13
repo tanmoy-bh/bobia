@@ -234,33 +234,49 @@ function growUp() {
   tone(98, end, 0.5, 'sine', 0.25);
 }
 
-// A little lamb's "baa": a wobbly buzzy note through a vowel-ish filter.
+// A sheep's "baa": a low, buzzy voice that quavers about eleven times a
+// second (pitch and loudness together, "ba-a-a-a"), shaped into an open
+// "aah" vowel by three formant filters, with a quick "b" at the start.
 function baa() {
   const t = ctx.currentTime;
+  const dur = 0.85;
+  const f0 = 250 + Math.random() * 50;
   const o = ctx.createOscillator();
-  const lfo = ctx.createOscillator();
-  const depth = ctx.createGain();
-  const f = ctx.createBiquadFilter();
-  const g = ctx.createGain();
-  const pitch = 380 + Math.random() * 120;
   o.type = 'sawtooth';
-  o.frequency.setValueAtTime(pitch, t);
-  o.frequency.linearRampToValueAtTime(pitch * 0.82, t + 0.55);
-  lfo.frequency.value = 22;
-  depth.gain.value = pitch * 0.05;
-  lfo.connect(depth).connect(o.frequency);
-  f.type = 'bandpass';
-  f.frequency.value = 1100;
-  f.Q.value = 1.4;
-  g.gain.setValueAtTime(0, t);
-  g.gain.linearRampToValueAtTime(0.22, t + 0.05);
-  g.gain.setValueAtTime(0.22, t + 0.3);
-  g.gain.exponentialRampToValueAtTime(0.001, t + 0.6);
-  o.connect(f).connect(g).connect(ctx.destination);
+  o.frequency.setValueAtTime(f0 * 0.92, t);
+  o.frequency.linearRampToValueAtTime(f0 * 1.04, t + 0.12);
+  o.frequency.linearRampToValueAtTime(f0 * 0.86, t + dur);
+  const lfo = ctx.createOscillator();
+  lfo.frequency.value = 11;
+  const pitchWobble = ctx.createGain();
+  pitchWobble.gain.value = f0 * 0.035;
+  lfo.connect(pitchWobble).connect(o.frequency);
+  const quaver = ctx.createGain();
+  quaver.gain.value = 0.65;
+  const loudWobble = ctx.createGain();
+  loudWobble.gain.value = 0.35;
+  lfo.connect(loudWobble).connect(quaver.gain);
+  o.connect(quaver);
+  const vowel = ctx.createGain();
+  for (const [f, q, v] of [[750, 5, 1], [1200, 6, 0.7], [2500, 8, 0.25]]) {
+    const bp = ctx.createBiquadFilter();
+    bp.type = 'bandpass';
+    bp.frequency.value = f;
+    bp.Q.value = q;
+    const g = ctx.createGain();
+    g.gain.value = v;
+    quaver.connect(bp).connect(g).connect(vowel);
+  }
+  const env = ctx.createGain();
+  env.gain.setValueAtTime(0, t);
+  env.gain.linearRampToValueAtTime(0.5, t + 0.04);
+  env.gain.setValueAtTime(0.5, t + dur * 0.6);
+  env.gain.exponentialRampToValueAtTime(0.001, t + dur);
+  vowel.connect(env).connect(ctx.destination);
   o.start(t);
   lfo.start(t);
-  o.stop(t + 0.65);
-  lfo.stop(t + 0.65);
+  o.stop(t + dur + 0.05);
+  lfo.stop(t + dur + 0.05);
 }
 
 // ── Background tune ──────────────────────────────────────────────────────
