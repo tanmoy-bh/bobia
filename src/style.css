@@ -1556,7 +1556,7 @@ img {
   overflow-y: auto;
   -webkit-user-select: text;
   user-select: text;
-  padding: 34px 28px 40px;
+  padding: 34px 28px 28px;
   border: 4px solid var(--ink);
   border-radius: 8px 8px 22px 22px;
   background: linear-gradient(90deg, rgba(168, 116, 58, 0.12), transparent 8%, transparent 92%, rgba(168, 116, 58, 0.12)), var(--parchment);
@@ -1579,16 +1579,23 @@ img {
   font-size: 25px;
   line-height: 1.3;
 }
-.love-letter .signature {
+/* the seal sits beside the signature, in the flow, so it scrolls with the
+   letter instead of floating over the text */
+.sign-off {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
   margin-top: 18px;
+}
+.love-letter .signature {
+  margin: 0;
   text-align: right;
   font-size: 30px;
   font-weight: 700;
 }
 .wax {
-  position: absolute;
-  left: 22px;
-  bottom: 18px;
+  flex: none;
   display: grid;
   place-items: center;
   width: 54px;

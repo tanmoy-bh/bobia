@@ -741,8 +741,10 @@ function showLetter() {
       <button class="x" data-close aria-label="Close">✕</button>
       <h2>${esc(f.letterTitle)}, ${esc(config.herName)}</h2>
       ${f.letter.map((p) => `<p>${esc(p)}</p>`).join('')}
-      <p class="signature">${esc(f.signature)}</p>
-      <div class="wax">♥</div>
+      <div class="sign-off">
+        <div class="wax">♥</div>
+        <p class="signature">${esc(f.signature)}</p>
+      </div>
     </article>`,
     { cls: 'letter-modal' },
   );
