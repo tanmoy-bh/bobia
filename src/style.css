@@ -1693,6 +1693,57 @@ img {
 .stick:not(.active) .knob {
   transition: transform 0.15s;
 }
+/* tap arrows sitting on the ring */
+.pad {
+  --pad: calc(var(--size) * 0.3);
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: var(--pad);
+  height: var(--pad);
+  margin: calc(var(--pad) / -2) 0 0 calc(var(--pad) / -2);
+  display: grid;
+  place-items: center;
+  padding: 0;
+  border: 2.5px solid var(--ink);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 0 2px 0 var(--ink);
+  pointer-events: auto;
+  touch-action: none;
+  transition: opacity 0.2s, background 0.1s;
+}
+.pad::after {
+  /* a bigger invisible tap area */
+  content: '';
+  position: absolute;
+  inset: -6px;
+  border-radius: 50%;
+}
+.pad svg {
+  width: 62%;
+  height: 62%;
+}
+.pad.up {
+  transform: translateY(calc(var(--size) / -2 + 2px));
+}
+.pad.down {
+  transform: translateY(calc(var(--size) / 2 - 2px)) rotate(180deg);
+}
+.pad.left {
+  transform: translateX(calc(var(--size) / -2 + 2px)) rotate(-90deg);
+}
+.pad.right {
+  transform: translateX(calc(var(--size) / 2 - 2px)) rotate(90deg);
+}
+.pad.on {
+  background: #ffe07a;
+}
+/* while dragging the stick the arrows step aside */
+.stick.active .pad {
+  opacity: 0;
+  pointer-events: none;
+}
 .game.keys .stick,
 .game.keys .stick-zone {
   display: none;

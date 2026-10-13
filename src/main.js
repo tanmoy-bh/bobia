@@ -72,6 +72,14 @@ const CHEST_ICON = `<svg viewBox="-46 -80 92 92" aria-hidden="true">${chestSVG(f
 const RESET_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#3B2414" stroke-width="6" stroke-linecap="round"/><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#FBEBC8" stroke-width="3" stroke-linecap="round"/><path d="M27.5 4.5 26.5 13 18.5 11.5Z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2" stroke-linejoin="round"/></svg>`;
 const MAP_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8l8-3 8 3 8-3v19l-8 3-8-3-8 3z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 5v19M20 8v19" stroke="#3B2414" stroke-width="2"/><path d="M23 12c0 2-3 5-3 5s-3-3-3-5a3 3 0 0 1 6 0z" fill="#E84A7F" stroke="#3B2414" stroke-width="1.6"/></svg>`;
 
+const ARROW = `<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 13 10 6.5 16 13" fill="none" stroke="#3B2414" stroke-width="3.6" stroke-linecap="round" stroke-linejoin="round"/></svg>`;
+const PADS = [
+  ['u', 'up', 'Walk up'],
+  ['d', 'down', 'Walk down'],
+  ['l', 'left', 'Walk left'],
+  ['r', 'right', 'Walk right'],
+];
+
 function toast(msg) {
   document.querySelectorAll('.toast').forEach((t) => t.remove());
   const t = document.createElement('div');
@@ -243,7 +251,10 @@ async function renderGame() {
       </header>
       <button class="quest" id="quest">${SCROLL}<span id="quest-text"></span></button>
       <div class="stick-zone" id="stick-zone"></div>
-      <div class="stick" id="stick" aria-hidden="true"><div class="knob"></div></div>
+      <div class="stick" id="stick">
+        <div class="knob" aria-hidden="true"></div>
+        ${PADS.map(([k, cls, label]) => `<button class="pad ${cls}" data-k="${k}" aria-label="${label}">${ARROW}</button>`).join('')}
+      </div>
       <div class="actions">
         <button class="vault-btn" id="vault">${CHEST_ICON}<span>Vault</span><b id="vault-count"></b></button>
         <button class="act" id="act" disabled><span id="act-label">Walk to a chest</span></button>
@@ -401,6 +412,35 @@ function setupStick() {
   };
   zone.addEventListener('pointerup', end);
   zone.addEventListener('pointercancel', end);
+
+  // arrows on the ring: hold to walk like the arrow keys; a quick tap
+  // still takes a little step
+  for (const pad of stick.querySelectorAll('.pad')) {
+    const k = pad.dataset.k;
+    let t0 = 0;
+    let timer = 0;
+    const release = () => {
+      clearTimeout(timer);
+      timer = setTimeout(() => {
+        pad.classList.remove('on');
+        game.press(k, false);
+      }, Math.max(0, 170 - (performance.now() - t0)));
+    };
+    pad.addEventListener('pointerdown', (e) => {
+      if (modalClose || id !== null) return;
+      e.preventDefault();
+      try {
+        pad.setPointerCapture(e.pointerId);
+      } catch {}
+      clearTimeout(timer);
+      t0 = performance.now();
+      pad.classList.add('on');
+      game.press(k, true);
+    });
+    pad.addEventListener('pointerup', release);
+    pad.addEventListener('pointercancel', release);
+    pad.addEventListener('lostpointercapture', release);
+  }
 }
 
 // ── Action button ────────────────────────────────────────────────────────

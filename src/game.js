@@ -533,6 +533,10 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       return !!pinch;
     },
     position: () => ({ x: me.x, y: me.y }),
+    // hold or let go of a direction ('u', 'd', 'l', 'r'), as the arrow keys do
+    press(k, on) {
+      on ? keys.add(k) : keys.delete(k);
+    },
     // for tests: teleport next to the current target
     _warp(x, y) {
       me.x = x;
