@@ -482,6 +482,7 @@ function showPuzzle(i) {
     <p class="prompt">${esc(p.prompt)}</p>
     <div class="puzzle-root"></div>
     <p class="feedback" aria-live="polite"></p>
+    <button class="btn pink" id="wife" hidden>Wife is always right <span aria-hidden="true">♥</span></button>
     <div class="hints"></div>
     <button class="btn small purple" id="wizard">Ask the wizard <span class="cost">${config.hintCost}${GEM}</span></button>`;
   const title = i === CASTLE ? esc(zone.name) : `${esc(zone.name)} <small>${i} / ${TOTAL}</small>`;
@@ -512,6 +513,28 @@ function showPuzzle(i) {
   });
 
   let wrongs = 0;
+  let solved = false;
+  const solve = () => {
+    if (solved) return;
+    solved = true;
+    if (i === CASTLE) state.done = true;
+    else {
+      state.solved = Math.max(state.solved, i);
+      state.gems += config.gemsPerChest || 0;
+    }
+    save();
+    close();
+    updateHud();
+    i === CASTLE ? finale() : openChest(i);
+  };
+
+  // after any wrong answer she can simply overrule the lock
+  const wife = $('#wife', el);
+  wife.addEventListener('click', () => {
+    sound('fanfare');
+    solve();
+  });
+
   mountPuzzle(
     $('.puzzle-root', el),
     p,
@@ -524,18 +547,12 @@ function showPuzzle(i) {
         pnl.classList.remove('shake');
         void pnl.offsetWidth;
         pnl.classList.add('shake');
-      },
-      onSolve: () => {
-        if (i === CASTLE) state.done = true;
-        else {
-          state.solved = Math.max(state.solved, i);
-          state.gems += config.gemsPerChest || 0;
+        if (wife.hidden) {
+          wife.hidden = false;
+          wife.classList.add('pop');
         }
-        save();
-        close();
-        updateHud();
-        i === CASTLE ? finale() : openChest(i);
       },
+      onSolve: solve,
     },
     { runes: runes() },
   );

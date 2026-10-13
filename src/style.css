@@ -44,6 +44,11 @@ body {
   text-size-adjust: 100%;
 }
 
+/* `hidden` must win over any display set on buttons and boxes */
+[hidden] {
+  display: none !important;
+}
+
 input {
   -webkit-user-select: text;
   user-select: text;
@@ -110,6 +115,21 @@ img {
   --mid: #8bd158;
   --low: #6db33f;
   --bot: #5a9a32;
+}
+.btn.pink {
+  --top: #ffb3cf;
+  --mid: #ff8fb8;
+  --low: #e84a7f;
+  --bot: #c2386a;
+}
+.btn.pop {
+  animation: pop-in 0.45s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes pop-in {
+  from {
+    transform: scale(0.4);
+    opacity: 0;
+  }
 }
 .btn.small {
   min-height: 44px;
@@ -2125,6 +2145,7 @@ img {
     margin: 0;
     align-self: center;
   }
+  .puzzle-modal #wife,
   .puzzle-modal #wizard,
   .treasure .btn {
     justify-self: center;
