@@ -70,6 +70,7 @@ const GEM = `<svg class="gem" viewBox="0 0 24 24" aria-hidden="true"><path d="M6
 const SCROLL = `<svg viewBox="0 0 32 32" aria-hidden="true"><rect x="6" y="5" width="20" height="22" rx="3" fill="#FBEBC8" stroke="#3B2414" stroke-width="2.5"/><path d="M10 11h12M10 16h12M10 21h8" stroke="#A8743A" stroke-width="2.5" stroke-linecap="round"/><rect x="3" y="3" width="26" height="5" rx="2.5" fill="#D9A55B" stroke="#3B2414" stroke-width="2.5"/><rect x="3" y="24" width="26" height="5" rx="2.5" fill="#D9A55B" stroke="#3B2414" stroke-width="2.5"/></svg>`;
 const CHEST_ICON = `<svg viewBox="-46 -80 92 92" aria-hidden="true">${chestSVG(false)}</svg>`;
 const RESET_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#3B2414" stroke-width="6" stroke-linecap="round"/><path d="M24.5 11.5A10 10 0 1 0 26 18" fill="none" stroke="#FBEBC8" stroke-width="3" stroke-linecap="round"/><path d="M27.5 4.5 26.5 13 18.5 11.5Z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2" stroke-linejoin="round"/></svg>`;
+const BAG_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M10 9c-1-3 2-5 6-5s7 2 6 5" fill="none" stroke="#3B2414" stroke-width="2.5" stroke-linecap="round"/><path d="M9 10h14c4 3 6 8 5 13-1 4-5 5-12 5s-11-1-12-5c-1-5 1-10 5-13z" fill="#E84A7F" stroke="#3B2414" stroke-width="2.5" stroke-linejoin="round"/><path d="M8.5 11.5c3 1.5 12 1.5 15 0" fill="none" stroke="#FFC83D" stroke-width="2.5" stroke-linecap="round"/><path d="M16 17.5c-2.5-1.8-3-3.6-1.5-4.4 0.8-0.4 1.5 0 1.5 0.7 0-0.7 0.7-1.1 1.5-0.7 1.5 0.8 1 2.6-1.5 4.4z" fill="#FFE07A" stroke="#3B2414" stroke-width="1.2"/></svg>`;
 const JUMP_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M16 5 7 15h6v7h6v-7h6z" fill="#fff" stroke="#3B2414" stroke-width="2.5" stroke-linejoin="round"/><path d="M9 27h14" stroke="#3B2414" stroke-width="3" stroke-linecap="round"/></svg>`;
 const MAP_ICON = `<svg viewBox="0 0 32 32" aria-hidden="true"><path d="M4 8l8-3 8 3 8-3v19l-8 3-8-3-8 3z" fill="#FBEBC8" stroke="#3B2414" stroke-width="2.5" stroke-linejoin="round"/><path d="M12 5v19M20 8v19" stroke="#3B2414" stroke-width="2"/><path d="M23 12c0 2-3 5-3 5s-3-3-3-5a3 3 0 0 1 6 0z" fill="#E84A7F" stroke="#3B2414" stroke-width="1.6"/></svg>`;
 
@@ -258,6 +259,7 @@ async function renderGame() {
         ${PADS.map(([k, cls, label]) => `<button class="pad ${cls}" data-k="${k}" aria-label="${label}">${ARROW}</button>`).join('')}
       </div>
       <div class="actions">
+        <button class="vault-btn bag-btn" id="bag">${BAG_ICON}<span>Bag</span><b id="bag-count"></b></button>
         <button class="vault-btn" id="vault">${CHEST_ICON}<span>Vault</span><b id="vault-count"></b></button>
         <button class="act" id="act" disabled><span id="act-label">Walk to a chest</span></button>
       </div>
@@ -311,6 +313,7 @@ async function renderGame() {
   };
   $('#quest').addEventListener('click', showQuest);
   $('#vault').addEventListener('click', showVault);
+  $('#bag').addEventListener('click', showBag);
   $('#map-btn').addEventListener('click', toggleMap);
   $('#reset-btn').addEventListener('click', confirmReset);
   $('#mute').addEventListener('click', () => {
@@ -365,6 +368,7 @@ function updateHud() {
   $('#gems').textContent = state.gems;
   updateMute();
   $('#vault-count').textContent = state.solved;
+  $('#bag-count').textContent = Math.min(state.solved, (config.charms || []).length);
   $('#quest-text').textContent = state.done ? 'Your letter is waiting at the castle' : clueFor(current()).text;
 }
 
@@ -606,11 +610,34 @@ function treasureHTML(i, fresh) {
     fresh ? `Treasure ${i} of ${TOTAL}` : esc(z.name),
     `<figure class="polaroid"><img src="${imgSrc(t.image, 'Your photo here')}" alt=""/><figcaption>${esc(t.title)}</figcaption></figure>
      <p class="memory">${esc(t.memory)}</p>
-     ${rune}${gems}
+     ${rune}${gems}${charmHTML(i, fresh)}
      ${clueCard(t.clue, `Clue for ${esc(names[i + 1])}`)}
      <button class="btn" data-close>${fresh ? 'Follow the clue' : 'Close'}</button>`,
     { cls: 'treasure', closeBtn: !fresh },
   );
+}
+
+function charmHTML(i, fresh) {
+  const c = (config.charms || [])[i - 1];
+  if (!c) return '';
+  return `<div class="charm-find${fresh ? ' fresh' : ''}">
+    <span class="charm-icon" aria-hidden="true">${c.icon}</span>
+    <div><b>${fresh ? 'A charm for your bag: ' : ''}${esc(c.name)}</b><p>${esc(c.note)}</p></div>
+  </div>`;
+}
+
+function showBag() {
+  sound('tap');
+  const charms = config.charms || [];
+  const got = Math.min(state.solved, charms.length);
+  const rows = charms
+    .map((c, k) =>
+      k < got
+        ? `<li class="charm"><span class="charm-icon" aria-hidden="true">${c.icon}</span><div><b>${esc(c.name)}</b><p>${esc(c.note)}</p></div></li>`
+        : `<li class="charm locked"><span class="charm-icon">?</span><div><b>Chest ${k + 1}</b><p>Still hidden on the island.</p></div></li>`,
+    )
+    .join('');
+  openModal(panel(`Bag · ${got} / ${charms.length}`, `<ul class="charm-list">${rows}</ul>`), { cls: 'bag-modal' });
 }
 
 function showTreasure(i, fresh = false) {
@@ -622,7 +649,13 @@ function showTreasure(i, fresh = false) {
       game.reveal(i + 1);
       sound('reveal');
       toast(i + 1 === CASTLE ? `${names[CASTLE]} rises from the clouds` : `The clouds over ${names[i + 1]} cleared`);
-      const grew = { 2: `${config.herName} took her first steps!`, 25: `${config.herName} is all grown up!` }[i];
+      const grew = {
+        2: `${config.herName} took her first steps!`,
+        25: `${config.herName} is all grown up!`,
+        27: `${config.fromName} is here! He'll walk with you from now on`,
+        30: 'A little someone is on the way…',
+        31: `Say hello to ${config.daughterName || 'your little girl'}!`,
+      }[i];
       if (grew) setTimeout(() => toast(grew), 3000);
     },
   });

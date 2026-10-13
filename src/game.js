@@ -3,7 +3,7 @@
 
 import { WORLD, C, ISLE, ROAD_HALF, CHEST_REACH, islandPath, islandR } from './world.js';
 import { drawSprite } from './art.js';
-import { drawGirl } from './character.js';
+import { drawGirl, drawTan } from './character.js';
 import { createHabitats } from './habitats.js';
 import { sound } from './fx.js';
 import { drawObstacle, drawPuddle } from './obstacles.js';
@@ -51,6 +51,57 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   const startAt = prog.solved > 0 ? world.chests[Math.min(prog.solved, N) - 1].road : world.start;
   const me = { x: startAt.x, y: startAt.y, dir: 'up', phase: 0, moving: false, z: 0, vz: 0 };
   me.s = world.nearest(me).s; // how far along the road she is
+
+  // Tan walks the path she walked, a few steps behind (and hops where she hopped)
+  const FOLLOW = 90;
+  const trail = [];
+  {
+    // start him a little way back along the road
+    let i = world.s.findIndex((v) => v >= me.s - FOLLOW - 10);
+    if (i < 0) i = 0;
+    for (; i < world.pts.length && world.s[i] <= me.s; i += 2) trail.push({ x: world.pts[i].x, y: world.pts[i].y, z: 0 });
+    trail.push({ x: me.x, y: me.y, z: 0 });
+  }
+  const tan = { x: trail[0].x, y: trail[0].y, z: 0, dir: 'up', phase: 0, moving: false };
+  let tanArrivedAt = -1e9;
+  function followHer(dt) {
+    const last = trail[trail.length - 1];
+    if (Math.hypot(me.x - last.x, me.y - last.y) > 150) {
+      // she jumped somewhere new (a fresh start, say): line him up behind her again
+      trail.length = 0;
+      let i = world.s.findIndex((v) => v >= me.s - FOLLOW - 10);
+      if (i < 0) i = 0;
+      for (; i < world.pts.length && world.s[i] <= me.s; i += 2) trail.push({ x: world.pts[i].x, y: world.pts[i].y, z: 0 });
+      trail.push({ x: me.x, y: me.y, z: me.z });
+      tan.x = trail[0].x;
+      tan.y = trail[0].y;
+    }
+    if (Math.hypot(me.x - last.x, me.y - last.y) > 3 || me.z !== last.z) trail.push({ x: me.x, y: me.y, z: me.z });
+    if (trail.length > 600) trail.splice(0, trail.length - 600);
+    // the spot on her path FOLLOW units behind her
+    let d = 0;
+    let target = trail[0];
+    for (let i = trail.length - 1; i > 0; i--) {
+      d += Math.hypot(trail[i].x - trail[i - 1].x, trail[i].y - trail[i - 1].y);
+      if (d >= FOLLOW) {
+        target = trail[i - 1];
+        break;
+      }
+    }
+    const dx = target.x - tan.x;
+    const dy = target.y - tan.y;
+    const dist = Math.hypot(dx, dy);
+    const max = SPEED * 1.4 * dt;
+    tan.moving = dist > 0.5;
+    if (tan.moving) {
+      const k = Math.min(1, max / dist);
+      tan.x += dx * k;
+      tan.y += dy * k;
+      tan.dir = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? 'right' : 'left') : dy > 0 ? 'down' : 'up';
+      tan.phase += dt * 11;
+    }
+    tan.z = target.z;
+  }
   const GRAVITY = 1500;
   let bumpedAt = 0;
   const puddleAt = (sv) => world.obstacles.find((o) => o.type === 'puddle' && Math.abs(sv - o.s) < o.half);
@@ -60,7 +111,13 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   const GROWN_AT = 25;
   const crawling = () => getProgress().solved < 2;
   const ageFor = () => Math.max(0, Math.min(1, (getProgress().solved - 2) / (GROWN_AT - 2)));
-  const lookFor = () => ({ age: ageFor(), crawl: crawling() });
+  // and the family grows too: Tan joins her after the 27th chest, she is
+  // expecting after the 30th, and carries their daughter after the 31st
+  const lookFor = () => {
+    const n = getProgress().solved;
+    return { age: ageFor(), crawl: crawling(), partner: n >= 27, belly: n === 30, baby: n >= 31 };
+  };
+  const sameLook = (a, b) => Math.abs(a.age - b.age) < 1e-3 && a.crawl === b.crawl && a.partner === b.partner && a.belly === b.belly && a.baby === b.baby;
   let look = lookFor(); // how she looks right now
 
   // After a chest she grows Mario style: a short freeze while she flickers
@@ -329,15 +386,17 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     // grow as soon as the treasure closes
     const want = lookFor();
     const nowMs = performance.now();
-    if (!grow && !isBlocked() && (Math.abs(want.age - look.age) > 1e-3 || want.crawl !== look.crawl)) {
+    if (!grow && !isBlocked() && !sameLook(want, look)) {
       grow = { t0: nowMs, from: look, to: want };
       me.moving = false;
       sound('grow');
     }
     if (grow && nowMs - grow.t0 > GROW_MS) {
+      if (grow.to.partner && !grow.from.partner) tanArrivedAt = nowMs;
       look = grow.to;
       grow = null;
     }
+    followHer(dt);
 
     // camera
     if (me.moving && !drag) {
@@ -379,13 +438,43 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     ctx.fillText(text, x, y + 26);
   }
 
+  function drawPartner(now) {
+    if (tan.z > 0) {
+      const f = Math.max(0.35, 1 - tan.z / 110);
+      ctx.beginPath();
+      ctx.ellipse(tan.x, tan.y, 21 * f, 7 * f, 0, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(0,0,0,${0.22 * f})`;
+      ctx.fill();
+    }
+    drawTan(ctx, tan.x, tan.y - tan.z, tan.dir, tan.phase, tan.moving && tan.z === 0, now / 1000, tan.z === 0);
+    // a burst of hearts the moment he arrives
+    const e = (performance.now() - tanArrivedAt) / 1600;
+    if (e < 1) {
+      ctx.save();
+      for (let i = 0; i < 7; i++) {
+        const a = -Math.PI / 2 + (i - 3) * 0.42;
+        const r = 20 + e * 70;
+        const hx = tan.x + Math.cos(a) * r;
+        const hy = tan.y - 70 + Math.sin(a) * r - e * 20;
+        ctx.globalAlpha = 1 - e;
+        ctx.fillStyle = i % 2 ? '#E84A7F' : '#FF9CC0';
+        ctx.beginPath();
+        ctx.moveTo(hx, hy + 6);
+        ctx.bezierCurveTo(hx - 10, hy - 2, hx - 6, hy - 10, hx, hy - 5);
+        ctx.bezierCurveTo(hx + 6, hy - 10, hx + 10, hy - 2, hx, hy + 6);
+        ctx.fill();
+      }
+      ctx.restore();
+    }
+  }
+
   function drawJoy(now) {
     let st = look;
     let k = 1;
     if (grow) {
       const frame = Math.min(GROW_SEQ.length - 1, Math.floor(((now - grow.t0) / GROW_MS) * GROW_SEQ.length));
       const i = GROW_SEQ[Math.max(0, frame)];
-      const mid = { age: grow.from.crawl ? 0 : (grow.from.age + grow.to.age) / 2, crawl: false };
+      const mid = { ...grow.to, age: grow.from.crawl ? 0 : (grow.from.age + grow.to.age) / 2, crawl: false };
       st = [grow.from, mid, grow.to][i];
       k = GROW_SIZE[i];
     }
@@ -400,7 +489,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     ctx.save();
     ctx.translate(me.x, me.y - me.z);
     ctx.scale(k, k);
-    drawGirl(ctx, 0, 0, me.dir, me.phase, me.moving && me.z === 0, now / 1000, st.age, st.crawl, me.z === 0);
+    drawGirl(ctx, 0, 0, me.dir, me.phase, me.moving && me.z === 0, now / 1000, st.age, st.crawl, me.z === 0, st);
     ctx.restore();
     if (grow) {
       // sparkles circling her while she grows
@@ -566,6 +655,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     items.push(...habitats.movers(vis, T));
     for (const o of world.obstacles) if (o.solid && vis(o.x, o.y, 70)) items.push({ y: o.y, draw: () => drawObstacle(ctx, o) });
     items.push({ y: me.y, draw: () => drawJoy(now) });
+    if (look.partner) items.push({ y: tan.y, draw: () => drawPartner(now) });
     items.sort((a, b) => a.y - b.y);
     for (const o of items) o.draw();
     habitats.air(vis, T, now);

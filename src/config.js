@@ -18,7 +18,8 @@
 
 export default {
   herName: 'Joy',
-  fromName: 'Tanmoy',
+  fromName: 'Tan',
+  daughterName: 'Innu',
 
   // Typed on the first screen to enter (case doesn't matter).
   passphrase: 'HBDJoy',
@@ -39,7 +40,7 @@ export default {
       'Happy birthday, Joy. This island is yours.',
       'Clouds hide most of it. Walk the road, open each chest, and every treasure inside holds the clue for the next one. There are 33 in all, one for every year.',
       'I built this little world for you, one chest at a time, thinking of all the years that made you the person I love. Take your time, smile at the silly bits, and know that every road here leads back to me.',
-      'I love you, today and every day after. Yours, Tanmoy',
+      'I love you, today and every day after. Yours, Tan',
     ],
     // The clue for the very first chest.
     firstClue: {
@@ -812,10 +813,50 @@ export default {
     levelUpText: 'Level 33 unlocked',
     letterTitle: 'Happy 33rd birthday',
     letter: [
-      '[Placeholder: your letter to Joy. Write as many paragraphs as you like.]',
-      '[Each item in this list becomes its own paragraph.]',
-      '[End with something only the two of you would understand.]',
+      'You made it to the castle. Thirty-three chests, one very determined birthday girl, and probably at least one moment where you told a puzzle "Wife is always right." (You were. You always are. I have learned this the hard way, and my ego still has the dent to prove it.)',
+      "Here is the thing I don't say often enough: my life got so much better the day you walked into it. You turn ordinary days into little holidays. You laugh at my jokes, even the ones that really don't deserve it, and somehow you make a home out of every place we land.",
+      'And then you became a mom, and I got to watch you become even more you. Innu is almost two now, and every bit of her sunshine is you: the giggles, the stubborn little frown, the way she runs to you first. You are not just a good mom, you are an extraordinary one. She is so lucky. So am I.',
+      'I see what it costs you. The sleep you gave up. The plans you quietly put down. The hot coffees that became cold coffees, then forgotten coffees. The days you held everything together while I was still working out where the wipes are kept. I see every one of those sacrifices, even on the days I forget to say it, and I wish I could carry more of it for you. I promise to keep trying to be more useful than a slightly confused assistant with a beard.',
+      'So today I salute you: the girl I fell for, the woman I married, the mother of our daughter, and the kindest, bravest person I know. Thank you for choosing me, for building this life with me, and for loving the two of us the way you do.',
+      "And one wish, from me and from Innu's tiny sticky hands: sometimes, put yourself first. Take the nap. Eat the whole dessert. Go out with your friends, read the book, do the thing that is only for you. You give us everything, and you deserve some of it back.",
+      'Happy birthday, my love. Level 33 looks beautiful on you.',
     ],
-    signature: 'Tanmoy',
+    signature: 'Forever yours, Tan (and Innu)',
   },
+
+  // One small charm for every chest, kept in Joy's bag.
+  charms: [
+    { icon: '🐚', name: 'A tiny seashell', note: 'Hold it to your ear. It says happy birthday.' },
+    { icon: '🍀', name: 'A four-leaf clover', note: "For luck. Not that you need it, you found me." },
+    { icon: '🌟', name: 'A pocket star', note: 'For long nights. Recharges with hugs.' },
+    { icon: '🦋', name: 'A butterfly', note: 'It landed on the chest and refused to leave. Relatable.' },
+    { icon: '🍓', name: 'A strawberry', note: 'Sweet, like someone I know.' },
+    { icon: '🎈', name: 'A little balloon', note: 'Guaranteed never to pop.' },
+    { icon: '🧸', name: 'A tiny teddy', note: 'Approved by the toddler review board.' },
+    { icon: '💌', name: 'A love note', note: "It only says: you're my favourite." },
+    { icon: '🌙', name: 'A crescent moon', note: 'I love you to it and back.' },
+    { icon: '🌈', name: 'A rainbow', note: 'After every storm, this. After every tantrum, a nap.' },
+    { icon: '🍰', name: 'A slice of cake', note: "Calories don't count on birthdays. It's science." },
+    { icon: '☕', name: 'A warm coffee', note: 'Finally, one that stayed hot.' },
+    { icon: '🎀', name: 'A pink ribbon', note: 'Tied in a bow, like the best presents.' },
+    { icon: '🐞', name: 'A ladybird', note: 'Good luck, with legs.' },
+    { icon: '🌻', name: 'A sunflower', note: 'It always turns to face the sun. I always turn to face you.' },
+    { icon: '🍩', name: 'A doughnut', note: 'It has a hole in the middle. My love for you does not.' },
+    { icon: '🎵', name: 'A music note', note: 'Our song, on repeat.' },
+    { icon: '🪁', name: 'A kite', note: 'For the days you want to fly a little.' },
+    { icon: '🐣', name: 'A hatchling', note: 'New beginnings, extra fluffy.' },
+    { icon: '🔑', name: 'A tiny key', note: "To my heart. You've had a copy for years." },
+    { icon: '🦄', name: 'A unicorn', note: 'Rare and magical. Takes one to know one.' },
+    { icon: '🕯️', name: 'A candle', note: 'Make a wish. Then make another one.' },
+    { icon: '🍭', name: 'A lollipop', note: 'Do not share with the toddler. She will negotiate.' },
+    { icon: '🌺', name: 'A hibiscus', note: 'For your hair or for the vase. Your call.' },
+    { icon: '⭐', name: 'A gold star', note: 'For being an excellent grown-up. Officially awarded.' },
+    { icon: '🧁', name: 'A cupcake', note: 'Smaller than cake, just as deserved.' },
+    { icon: '👣', name: 'Two sets of footprints', note: 'From here on, we walk together.' },
+    { icon: '🍯', name: 'A pot of honey', note: 'For my honey. Yes, I went there.' },
+    { icon: '🐢', name: 'A little turtle', note: 'For slow mornings. You deserve more of them.' },
+    { icon: '🧦', name: 'A tiny sock', note: 'Hmm. Who could this be for?' },
+    { icon: '🍼', name: "Innu's bottle", note: 'The best adventure we ever started.' },
+    { icon: '💖', name: 'A sparkling heart', note: 'The last charm, and the first thing I ever gave you.' },
+  ],
 };

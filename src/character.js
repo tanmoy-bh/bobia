@@ -219,7 +219,7 @@ function head(ctx, dir, hy, len = 1) {
  * age: 0 = toddler .. 1 = grown up (bigger head, shorter body and hair when young)
  * crawl: draw her as a crawling baby instead
  */
-export function drawGirl(ctx, x, y, dir, phase, moving, t, age = 1, crawl = false, shadow = true) {
+export function drawGirl(ctx, x, y, dir, phase, moving, t, age = 1, crawl = false, shadow = true, family = {}) {
   if (crawl) return drawBaby(ctx, x, y, dir, phase, moving, t, shadow);
   const B = 0.55 + 0.45 * age; // body
   const H = 0.78 + 0.22 * age; // head
@@ -295,6 +295,14 @@ export function drawGirl(ctx, x, y, dir, phase, moving, t, age = 1, crawl = fals
       ellipse(ctx, side ? 4 : -5, -42, 4, 3, DRESS_DARK, INK, 1.8);
       ellipse(ctx, side ? 10 : 5, -42, 4, 3, DRESS_DARK, INK, 1.8);
     }
+    // a baby on the way
+    if (family.belly && dir !== 'up') {
+      if (side) ellipse(ctx, 12, -28, 10, 11, DRESS);
+      else ellipse(ctx, 0, -27, 13, 10.5, DRESS);
+      ctx.beginPath();
+      ctx.arc(side ? 15 : 4, side ? -32 : -30, 5, Math.PI * 1.15, Math.PI * 1.6);
+      line(ctx, 'rgba(255,255,255,.75)', 2.2);
+    }
   });
 
   // the head (and hair) sit on the neck; a young Joy has a bigger head for her size
@@ -320,6 +328,253 @@ export function drawGirl(ctx, x, y, dir, phase, moving, t, age = 1, crawl = fals
   });
 
   onHead(() => head(ctx, dir, hy, L));
+  if (family.baby) body(() => carrier(ctx, dir, side));
+  ctx.restore();
+}
+
+// Their daughter in a carrier on her mum's front (straps across her back from behind)
+function carrier(ctx, dir, side) {
+  const STRAP = '#8E5BD8';
+  if (dir === 'up') {
+    ctx.beginPath();
+    ctx.moveTo(-11, -46);
+    ctx.lineTo(9, -24);
+    ctx.moveTo(11, -46);
+    ctx.lineTo(-9, -24);
+    line(ctx, INK, 6);
+    ctx.beginPath();
+    ctx.moveTo(-11, -46);
+    ctx.lineTo(9, -24);
+    ctx.moveTo(11, -46);
+    ctx.lineTo(-9, -24);
+    line(ctx, STRAP, 3.2);
+    return;
+  }
+  const cx = side ? 14 : 0;
+  // straps over her shoulders
+  ctx.beginPath();
+  if (side) {
+    ctx.moveTo(4, -46);
+    ctx.lineTo(cx - 2, -36);
+  } else {
+    ctx.moveTo(-10, -46);
+    ctx.lineTo(-8, -36);
+    ctx.moveTo(10, -46);
+    ctx.lineTo(8, -36);
+  }
+  line(ctx, INK, 6);
+  line(ctx, STRAP, 3.2);
+  // baby's head peeking out over the pouch
+  const by = -38;
+  ellipse(ctx, cx + (side ? 3 : 0), by, 8.5, 8, SKIN);
+  ctx.save();
+  ctx.translate(cx + (side ? 3 : 0), by);
+  ctx.scale(0.62, 0.62);
+  if (side) {
+    ellipse(ctx, 6, 0, 2.6, 3, '#2A1610', null);
+    ellipse(ctx, 6.9, -1.1, 1, 1, '#FFFFFF', null);
+    blush(ctx, [[5, 6]]);
+  } else babyFace(ctx, 0, 0);
+  babyHair(ctx, -2, -12);
+  ctx.restore();
+  // the pouch
+  ctx.beginPath();
+  ctx.moveTo(cx - 12, -33);
+  ctx.quadraticCurveTo(cx - 13, -18, cx, -16);
+  ctx.quadraticCurveTo(cx + 13, -18, cx + 12, -33);
+  ctx.quadraticCurveTo(cx, -29, cx - 12, -33);
+  fillStroke(ctx, '#C58BF2', 2.4);
+  ellipse(ctx, cx, -24, 3, 3, '#FFE07A', INK, 1.4);
+}
+
+// ── Tan: short dark hair, a full beard and a black T-shirt ──────────────
+
+const T_SKIN = '#D9A27A';
+const T_SHADE = '#B9805A';
+const T_HAIR = '#1E130D';
+const T_HAIR_HI = '#5A3A2A';
+const TEE = '#2A2A2A';
+const JEANS = '#3E5277';
+
+// a neat beard that follows his jaw, leaving his cheeks and smile clear
+function tanBeard(ctx, hy) {
+  ctx.beginPath();
+  ctx.moveTo(-21, hy + 1);
+  ctx.quadraticCurveTo(-20, hy + 19, 0, hy + 24);
+  ctx.quadraticCurveTo(20, hy + 19, 21, hy + 1);
+  ctx.lineTo(18, hy + 1);
+  ctx.quadraticCurveTo(16, hy + 12, 9, hy + 14);
+  ctx.quadraticCurveTo(0, hy + 17, -9, hy + 14);
+  ctx.quadraticCurveTo(-16, hy + 12, -18, hy + 1);
+  ctx.closePath();
+  fillStroke(ctx, T_HAIR, 2.2);
+  // a soft shine on the beard
+  ctx.beginPath();
+  ctx.moveTo(-13, hy + 15);
+  ctx.quadraticCurveTo(-7, hy + 20, 0, hy + 21);
+  line(ctx, T_HAIR_HI, 1.8);
+  // thin moustache
+  ctx.beginPath();
+  ctx.moveTo(-7.5, hy + 9.5);
+  ctx.quadraticCurveTo(0, hy + 6, 7.5, hy + 9.5);
+  ctx.quadraticCurveTo(0, hy + 8.4, -7.5, hy + 9.5);
+  fillStroke(ctx, T_HAIR, 1.6);
+}
+
+function tanHead(ctx, dir, hy) {
+  if (dir === 'down') {
+    ellipse(ctx, -21.5, hy + 2, 3.6, 5, T_SKIN);
+    ellipse(ctx, 21.5, hy + 2, 3.6, 5, T_SKIN);
+    ellipse(ctx, 0, hy + 1, 22, 21.5, T_SKIN);
+    // short, neat hair with a little lift on top
+    ctx.beginPath();
+    ctx.moveTo(-21, hy - 3);
+    ctx.quadraticCurveTo(-24, hy - 23, -2, hy - 27);
+    ctx.quadraticCurveTo(10, hy - 30, 18, hy - 22);
+    ctx.quadraticCurveTo(24, hy - 15, 21, hy - 3);
+    ctx.quadraticCurveTo(19, hy - 12, 13, hy - 15);
+    ctx.quadraticCurveTo(3, hy - 19, -8, hy - 16);
+    ctx.quadraticCurveTo(-17, hy - 13, -21, hy - 3);
+    fillStroke(ctx, T_HAIR);
+    ctx.beginPath();
+    ctx.moveTo(-10, hy - 21);
+    ctx.quadraticCurveTo(0, hy - 25, 10, hy - 22);
+    line(ctx, T_HAIR_HI, 2);
+    tanBeard(ctx, hy);
+    // the same happy face as Joy's
+    for (const sx of [-1, 1]) {
+      ctx.beginPath();
+      ctx.moveTo(sx * 4.5, hy - 5.5);
+      ctx.quadraticCurveTo(sx * 9, hy - 8, sx * 13, hy - 5.5);
+      line(ctx, T_HAIR, 2);
+    }
+    cuteEye(ctx, -8.5, hy + 1.5);
+    cuteEye(ctx, 8.5, hy + 1.5);
+    blush(ctx, [[-14.5, hy + 8], [14.5, hy + 8]]);
+    cuteSmile(ctx, 0, hy + 11, 5.6);
+  } else if (dir === 'up') {
+    ellipse(ctx, -21.5, hy + 2, 3.6, 5, T_SKIN);
+    ellipse(ctx, 21.5, hy + 2, 3.6, 5, T_SKIN);
+    ellipse(ctx, 0, hy + 1, 22, 21.5, T_SKIN);
+    ctx.beginPath();
+    ctx.moveTo(-22, hy + 9);
+    ctx.quadraticCurveTo(-25, hy - 23, 0, hy - 25);
+    ctx.quadraticCurveTo(25, hy - 23, 22, hy + 9);
+    ctx.quadraticCurveTo(0, hy + 14, -22, hy + 9);
+    fillStroke(ctx, T_HAIR);
+    ctx.beginPath();
+    ctx.moveTo(-8, hy - 18);
+    ctx.quadraticCurveTo(0, hy - 21, 8, hy - 18);
+    line(ctx, T_HAIR_HI, 2);
+  } else {
+    // side view, facing right
+    ellipse(ctx, 2, hy + 1, 22, 21.5, T_SKIN);
+    // short hair on top and at the back, above the ear
+    ctx.beginPath();
+    ctx.moveTo(-18, hy - 1);
+    ctx.bezierCurveTo(-23, hy - 17, -10, hy - 28, 6, hy - 26);
+    ctx.quadraticCurveTo(19, hy - 24, 22, hy - 12);
+    ctx.quadraticCurveTo(14, hy - 16, 6, hy - 15);
+    ctx.quadraticCurveTo(-4, hy - 13, -7, hy - 2);
+    ctx.closePath();
+    fillStroke(ctx, T_HAIR);
+    ctx.beginPath();
+    ctx.arc(-3, hy - 12, 9, Math.PI * 1.1, Math.PI * 1.5);
+    line(ctx, T_HAIR_HI, 2);
+    ellipse(ctx, -5, hy + 3, 3.6, 5, T_SKIN);
+    // a slim beard along the jaw to the chin
+    ctx.beginPath();
+    ctx.moveTo(-3, hy + 5);
+    ctx.quadraticCurveTo(-1, hy + 19, 11, hy + 22);
+    ctx.quadraticCurveTo(20, hy + 22, 22, hy + 14);
+    ctx.quadraticCurveTo(17, hy + 15, 13, hy + 14);
+    ctx.quadraticCurveTo(5, hy + 12, 1, hy + 5);
+    ctx.closePath();
+    fillStroke(ctx, T_HAIR, 2.2);
+    ctx.beginPath();
+    ctx.moveTo(14, hy + 9.5);
+    ctx.quadraticCurveTo(18, hy + 7.5, 21.5, hy + 9.5);
+    line(ctx, T_HAIR, 2.2);
+    ctx.beginPath();
+    ctx.moveTo(10, hy - 6);
+    ctx.quadraticCurveTo(14, hy - 8, 18, hy - 5.5);
+    line(ctx, T_HAIR, 2);
+    cuteEye(ctx, 13, hy + 2);
+    blush(ctx, [[11, hy + 8]]);
+    cuteSmile(ctx, 17.5, hy + 11.5, 3.6);
+  }
+}
+
+export function drawTan(ctx, x, y, dir, phase, moving, t, shadow = true) {
+  ctx.save();
+  ctx.translate(x, y);
+  ctx.lineJoin = 'round';
+  ctx.lineCap = 'round';
+  if (shadow) {
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 23, 7, 0, 0, Math.PI * 2);
+    ctx.fillStyle = 'rgba(0,0,0,.2)';
+    ctx.fill();
+  }
+  const bob = moving ? -Math.abs(Math.sin(phase)) * 4 : Math.sin(t * 2) * 0.8;
+  const step = moving ? Math.sin(phase) : 0;
+  const side = dir === 'left' || dir === 'right';
+  if (dir === 'left') ctx.scale(-1, 1);
+
+  // legs in jeans, dark shoes
+  const legs = side ? [[-3, step * 6], [4, -step * 6]] : [[-7, step * 3], [7, -step * 3]];
+  for (const [lx, off] of legs) {
+    const lift = side ? 0 : Math.max(0, off);
+    ctx.fillStyle = JEANS;
+    ctx.strokeStyle = INK;
+    ctx.lineWidth = 2.4;
+    ctx.beginPath();
+    ctx.roundRect(lx - 4.5 + (side ? off : 0), -25 + bob - lift, 9, 22, 4);
+    ctx.fill();
+    ctx.stroke();
+    ellipse(ctx, lx + (side ? off + 2 : 0), -3 - lift + bob * 0.3, side ? 7.5 : 6.5, 4, '#2B1D14');
+  }
+  ctx.translate(0, bob);
+
+  // back arm in side view
+  if (side) {
+    ellipse(ctx, -4 - step * 5, -38, 5.5, 7, T_SHADE);
+    ellipse(ctx, -4 - step * 5, -45, 5.5, 4.5, TEE);
+  }
+  // black T-shirt
+  ellipse(ctx, 0, -54, 6, 4, T_SKIN);
+  ctx.beginPath();
+  if (side) {
+    ctx.moveTo(-11, -52);
+    ctx.quadraticCurveTo(-14, -36, -11, -21);
+    ctx.lineTo(12, -21);
+    ctx.quadraticCurveTo(15, -36, 12, -52);
+    ctx.quadraticCurveTo(0, -56, -11, -52);
+  } else {
+    ctx.moveTo(-16, -51);
+    ctx.quadraticCurveTo(-18, -36, -14, -21);
+    ctx.lineTo(14, -21);
+    ctx.quadraticCurveTo(18, -36, 16, -51);
+    ctx.quadraticCurveTo(0, -56, -16, -51);
+  }
+  fillStroke(ctx, TEE);
+  ctx.beginPath();
+  ctx.moveTo(-5, -54);
+  ctx.quadraticCurveTo(0, -50, 5, -54);
+  line(ctx, '#444', 2);
+
+  // arms with short sleeves
+  if (side) {
+    ellipse(ctx, 6 + step * 5, -38, 5.5, 7, T_SKIN);
+    ellipse(ctx, 6 + step * 5, -45.5, 5.5, 4.5, TEE);
+  } else {
+    for (const sx of [-1, 1]) {
+      ellipse(ctx, sx * 18.5, -37 + sx * step * 3, 5.5, 7, T_SKIN);
+      ellipse(ctx, sx * 16.5, -46, 5.5, 4.5, TEE);
+    }
+  }
+
+  tanHead(ctx, dir, -76);
   ctx.restore();
 }
 
