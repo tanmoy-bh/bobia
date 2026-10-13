@@ -1,18 +1,20 @@
 // Small synthesized sounds, a looping island tune and a confetti burst. No audio files needed.
 
 let ctx = null;
-let muted = false;
+// The ♪ button only switches the background tune; animal calls and other
+// sound effects always play.
+let musicOff = false;
 try {
-  muted = localStorage.getItem('bobia-muted') === '1';
+  musicOff = localStorage.getItem('bobia-muted') === '1';
 } catch {}
 
-export const isMuted = () => muted;
-export function setMuted(v) {
-  muted = v;
+export const isMusicOff = () => musicOff;
+export function setMusicOff(v) {
+  musicOff = v;
   try {
     localStorage.setItem('bobia-muted', v ? '1' : '0');
   } catch {}
-  if (muted) stopMusic();
+  if (musicOff) stopMusic();
   else startMusic();
 }
 
@@ -40,7 +42,7 @@ function tone(freq, start, dur, type = 'triangle', vol = 0.18) {
 }
 
 export function sound(name) {
-  if (muted || !audio()) return;
+  if (!audio()) return;
   switch (name) {
     case 'tick':
       tone(880, 0, 0.06, 'square', 0.05);
@@ -293,7 +295,7 @@ function schedule() {
 }
 
 export function startMusic() {
-  if (muted || timer || !audio()) return;
+  if (musicOff || timer || !audio()) return;
   if (!bus) {
     bus = ctx.createGain();
     const echo = ctx.createDelay();

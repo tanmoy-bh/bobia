@@ -4,7 +4,7 @@ import { buildWorld } from './world.js';
 import { loadSprites, chestSVG } from './art.js';
 import { createGame } from './game.js';
 import { mountPuzzle, imgSrc, norm } from './puzzles.js';
-import { sound, confetti, isMuted, setMuted, startMusic } from './fx.js';
+import { sound, confetti, isMusicOff, setMusicOff, startMusic } from './fx.js';
 import { skyHTML, isleHTML } from './title-scene.js';
 
 // ── State ────────────────────────────────────────────────────────────────
@@ -168,7 +168,7 @@ function renderTitle() {
 
   updateMute();
   $('#mute').addEventListener('click', () => {
-    setMuted(!isMuted());
+    setMusicOff(!isMusicOff());
     updateMute();
   });
   app.querySelectorAll('.lamb').forEach((lamb) =>
@@ -246,7 +246,7 @@ async function renderGame() {
           <div class="pill">${GEM}<span id="gems"></span></div>
           <button class="icon-btn" id="map-btn" aria-label="Island map" aria-pressed="false">${MAP_ICON}</button>
           <button class="icon-btn" id="reset-btn" aria-label="Start over">${RESET_ICON}</button>
-          <button class="icon-btn" id="mute" aria-label="Sound"></button>
+          <button class="icon-btn" id="mute" aria-label="Music"></button>
         </div>
       </header>
       <button class="quest" id="quest">${SCROLL}<span id="quest-text"></span></button>
@@ -297,7 +297,7 @@ async function renderGame() {
   $('#map-btn').addEventListener('click', toggleMap);
   $('#reset-btn').addEventListener('click', confirmReset);
   $('#mute').addEventListener('click', () => {
-    setMuted(!isMuted());
+    setMusicOff(!isMusicOff());
     updateHud();
   });
   updateHud();
@@ -329,8 +329,8 @@ function confirmReset() {
 }
 
 function updateMute() {
-  $('#mute').innerHTML = isMuted() ? '<span aria-hidden="true">♪</span><s></s>' : '<span aria-hidden="true">♪</span>';
-  $('#mute').setAttribute('aria-pressed', String(!isMuted()));
+  $('#mute').innerHTML = isMusicOff() ? '<span aria-hidden="true">♪</span><s></s>' : '<span aria-hidden="true">♪</span>';
+  $('#mute').setAttribute('aria-pressed', String(!isMusicOff()));
 }
 
 function toggleMap() {
