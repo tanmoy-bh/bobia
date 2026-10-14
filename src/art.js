@@ -21,6 +21,63 @@ function palm(x, lean, sc = 1) {
   </g>`;
 }
 
+const W = '#F7F4EC';
+// the Merlion: lion head with a long mane hood, scaly fish body with the
+// tail coiled at the front, on a blue wave base and a stone pedestal
+function merlion(x) {
+  const scales = [];
+  for (let r = 0; r < 6; r++) for (let c = 0; c < 8; c++) {
+    const cx = -44 + c * 12 + (r % 2) * 6, cy = -66 - r * 12;
+    scales.push(`<path d="M${cx - 6} ${cy} a6 6 0 0 0 12 0" fill="none" stroke="#B9B1A2" stroke-width="2.5" stroke-linecap="round"/>`);
+  }
+  const groove = (dx) => `<path d="M${-12 + dx} -222 q-10 8 -6 18 q-10 8 -6 18 q-10 8 -6 18 q-10 8 -6 18 q-10 8 -6 18 q-8 8 -4 16" fill="none" stroke="#C9C1B1" stroke-width="3" stroke-linecap="round"/>`;
+  return `<g transform="translate(${x} 0)">
+    <defs><clipPath id="mhood"><path d="M-8 -228 C -42 -226 -60 -198 -60 -166 C -60 -140 -54 -118 -44 -100 L -16 -112 L -4 -200 Z"/></clipPath><clipPath id="mbody"><path d="M-44 -104 C -50 -86 -48 -70 -44 -58 L 40 -58 C 46 -84 38 -112 24 -136 L -4 -126 Z"/></clipPath></defs>
+    <!-- water arc from the mouth -->
+    <path d="M56 -164 C 116 -184 166 -130 178 -16" fill="none" stroke="${O}" stroke-width="17" stroke-linecap="round"/>
+    <path d="M56 -164 C 116 -184 166 -130 178 -16" fill="none" stroke="#9FE0FA" stroke-width="10" stroke-linecap="round"/>
+        <ellipse cx="176" cy="-6" rx="34" ry="10" fill="#5EC8F2" ${s(4)}/>
+    <circle cx="158" cy="-24" r="4" fill="#9FE0FA" ${s(2)}/><circle cx="194" cy="-22" r="5" fill="#9FE0FA" ${s(2)}/><circle cx="178" cy="-34" r="3.5" fill="#9FE0FA" ${s(2)}/>
+    <!-- stone pedestal -->
+    <rect x="-72" y="-44" width="144" height="44" rx="3" fill="#CFC8BA" ${s()}/>
+    <path d="M-72 -22 H72 M-36 -44 V-22 M10 -44 V-22 M52 -44 V-22 M-56 -22 V0 M-12 -22 V0 M32 -22 V0" stroke="#A39A89" stroke-width="3"/>
+    <rect x="-72" y="-44" width="144" height="44" rx="3" fill="none" ${s()}/>
+    <!-- blue wave base -->
+    <path d="M-64 -44 C -64 -60 -40 -64 0 -64 C 40 -64 64 -60 64 -44 Z" fill="#2F6FD0" ${s(4)}/>
+    <path d="M-54 -50 q6 -9 12 -2 q4 4 -2 6 M-30 -52 q6 -9 12 -2 q4 4 -2 6 M-6 -54 q6 -9 12 -2 q4 4 -2 6 M18 -52 q6 -9 12 -2 q4 4 -2 6 M42 -50 q6 -9 12 -2 q4 4 -2 6" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+    <!-- mane hood flowing down the back -->
+    <path d="M-8 -228 C -42 -226 -60 -198 -60 -166 C -60 -140 -54 -118 -44 -100 L -16 -112 L -4 -200 Z" fill="${W}" ${s()}/>
+    <g clip-path="url(#mhood)">${groove(-14)}${groove(-26)}${groove(-38)}</g>
+    <!-- fish body with scales -->
+    <path d="M-44 -104 C -50 -86 -48 -70 -44 -58 L 40 -58 C 46 -84 38 -112 24 -136 L -4 -126 Z" fill="${W}" ${s()}/>
+    <g clip-path="url(#mbody)">${scales.join('')}</g>
+    <!-- tail coiled at the front -->
+    <circle cx="20" cy="-82" r="22" fill="${W}" ${s(4)}/>
+    <path d="M20 -82 m-12 0 a12 12 0 1 1 12 12 a7 7 0 1 1 -5 -9" fill="none" stroke="#9C9384" stroke-width="3.5" stroke-linecap="round"/>
+    <!-- lion face, mouth open -->
+    <path d="M-8 -226 C 16 -232 34 -222 38 -208 L 50 -200 L 46 -194 C 56 -190 60 -182 58 -176 L 50 -172 L 58 -168 L 32 -162 L 54 -148 C 54 -140 44 -136 30 -137 C 14 -140 4 -134 -2 -124 L -16 -150 Z" fill="${W}" ${s()}/>
+    <path d="M58 -168 L 32 -162 L 54 -148 Z" fill="#7A3B2E" ${s(3)}/>
+    <path d="M50 -167 l2 4 l2 -4 M43 -166 l2 4 l2 -4 M46 -151 l2 -4 l2 4" fill="#fff" stroke="${O}" stroke-width="1.5"/>
+    <path d="M-6 -222 q-8 10 -2 20 q-8 10 -2 20 q-8 10 -2 20 q-8 10 -2 20 q-6 8 -2 16" fill="none" ${s(3)}/>
+    <path d="M20 -208 q12 -8 26 -2" fill="none" ${s(4)}/>
+    <ellipse cx="34" cy="-199" rx="5" ry="4" fill="${O}"/>
+    <path d="M26 -186 q10 6 22 2 M44 -180 q6 -2 10 2" fill="none" stroke="#B9B1A2" stroke-width="3" stroke-linecap="round"/>
+    <ellipse cx="55" cy="-180" rx="3" ry="2.5" fill="${O}"/>
+  </g>`;
+}
+// city skyline like the view behind the real Merlion
+const skyline = () => `<g>
+  ${[[-250, 40, 170, '#7FA6C9'], [-205, 34, 210, '#5F8DB8'], [-165, 44, 150, '#8DB5D6'], [-118, 30, 190, '#6E9BC4'], [-84, 38, 135, '#9CC0DD']]
+    .map(([bx, w, h, c]) => `<rect x="${bx}" y="${-h}" width="${w}" height="${h}" fill="${c}" ${s(4)}/><path d="${Array.from({ length: Math.floor(h / 22) }, (_, i) => `M${bx + 6} ${-h + 14 + i * 22} H${bx + w - 6}`).join(' ')}" stroke="#fff" stroke-opacity=".5" stroke-width="3"/>`)
+    .join('')}
+</g>`;
+// Marina Bay Sands: three towers with the boat on top
+const mbs = `<g transform="translate(-190 0)">
+  ${[-50, 0, 50].map((dx) => `<path d="M${dx - 18} 0 L${dx - 14} -150 L${dx + 14} -150 L${dx + 18} 0 Z" fill="#E6EBF1" ${s(4)}/><path d="M${dx - 8} -140 V-10 M${dx + 8} -140 V-10" stroke="#9FB3C8" stroke-width="3"/>`).join('')}
+  <path d="M-92 -162 L 96 -162 Q 104 -152 92 -150 L -82 -150 Z" fill="#9FB3C8" ${s(4)}/>
+  <path d="M-80 -170 Q -20 -178 70 -168" fill="none" stroke="#4FA83D" stroke-width="6" stroke-linecap="round"/>
+</g>`;
+
 function castleSVG(open) {
   const flag = (x, y, c = '#FFC83D') => `<path d="M${x} ${y} V${y - 36}" ${s(4)}/><path d="M${x} ${y - 36} L${x + 36} ${y - 26} L${x} ${y - 16} Z" fill="${c}" ${s(3)}/>`;
   const crenels = (x0, x1, y, fill) => {
@@ -325,6 +382,13 @@ const DEFS = {
      <path d="M-40 -70 Q -52 -110 -62 -132" fill="none" ${s(2)}/>
      <path d="M-62 -128 c -14 -20 -46 -6 -28 18 L-62 -84 L-34 -110 c 18 -24 -14 -38 -28 -18 Z" fill="#E84A7F" ${s(4)}/>`,
     -110, -210, 225, 225,
+  ],
+
+  merlion: [
+    `<ellipse cx="0" cy="6" rx="150" ry="30" fill="#F2D28B" ${s(4)}/>
+     ${skyline()}
+     ${merlion(10)}`,
+    -262, -240, 482, 282,
   ],
 
   cake: [

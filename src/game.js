@@ -243,6 +243,22 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
 
   const habitats = createHabitats(ctx, world, sprites);
 
+  // sparkles running down the Merlion's water arc (same curve as its sprite)
+  function merlionSpray(x, y) {
+    const t = performance.now() / 1000;
+    const P = [[66, -164], [126, -184], [176, -130], [188, -16]];
+    ctx.fillStyle = '#fff';
+    for (let i = 0; i < 5; i++) {
+      const u = (t * 0.7 + i / 5) % 1;
+      const v = 1 - u;
+      const bx = v * v * v * P[0][0] + 3 * v * v * u * P[1][0] + 3 * v * u * u * P[2][0] + u * u * u * P[3][0];
+      const by = v * v * v * P[0][1] + 3 * v * v * u * P[1][1] + 3 * v * u * u * P[2][1] + u * u * u * P[3][1];
+      ctx.beginPath();
+      ctx.arc(x + bx * 0.82, y + by * 0.82, 2.6, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
   // ── static drawables, sorted by y each frame ──
   const statics = [
     ...habitats.statics,
@@ -261,6 +277,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
           drawSprite(ctx, sprites.blades, 0, 0, 0.82);
           ctx.restore();
         }
+        if (k === 'merlion' && !reduceMotion) merlionSpray(c.landmark.x, c.landmark.y);
       },
     })),
     ...world.chests.map((c) => ({

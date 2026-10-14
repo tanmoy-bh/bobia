@@ -674,15 +674,15 @@ export default {
         memory: '[Placeholder: the story behind memory #27, in two or three sentences.]',
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Coconut Corner] (While testing: pick Option A)",
+          text: "[Placeholder clue for Merlion Point] (While testing: pick Option A)",
           image: null,
         },
       },
     },
     // ── 28 ─────────────────────────────
     {
-      name: "Coconut Corner",
-      landmark: 'palms',
+      name: "Merlion Point",
+      landmark: 'merlion',
       habitat: 'beach',
       puzzle: {
         type: 'choice',
