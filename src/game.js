@@ -426,9 +426,12 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       pan.x *= k;
       pan.y *= k;
     }
+    // near Heart Castle the camera tilts up so the castle and its phoenix fit
+    const nearCastle = zoneRevealed(N + 1) ? Math.min(1, Math.max(0, (1000 - Math.hypot(me.x - world.castle.x, me.y - world.castle.y)) / 400)) : 0;
+    const lift = nearCastle * nearCastle * (3 - 2 * nearCastle) * 170;
     const target = overview
       ? { x: C.x, y: C.y, scale: Math.min(vw, vh - 120) / (2 * (ISLE + 160)) }
-      : { x: me.x + pan.x, y: me.y - 50 + pan.y, scale: baseScale * zoom };
+      : { x: me.x + pan.x, y: me.y - 50 - lift + pan.y, scale: baseScale * zoom };
     const f = 1 - Math.pow(0.0015, dt);
     cam.x += (target.x - cam.x) * f;
     cam.y += (target.y - cam.y) * f;
@@ -712,6 +715,29 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     }
 
     habitats.air(vis, T, now);
+    // at Heart Castle the rest of the island dims and a spotlight falls on the castle
+    const dc = Math.hypot(me.x - world.castle.x, me.y - world.castle.y);
+    const spot = zoneRevealed(N + 1) ? Math.min(1, Math.max(0, (1000 - dc) / 400)) : 0;
+    if (spot > 0.01) {
+      const k = spot * spot * (3 - 2 * spot);
+      const sx = vw / 2 + (world.castle.x - cam.x) * sc;
+      const sy = vh / 2 + (world.castle.y - 220 - cam.y) * sc;
+      ctx.save();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const g = ctx.createRadialGradient(sx, sy, 300 * sc, sx, sy, 620 * sc);
+      g.addColorStop(0, 'rgba(10,12,40,0)');
+      g.addColorStop(1, `rgba(10,12,40,${0.6 * k})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, vw, vh);
+      // a soft warm beam from above
+      ctx.globalCompositeOperation = 'lighter';
+      const beam = ctx.createRadialGradient(sx, sy - 40 * sc, 20 * sc, sx, sy, 380 * sc);
+      beam.addColorStop(0, `rgba(255,236,170,${0.22 * k})`);
+      beam.addColorStop(1, 'rgba(255,236,170,0)');
+      ctx.fillStyle = beam;
+      ctx.fillRect(0, 0, vw, vh);
+      ctx.restore();
+    }
     phoenix(T, vis);
 
     // signs + marker for revealed zones
@@ -807,14 +833,14 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   const embers = [];
   function phoenix(T, vis) {
     const cx = world.castle.x;
-    const cy = world.castle.y - 480;
+    const cy = world.castle.y - 395;
     if (!vis(cx, cy, 300)) return;
     const a = (reduceMotion ? 0.6 : T * 0.45) % (Math.PI * 2);
     const x = cx + Math.cos(a) * 190;
-    const y = cy + Math.sin(a) * 50 + Math.sin(T * 2.2) * 8;
+    const y = cy + Math.sin(a) * 28 + Math.sin(T * 2.2) * 8;
     const dir = -Math.sin(a) < 0 ? -1 : 1; // heading left or right
     const flap = reduceMotion ? 0.6 : Math.sin(T * 7);
-    if (!reduceMotion && Math.random() < 0.6) embers.push({ x: x - dir * 30, y: y + 6, vx: -dir * (10 + Math.random() * 20), vy: 15 + Math.random() * 25, t0: T, c: Math.random() < 0.5 ? '#FFC83D' : '#FF8A2B' });
+    if (!reduceMotion && Math.random() < 0.9) embers.push({ x: x - dir * 30, y: y + 6, vx: -dir * (10 + Math.random() * 20), vy: 15 + Math.random() * 25, t0: T, c: Math.random() < 0.5 ? '#FFC83D' : '#FF8A2B' });
     for (let i = embers.length - 1; i >= 0; i--) {
       const e = embers[i];
       const k = (T - e.t0) / 1.2;
@@ -823,11 +849,13 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
         continue;
       }
       ctx.globalAlpha = 1 - k;
+      ctx.globalCompositeOperation = 'lighter';
       ctx.fillStyle = e.c;
       ctx.beginPath();
-      ctx.arc(e.x + e.vx * k, e.y + e.vy * k, 4 * (1 - k) + 1, 0, Math.PI * 2);
+      ctx.arc(e.x + e.vx * k, e.y + e.vy * k, 5 * (1 - k) + 1.5, 0, Math.PI * 2);
       ctx.fill();
     }
+    ctx.globalCompositeOperation = 'source-over';
     ctx.globalAlpha = 1;
 
     ctx.save();
@@ -836,14 +864,19 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     ctx.lineJoin = 'round';
     ctx.lineCap = 'round';
     const ink = '#3B2414';
-    // glow
-    const g = ctx.createRadialGradient(0, 0, 4, 0, 0, 70);
-    g.addColorStop(0, 'rgba(255,200,61,.45)');
-    g.addColorStop(1, 'rgba(255,138,43,0)');
+    // glow, pulsing a little
+    const pulse = 0.85 + 0.15 * Math.sin(T * 3);
+    ctx.save();
+    ctx.globalCompositeOperation = 'lighter';
+    const g = ctx.createRadialGradient(0, 0, 4, 0, 0, 120 * pulse);
+    g.addColorStop(0, 'rgba(255,230,120,.85)');
+    g.addColorStop(0.35, 'rgba(255,170,60,.45)');
+    g.addColorStop(1, 'rgba(255,110,40,0)');
     ctx.fillStyle = g;
     ctx.beginPath();
-    ctx.arc(0, 0, 70, 0, Math.PI * 2);
+    ctx.arc(0, 0, 120 * pulse, 0, Math.PI * 2);
     ctx.fill();
+    ctx.restore();
     // long flowing tail feathers
     [['#E8393B', 0, 12], ['#FF8A2B', 10, 9], ['#FFC83D', -10, 7]].forEach(([c, dy, w], i) => {
       const wave = Math.sin(T * 4 + i) * 10;
