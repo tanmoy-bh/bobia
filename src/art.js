@@ -261,6 +261,51 @@ const DEFS = {
     -42, -118, 84, 128,
   ],
 
+  // more kinds of tree, so the island isn't one big orchard of the same one
+  blossom: [
+    `<ellipse cx="0" cy="4" rx="34" ry="8" fill="#000" opacity=".15"/>
+     <path d="M-6 4 L-5 -30 L-16 -44 M-4 -26 L8 -46" fill="none" stroke="${O}" stroke-width="12" stroke-linecap="round"/>
+     <path d="M-6 4 L-5 -30 L-16 -44 M-4 -26 L8 -46" fill="none" stroke="#7A4B3A" stroke-width="7" stroke-linecap="round"/>
+     <circle cx="-20" cy="-50" r="20" fill="#FFB3CF" ${s(4)}/>
+     <circle cx="16" cy="-52" r="21" fill="#FFB3CF" ${s(4)}/>
+     <circle cx="-2" cy="-70" r="24" fill="#FFC6DA" ${s(4)}/>
+     ${[[-22, -54], [-6, -76], [12, -60], [20, -46], [-12, -64], [4, -84]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="#fff"/>`).join('')}`,
+    -45, -100, 90, 110,
+  ],
+  autumn: [
+    `<ellipse cx="0" cy="4" rx="34" ry="8" fill="#000" opacity=".15"/>
+     <rect x="-7" y="-26" width="14" height="30" rx="4" fill="#8A5A2B" ${s(4)}/>
+     <circle cx="-16" cy="-40" r="24" fill="#E8792B" ${s(4)}/>
+     <circle cx="16" cy="-42" r="24" fill="#D9532F" ${s(4)}/>
+     <circle cx="0" cy="-62" r="27" fill="#F2A33A" ${s(4)}/>
+     <circle cx="-8" cy="-70" r="7" fill="#FFD27A"/>`,
+    -45, -95, 90, 106,
+  ],
+  apple: [
+    `<ellipse cx="0" cy="4" rx="36" ry="8" fill="#000" opacity=".15"/>
+     <rect x="-7" y="-24" width="14" height="28" rx="4" fill="#8A5A2B" ${s(4)}/>
+     <ellipse cx="0" cy="-52" rx="40" ry="32" fill="#4FA83D" ${s(4)}/>
+     <ellipse cx="-12" cy="-64" rx="14" ry="8" fill="#79C24A"/>
+     ${[[-22, -48], [6, -66], [20, -42], [-4, -36], [24, -60], [-26, -66]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="5.5" fill="#E8393B" ${s(2)}/>`).join('')}`,
+    -45, -90, 90, 100,
+  ],
+  birch: [
+    `<ellipse cx="0" cy="4" rx="26" ry="7" fill="#000" opacity=".15"/>
+     <rect x="-6" y="-60" width="12" height="64" rx="4" fill="#F4F1EA" ${s(4)}/>
+     <path d="M-6 -14 h5 M2 -30 h4 M-6 -44 h4 M1 -52 h5" stroke="${O}" stroke-width="3" stroke-linecap="round"/>
+     <ellipse cx="0" cy="-80" rx="22" ry="34" fill="#A8D65B" ${s(4)}/>
+     <ellipse cx="-6" cy="-92" rx="7" ry="12" fill="#C9E88A"/>`,
+    -30, -120, 60, 130,
+  ],
+  bush: [
+    `<ellipse cx="0" cy="3" rx="34" ry="7" fill="#000" opacity=".15"/>
+     <circle cx="-16" cy="-14" r="16" fill="#3E9E4A" ${s(4)}/>
+     <circle cx="16" cy="-14" r="16" fill="#3E9E4A" ${s(4)}/>
+     <circle cx="0" cy="-24" r="19" fill="#4FB15A" ${s(4)}/>
+     ${[[-14, -18], [6, -30], [18, -12]].map(([x, y]) => `<circle cx="${x}" cy="${y}" r="3.5" fill="#FFC83D" ${s(1.5)}/>`).join('')}`,
+    -38, -48, 76, 54,
+  ],
+
   camp: [
     `<ellipse cx="0" cy="4" rx="140" ry="26" fill="#6DB33F" opacity=".6"/>
      <path d="M-120 0 L-55 -120 L10 0 Z" fill="#E84A7F" ${s()}/>

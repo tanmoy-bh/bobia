@@ -262,7 +262,12 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
   // ── static drawables, sorted by y each frame ──
   const statics = [
     ...habitats.statics,
-    ...world.trees.map((t) => ({ y: t.y, x: t.x, r: 70, draw: () => drawSprite(ctx, sprites[t.kind === 'pine' ? 'pine' : 'tree'], t.x, t.y, t.k) })),
+    ...world.trees.map((t) => {
+      // round trees come in a few kinds, picked from where they stand so the map stays the same
+      const kinds = ['tree', 'tree', 'blossom', 'autumn', 'apple', 'birch', 'bush'];
+      const kind = t.kind === 'pine' ? 'pine' : kinds[Math.abs(Math.floor(t.x * 7 + t.y * 13)) % kinds.length];
+      return { y: t.y, x: t.x, r: 70, draw: () => drawSprite(ctx, sprites[kind], t.x, t.y, t.k) };
+    }),
     ...world.chests.map((c) => ({
       y: c.landmark.y,
       x: c.landmark.x,
