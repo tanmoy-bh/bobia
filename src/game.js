@@ -707,6 +707,7 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     }
 
     habitats.air(vis, T, now);
+    phoenix(T, vis);
 
     // signs + marker for revealed zones
     const p = getProgress();
@@ -795,6 +796,143 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       ctx.fillStyle = '#E84A7F';
       ctx.fill();
     }
+  }
+
+  // ── a phoenix circling above Heart Castle, trailing embers ──
+  const embers = [];
+  function phoenix(T, vis) {
+    const cx = world.castle.x;
+    const cy = world.castle.y - 480;
+    if (!vis(cx, cy, 300)) return;
+    const a = (reduceMotion ? 0.6 : T * 0.45) % (Math.PI * 2);
+    const x = cx + Math.cos(a) * 190;
+    const y = cy + Math.sin(a) * 50 + Math.sin(T * 2.2) * 8;
+    const dir = -Math.sin(a) < 0 ? -1 : 1; // heading left or right
+    const flap = reduceMotion ? 0.6 : Math.sin(T * 7);
+    if (!reduceMotion && Math.random() < 0.6) embers.push({ x: x - dir * 30, y: y + 6, vx: -dir * (10 + Math.random() * 20), vy: 15 + Math.random() * 25, t0: T, c: Math.random() < 0.5 ? '#FFC83D' : '#FF8A2B' });
+    for (let i = embers.length - 1; i >= 0; i--) {
+      const e = embers[i];
+      const k = (T - e.t0) / 1.2;
+      if (k > 1 || k < 0) {
+        embers.splice(i, 1);
+        continue;
+      }
+      ctx.globalAlpha = 1 - k;
+      ctx.fillStyle = e.c;
+      ctx.beginPath();
+      ctx.arc(e.x + e.vx * k, e.y + e.vy * k, 4 * (1 - k) + 1, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.globalAlpha = 1;
+
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.scale(dir * 1.25, 1.25);
+    ctx.lineJoin = 'round';
+    ctx.lineCap = 'round';
+    const ink = '#3B2414';
+    // glow
+    const g = ctx.createRadialGradient(0, 0, 4, 0, 0, 70);
+    g.addColorStop(0, 'rgba(255,200,61,.45)');
+    g.addColorStop(1, 'rgba(255,138,43,0)');
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(0, 0, 70, 0, Math.PI * 2);
+    ctx.fill();
+    // long flowing tail feathers
+    [['#E8393B', 0, 12], ['#FF8A2B', 10, 9], ['#FFC83D', -10, 7]].forEach(([c, dy, w], i) => {
+      const wave = Math.sin(T * 4 + i) * 10;
+      const path = () => {
+        ctx.beginPath();
+        ctx.moveTo(-12, 2);
+        ctx.bezierCurveTo(-40, 10 + dy, -60, dy - 6 + wave, -92, 8 + dy + wave);
+      };
+      path();
+      ctx.lineWidth = w + 5;
+      ctx.strokeStyle = ink;
+      ctx.stroke();
+      path();
+      ctx.lineWidth = w;
+      ctx.strokeStyle = c;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(-94, 8 + dy + wave, 5, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFE07A';
+      ctx.fill();
+      ctx.lineWidth = 2.5;
+      ctx.strokeStyle = ink;
+      ctx.stroke();
+    });
+    // wings: the far one darker, behind the body
+    const wing = (fill, edge, off, f) => {
+      ctx.beginPath();
+      ctx.moveTo(6 + off, -4);
+      ctx.quadraticCurveTo(-4 + off, -30 * f - 14, -34 + off, -48 * f - 8);
+      ctx.quadraticCurveTo(-30 + off, -30 * f, -40 + off, -26 * f + 2);
+      ctx.quadraticCurveTo(-28 + off, -16 * f, -32 + off, -8 * f + 4);
+      ctx.quadraticCurveTo(-14 + off, -4, -8 + off, 4);
+      ctx.closePath();
+      ctx.fillStyle = fill;
+      ctx.fill();
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = ink;
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(-6 + off, -6);
+      ctx.quadraticCurveTo(-20 + off, -24 * f - 6, -32 + off, -40 * f - 6);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = edge;
+      ctx.stroke();
+    };
+    wing('#D93A2B', '#FF8A2B', 8, 0.7 + 0.5 * Math.sin(T * 7 + 0.6));
+    // body
+    ctx.beginPath();
+    ctx.ellipse(0, 0, 24, 12, -0.15, 0, Math.PI * 2);
+    ctx.fillStyle = '#FF6A2B';
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.strokeStyle = ink;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(4, 4, 14, 5, -0.15, 0, Math.PI * 2);
+    ctx.fillStyle = '#FFC83D';
+    ctx.fill();
+    // head, crest and beak
+    ctx.beginPath();
+    ctx.moveTo(18, -16);
+    ctx.lineTo(14, -32);
+    ctx.lineTo(22, -22);
+    ctx.lineTo(24, -36);
+    ctx.lineTo(28, -20);
+    ctx.lineTo(34, -30);
+    ctx.lineTo(32, -14);
+    ctx.closePath();
+    ctx.fillStyle = '#FFC83D';
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(26, -10, 11, 0, Math.PI * 2);
+    ctx.fillStyle = '#FF6A2B';
+    ctx.fill();
+    ctx.lineWidth = 3.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(35, -12);
+    ctx.lineTo(46, -7);
+    ctx.lineTo(35, -4);
+    ctx.closePath();
+    ctx.fillStyle = '#FFE07A';
+    ctx.fill();
+    ctx.lineWidth = 2.5;
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(29, -12, 2.6, 0, Math.PI * 2);
+    ctx.fillStyle = ink;
+    ctx.fill();
+    // near wing, in front of the body
+    wing('#FF8A2B', '#FFE07A', 0, 0.7 + 0.5 * flap);
+    ctx.restore();
   }
 
   // ── dolphins leaping out of the sea now and then, wherever she can see water ──
