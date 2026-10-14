@@ -563,6 +563,11 @@ function showPuzzle(i) {
     solve();
   });
 
+  const showWife = () => {
+    if (!wife.hidden) return;
+    wife.hidden = false;
+    wife.classList.add('pop');
+  };
   mountPuzzle(
     $('.puzzle-root', el),
     p,
@@ -575,11 +580,10 @@ function showPuzzle(i) {
         pnl.classList.remove('shake');
         void pnl.offsetWidth;
         pnl.classList.add('shake');
-        if (wife.hidden) {
-          wife.hidden = false;
-          wife.classList.add('pop');
-        }
+        showWife();
       },
+      // the swap puzzle has no wrong answer, so it offers the way out after a few swaps
+      onStuck: showWife,
       onSolve: solve,
     },
     { runes: runes() },

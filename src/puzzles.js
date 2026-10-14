@@ -117,12 +117,15 @@ function choice(root, p, { onSolve, onWrong }) {
 }
 
 // ── tile swap ────────────────────────────────────────────────────────────
-function swap(root, p, { onSolve }) {
+const STUCK_AFTER = 6; // swaps before "Wife is always right" shows up
+
+function swap(root, p, { onSolve, onStuck }) {
   const g = p.grid || 3;
   const total = g * g;
   const solved = [...Array(total).keys()];
   let order = shuffle(solved, solved);
   let picked = null;
+  let swaps = 0;
   const src = imgSrc(p.image, 'Your photo here');
   const el = h(`<div class="pz-swap" style="--g:${g}"></div>`);
   const draw = () => {
@@ -148,6 +151,7 @@ function swap(root, p, { onSolve }) {
       [order[picked], order[pos]] = [order[pos], order[picked]];
       picked = null;
       sound('swap');
+      if (++swaps === STUCK_AFTER) onStuck?.();
       if (order.every((t, i) => t === i)) {
         draw();
         el.classList.add('done');
