@@ -311,6 +311,33 @@ function build(h, sprites, ctx) {
     for (let i = 0; i < count; i++) prop(names[(rand() * 4) | 0], inside(spread), k * (0.85 + rand() * 0.3));
   };
 
+  // bats swooping above the area (they belong to the night)
+  const bats = (count) => {
+    for (let i = 0; i < count; i++) {
+      const ph = rand() * TAU;
+      const sp = 0.7 + rand() * 0.5;
+      const R = 50 + rand() * 50;
+      const path = (T) => ({
+        x: h.x + R * Math.sin(T * 0.9 * sp + ph),
+        y: h.y - 110 - i * 12 + R * 0.4 * Math.sin(T * 1.7 * sp + ph) + Math.sin(T * 6 + ph) * 5,
+        flip: Math.cos(T * 0.9 * sp + ph) < 0,
+      });
+      flyers.push({
+        tag: 'bat',
+        height: 30,
+        path,
+        draw: (ctx, T) => {
+          const p = path(T);
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.scale(p.flip ? -1 : 1, 0.55 + 0.45 * Math.abs(Math.sin(T * 10 + ph)));
+          drawSprite(ctx, sprites.bat, 0, 40 * 0.85 * z, 0.85 * z);
+          ctx.restore();
+        },
+      });
+    }
+  };
+
   switch (h.type) {
     case 'garden': {
       ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#9BD86C'));
@@ -609,6 +636,7 @@ function build(h, sprites, ctx) {
       prop('nightTree', tree, 0.9);
       prop('mushrooms', at(0.5, 0.3), 0.8);
       prop('mushrooms', at(-0.6, 0.45), 0.65);
+      bats(2);
       // she perches on the branch and turns her head now and then
       const perch = { x: tree.x + 40 * 0.9 * z, y: tree.y - 100 * 0.9 * z };
       movers.push({
@@ -632,29 +660,7 @@ function build(h, sprites, ctx) {
       prop('nightTree', at(0.35, -0.3), 0.75);
       prop('boulders', at(-0.45, 0.1), 0.9);
       prop('mushrooms', at(0.1, 0.5), 0.75);
-      for (let i = 0; i < 4; i++) {
-        const ph = rand() * TAU;
-        const sp = 0.7 + rand() * 0.5;
-        const R = 50 + rand() * 50;
-        const path = (T) => ({
-          x: h.x + R * Math.sin(T * 0.9 * sp + ph),
-          y: h.y - 110 - i * 12 + R * 0.4 * Math.sin(T * 1.7 * sp + ph) + Math.sin(T * 6 + ph) * 5,
-          flip: Math.cos(T * 0.9 * sp + ph) < 0,
-        });
-        flyers.push({
-          tag: 'bat',
-          height: 30,
-          path,
-          draw: (ctx, T) => {
-            const p = path(T);
-            ctx.save();
-            ctx.translate(p.x, p.y);
-            ctx.scale(p.flip ? -1 : 1, 0.55 + 0.45 * Math.abs(Math.sin(T * 10 + ph)));
-            drawSprite(ctx, sprites.bat, 0, 40 * 0.6 * z, 0.6 * z);
-            ctx.restore();
-          },
-        });
-      }
+      bats(5);
       break;
     }
     case 'dragon': {
@@ -777,6 +783,12 @@ export function createHabitats(ctx, world, sprites) {
 
   let active = null;
 
+  const ks = list.filter((h) => NIGHT.has(h.type)).map((h) => h.k);
+  const at = (k) => world.chests[Math.max(0, Math.min(world.chests.length - 1, k - 1))].s;
+  const nightRoad = ks.length
+    ? [(at(Math.min(...ks) - 1) + at(Math.min(...ks))) / 2, (at(Math.max(...ks)) + at(Math.max(...ks) + 1)) / 2]
+    : null;
+
   function speak(h, now, word, tag) {
     const who = [...h.movers, ...h.flyers].filter((m) => m.tag === tag);
     const m = who[(h.rand() * who.length) | 0] || h.movers[0] || h.flyers[0];
@@ -836,13 +848,19 @@ export function createHabitats(ctx, world, sprites) {
       }
     },
 
-    // 0..1: how deep she is in a night-time habitat (owls and bats)
+    // 0..1: how deep she is in night-time (owl and bat country). It covers
+    // the stretch of road from halfway before the first night chest to
+    // halfway after the last, plus the area around each night habitat.
     night(me) {
       let n = 0;
       for (const h of list) {
         if (!NIGHT.has(h.type)) continue;
         const d = Math.hypot(me.x - h.x, me.y - h.y);
-        n = Math.max(n, Math.min(1, Math.max(0, (h.r + 260 - d) / 220)));
+        n = Math.max(n, Math.min(1, Math.max(0, (h.r + 320 - d) / 220)));
+      }
+      if (nightRoad) {
+        const [a, b] = nightRoad;
+        n = Math.max(n, Math.min(1, Math.max(0, Math.min(me.s - a, b - me.s) / 220 + 0.5)));
       }
       return n * n * (3 - 2 * n);
     },

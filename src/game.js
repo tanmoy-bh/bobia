@@ -585,6 +585,8 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       ctx.stroke();
     }
 
+    if (!reduceMotion) dolphins(now, x0, y0, x1, y1);
+
     // island
     ctx.lineJoin = 'round';
     ctx.lineWidth = 28;
@@ -675,16 +677,14 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     if (look.partner) items.push({ y: tan.y, draw: () => drawPartner(now) });
     items.sort((a, b) => a.y - b.y);
     for (const o of items) o.draw();
-    habitats.air(vis, T, now);
-
     // owl and bat country: the map darkens to night around her
     const night = habitats.night(me);
     if (night > 0.01) {
       ctx.save();
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
       const g = ctx.createRadialGradient(vw / 2, vh / 2, 40, vw / 2, vh / 2, Math.max(vw, vh) * 0.7);
-      g.addColorStop(0, `rgba(24,32,84,${0.3 * night})`);
-      g.addColorStop(1, `rgba(10,14,48,${0.66 * night})`);
+      g.addColorStop(0, `rgba(20,26,76,${0.48 * night})`);
+      g.addColorStop(1, `rgba(6,8,36,${0.8 * night})`);
       ctx.fillStyle = g;
       ctx.fillRect(0, 0, vw, vh);
       ctx.globalAlpha = night;
@@ -705,6 +705,8 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       }
       ctx.restore();
     }
+
+    habitats.air(vis, T, now);
 
     // signs + marker for revealed zones
     const p = getProgress();
@@ -792,6 +794,112 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
       ctx.arc(me.x, me.y - 40, 6 / cam.scale, 0, Math.PI * 2);
       ctx.fillStyle = '#E84A7F';
       ctx.fill();
+    }
+  }
+
+  // ── dolphins leaping out of the sea now and then, wherever she can see water ──
+  const leaps = [];
+  let nextLeap = 0;
+  const LEAP_MS = 1500;
+  const inSea = (x, y) => Math.hypot(x - C.x, y - C.y) > islandR(Math.atan2(y - C.y, x - C.x)) + 110;
+
+  function dolphin(x, y, ang) {
+    ctx.save();
+    ctx.translate(x, y);
+    ctx.rotate(ang);
+    ctx.scale(1.3, 1.3);
+    ctx.lineJoin = 'round';
+    ctx.lineWidth = 3;
+    ctx.strokeStyle = '#3B2414';
+    // tail flukes
+    ctx.beginPath();
+    ctx.moveTo(-32, 0);
+    ctx.quadraticCurveTo(-44, -14, -50, -12);
+    ctx.quadraticCurveTo(-44, 0, -50, 12);
+    ctx.quadraticCurveTo(-44, 14, -32, 0);
+    ctx.fillStyle = '#4F8FCC';
+    ctx.fill();
+    ctx.stroke();
+    // fin
+    ctx.beginPath();
+    ctx.moveTo(-6, -11);
+    ctx.quadraticCurveTo(-12, -26, -20, -26);
+    ctx.quadraticCurveTo(-12, -16, -16, -8);
+    ctx.fill();
+    ctx.stroke();
+    // body and snout
+    ctx.beginPath();
+    ctx.moveTo(-34, 0);
+    ctx.quadraticCurveTo(-8, -18, 22, -8);
+    ctx.quadraticCurveTo(32, -5, 42, 1);
+    ctx.quadraticCurveTo(32, 6, 22, 6);
+    ctx.quadraticCurveTo(-8, 13, -34, 0);
+    ctx.fillStyle = '#5FA3DE';
+    ctx.fill();
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.ellipse(6, 5, 18, 3.5, 0.05, 0, Math.PI * 2);
+    ctx.fillStyle = '#D6ECFA';
+    ctx.fill();
+    ctx.beginPath();
+    ctx.arc(24, -3, 2.4, 0, Math.PI * 2);
+    ctx.fillStyle = '#3B2414';
+    ctx.fill();
+    ctx.restore();
+  }
+
+  function splash(x, y, k) {
+    ctx.strokeStyle = `rgba(255,255,255,${1 - k})`;
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.ellipse(x, y, 10 + k * 26, (10 + k * 26) * 0.35, 0, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = `rgba(255,255,255,${1 - k})`;
+    for (const dx of [-12, -4, 6, 13]) {
+      ctx.beginPath();
+      ctx.arc(x + dx * (1 + k), y - 6 - Math.sin(k * Math.PI) * 18 - Math.abs(dx) * 0.4, 3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+
+  function dolphins(now, x0, y0, x1, y1) {
+    if (now > nextLeap) {
+      nextLeap = now + 1800 + Math.random() * 2600;
+      // look for open water just off the shore in the direction she is looking
+      const a0 = Math.atan2(cam.y - C.y, cam.x - C.x);
+      for (let tries = 0; tries < 24; tries++) {
+        const a = a0 + (Math.random() - 0.5) * 1.2;
+        const r = islandR(a) + 150 + Math.random() * 380;
+        const x = C.x + Math.cos(a) * r;
+        const y = C.y + Math.sin(a) * r;
+        const dir = Math.random() < 0.5 ? -1 : 1;
+        if (x < x0 + 60 || x > x1 - 60 || y < y0 + 120 || y > y1 - 40) continue;
+        if (!inSea(x, y) || !inSea(x + dir * 150, y)) continue;
+        leaps.push({ x, y, dir, t0: now });
+        // sometimes a friend jumps right behind
+        if (Math.random() < 0.4) leaps.push({ x: x - dir * 50, y: y + 18, dir, t0: now + 260 });
+        break;
+      }
+    }
+    for (let i = leaps.length - 1; i >= 0; i--) {
+      const L = leaps[i];
+      const k = (now - L.t0) / LEAP_MS;
+      if (k < 0) continue;
+      if (k > 1.35) {
+        leaps.splice(i, 1);
+        continue;
+      }
+      if (k < 0.3) splash(L.x, L.y, k / 0.3);
+      if (k > 0.8) splash(L.x + L.dir * 150, L.y, Math.min(1, (k - 0.8) / 0.5));
+      if (k > 1) continue;
+      const x = L.x + L.dir * 150 * k;
+      const y = L.y - Math.sin(k * Math.PI) * 80;
+      const rise = -Math.cos(k * Math.PI) * 80 * Math.PI; // dy/dk, nose follows the arc
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.scale(L.dir, 1);
+      dolphin(0, 0, Math.atan2(rise, 150));
+      ctx.restore();
     }
   }
 
