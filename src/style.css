@@ -1402,8 +1402,9 @@ img {
 }
 .polaroid img {
   width: 100%;
-  aspect-ratio: 4 / 3;
+  aspect-ratio: 1;
   object-fit: cover;
+  object-position: 50% 30%;
   border: 2px solid var(--ink);
 }
 .polaroid figcaption {
@@ -1606,6 +1607,39 @@ img {
   color: #ffd1dc;
   font-size: 24px;
   transform: rotate(-12deg);
+}
+
+/* more photos of us, under the letter */
+.album {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px 12px;
+  margin-top: 22px;
+}
+.snap {
+  margin: 0;
+  padding: 7px 7px 4px;
+  background: #fff;
+  border: 3px solid var(--ink);
+  border-radius: 5px;
+  box-shadow: 0 4px 0 rgba(59, 36, 20, 0.2);
+  transform: rotate(var(--tilt));
+}
+.snap img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  object-fit: cover;
+  object-position: 50% 30%;
+  border: 2px solid var(--ink);
+}
+.snap figcaption {
+  padding: 5px 0 1px;
+  text-align: center;
+  font-family: var(--hand);
+  font-size: 19px;
+  font-weight: 700;
+  line-height: 1.1;
 }
 
 .confetti {

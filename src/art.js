@@ -2,6 +2,7 @@
 // Each sprite is drawn around (0,0) = the point where it touches the ground.
 
 import { CRITTER_DEFS } from './critters-art.js';
+import { WILD_DEFS } from './wild-art.js';
 
 const O = '#3B2414';
 const s = (w = 5) => `stroke="${O}" stroke-width="${w}" stroke-linejoin="round" stroke-linecap="round"`;
@@ -422,7 +423,7 @@ function load(svg, vx, vy, vw, vh) {
 export async function loadSprites() {
   const out = {};
   await Promise.all(
-    Object.entries({ ...DEFS, ...CRITTER_DEFS }).map(async ([name, [svg, vx, vy, vw, vh]]) => {
+    Object.entries({ ...DEFS, ...CRITTER_DEFS, ...WILD_DEFS }).map(async ([name, [svg, vx, vy, vw, vh]]) => {
       out[name] = { img: await load(svg, vx, vy, vw, vh), vx, vy, vw, vh };
     }),
   );

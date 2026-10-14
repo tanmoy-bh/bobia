@@ -167,7 +167,7 @@ export function buildWorld(zones) {
   const habitats = [];
   // how far each landmark sprite reaches sideways and upwards (plus its sign below)
   const FOOT = { palms: [150, 175], windmill: [95, 215], lighthouse: [80, 200], lake: [120, 90], falls: [145, 205], cottage: [95, 160], balloon: [85, 220], bench: [95, 175], cake: [100, 165], merlion: [215, 200] };
-  const TALL = { farm: 100, birds: 100, beach: 90, bees: 80 }; // tallest prop in a habitat
+  const TALL = { farm: 100, birds: 100, beach: 90, bees: 80, owl: 170, bat: 140, dino: 100, lion: 120, parrot: 95, dragon: 75, dog: 70, tiger: 60 }; // tallest prop in a habitat
   const box = (m) => {
     const [w, up] = FOOT[m.type] || [120, 200];
     return [m.x - w, m.y - up, m.x + w, m.y + 62];

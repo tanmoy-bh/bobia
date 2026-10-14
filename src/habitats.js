@@ -19,7 +19,13 @@ export const HABITAT_FOR = {
 };
 
 // radius of each habitat in world units
-export const HABITAT_R = { garden: 120, pond: 130, pasture: 135, farm: 150, bees: 105, mud: 110, beach: 115, birds: 100, fireflies: 105 };
+export const HABITAT_R = {
+  garden: 120, pond: 130, pasture: 135, farm: 150, bees: 105, mud: 110, beach: 115, birds: 100, fireflies: 105,
+  owl: 110, bat: 105, dragon: 125, dino: 150, pigeon: 100, parrot: 105, tiger: 125, lion: 130, dog: 115, cat: 100,
+};
+
+// habitats that turn the map to night when she walks through
+const NIGHT = new Set(['owl', 'bat']);
 
 // [sound, bubble text, which critter says it]
 const CALLS = {
@@ -32,6 +38,16 @@ const CALLS = {
   beach: [['gull', 'Squawk!', 'gull']],
   birds: [['tweet', 'Tweet!', 'bird']],
   fireflies: [['crickets', '♪', 'firefly']],
+  owl: [['hoot', 'Hoo hoo!', 'owl']],
+  bat: [['squeak', 'Squeak!', 'bat']],
+  dragon: [['roar', 'Rawr!', 'dragon']],
+  dino: [['rumble', 'ROAR!', 'dino']],
+  pigeon: [['coo', 'Coo-coo!', 'pigeon']],
+  parrot: [['squawk', 'Hello Joy!', 'parrot']],
+  tiger: [['growl', 'Grrr!', 'tiger']],
+  lion: [['lionRoar', 'ROAR!', 'lion']],
+  dog: [['woof', 'Woof woof!', 'dog']],
+  cat: [['meow', 'Meow!', 'cat']],
 };
 const HEARD = 190; // she hears a habitat this far beyond its edge
 
@@ -586,6 +602,171 @@ function build(h, sprites, ctx) {
       }
       break;
     }
+    case 'owl': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#4E8A4A'));
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx * 0.6, ry * 0.6, '#457D42'));
+      const tree = at(-0.25, -0.2);
+      prop('nightTree', tree, 0.9);
+      prop('mushrooms', at(0.5, 0.3), 0.8);
+      prop('mushrooms', at(-0.6, 0.45), 0.65);
+      // she perches on the branch and turns her head now and then
+      const perch = { x: tree.x + 40 * 0.9 * z, y: tree.y - 100 * 0.9 * z };
+      movers.push({
+        tag: 'owl',
+        height: 60,
+        path: () => perch,
+        draw(ctx, T) {
+          const turn = Math.sin(T * 0.7) > 0.6;
+          put(ctx, sprites.owl, perch.x, perch.y, 0.9 * z, turn, Math.sin(T * 1.3) * 0.05);
+        },
+      });
+      for (let i = 0; i < 4; i++) {
+        const ph = rand() * TAU;
+        const path = (T) => ({ x: h.x + rx * 0.7 * Math.sin(T * 0.25 + ph), y: h.y - 20 + ry * 0.5 * Math.sin(T * 0.4 + ph * 2) - 12 * Math.sin(T + ph) });
+        flyers.push({ tag: 'firefly', height: 10, path, draw: (ctx, T) => { const p = path(T); firefly(ctx, p.x, p.y, 0.5 + 0.5 * Math.sin(T * 2.6 + ph * 3)); } });
+      }
+      break;
+    }
+    case 'bat': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#557F4C'));
+      prop('nightTree', at(0.35, -0.3), 0.75);
+      prop('boulders', at(-0.45, 0.1), 0.9);
+      prop('mushrooms', at(0.1, 0.5), 0.75);
+      for (let i = 0; i < 4; i++) {
+        const ph = rand() * TAU;
+        const sp = 0.7 + rand() * 0.5;
+        const R = 50 + rand() * 50;
+        const path = (T) => ({
+          x: h.x + R * Math.sin(T * 0.9 * sp + ph),
+          y: h.y - 110 - i * 12 + R * 0.4 * Math.sin(T * 1.7 * sp + ph) + Math.sin(T * 6 + ph) * 5,
+          flip: Math.cos(T * 0.9 * sp + ph) < 0,
+        });
+        flyers.push({
+          tag: 'bat',
+          height: 30,
+          path,
+          draw: (ctx, T) => {
+            const p = path(T);
+            ctx.save();
+            ctx.translate(p.x, p.y);
+            ctx.scale(p.flip ? -1 : 1, 0.55 + 0.45 * Math.abs(Math.sin(T * 10 + ph)));
+            drawSprite(ctx, sprites.bat, 0, 40 * 0.6 * z, 0.6 * z);
+            ctx.restore();
+          },
+        });
+      }
+      break;
+    }
+    case 'dragon': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#B9A27A'));
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx * 0.65, ry * 0.65, '#A8916A'));
+      prop('boulders', at(-0.6, -0.4), 1.1);
+      prop('boulders', at(0.65, -0.3), 0.8);
+      prop('eggs', at(-0.35, 0.35), 0.9);
+      const home = at(0.15, 0.05);
+      walker('dragon', 'dragon', 0.85, wander(home.x, home.y, 30, 4, 0.25, rand() * TAU), { height: 80, shadow: 26, step: 5, bob: 3 });
+      break;
+    }
+    case 'dino': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#8CC85E'));
+      for (const [fx, fy, k] of [[-0.75, -0.3, 1], [0.7, -0.45, 0.9], [0.6, 0.45, 0.8], [-0.5, 0.5, 0.75]]) prop('fern', at(fx, fy), k);
+      const home = at(0, -0.05);
+      walker('dino', 'dino', 0.8, wander(home.x, home.y, 34, 4, 0.16, rand() * TAU), { height: 104, shadow: 40, step: 4, bob: 2 });
+      break;
+    }
+    case 'pigeon': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#CFC8BA', 'rgba(59,36,20,.35)', 3));
+      const crumbs = Array.from({ length: 16 }, () => inside(0.65));
+      ground.push((ctx) => {
+        ctx.fillStyle = '#E3B66A';
+        for (const p of crumbs) {
+          ctx.beginPath();
+          ctx.ellipse(p.x, p.y, 3, 2, 0, 0, TAU);
+          ctx.fill();
+        }
+      });
+      for (let i = 0; i < 4; i++) {
+        const pts = Array.from({ length: 5 }, () => inside(0.65));
+        const ph = rand() * TAU;
+        walker('pigeon', 'pigeon', 0.9, hopper(pts, 1.6 + rand() * 0.6, 0.3, 6, rand() * 5), {
+          height: 40,
+          shadow: 12,
+          bob: 0,
+          rot: (T, p) => (!p.moving && Math.sin(T * 6 + ph) > 0.3 ? 0.35 : 0),
+        });
+      }
+      break;
+    }
+    case 'parrot': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#7CC95A'));
+      tulips(10, 0.85);
+      for (const [fx, fy, k] of [[-0.35, -0.1, 0.9], [0.4, 0.15, 0.8]]) {
+        const p = at(fx, fy);
+        const ph = rand() * TAU;
+        movers.push({
+          tag: 'parrot',
+          height: 110 * k,
+          path: () => p,
+          draw(ctx, T) {
+            shadow(ctx, p.x, p.y, 16);
+            put(ctx, sprites.parrot, p.x, p.y, k * z, Math.sin(T * 0.5 + ph) > 0.7, Math.sin(T * 2 + ph) * 0.04);
+          },
+        });
+      }
+      break;
+    }
+    case 'tiger':
+    case 'lion': {
+      const tiger = h.type === 'tiger';
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, tiger ? '#8DBB52' : '#D9C27A'));
+      if (tiger) {
+        prop('reeds', at(-0.75, -0.3), 1);
+        prop('reeds', at(0.75, -0.4), 0.9);
+        prop('reeds', at(0.5, 0.5), 0.8);
+        prop('boulders', at(-0.4, 0.45), 0.8);
+      } else {
+        prop('acacia', at(-0.35, -0.35), 1);
+        prop('boulders', at(0.6, 0.35), 0.75);
+      }
+      const home = at(0.1, 0.1);
+      walker(h.type, h.type, 0.85, wander(home.x, home.y, 36, 4, 0.22, rand() * TAU), { height: 72, shadow: 28, step: 6, bob: 2 });
+      break;
+    }
+    case 'dog': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#9BD86C'));
+      prop('doghouse', at(-0.45, -0.35), 0.9);
+      prop('bone', at(0.45, 0.45), 1);
+      for (let i = 0; i < 2; i++) {
+        const home = at(0.2 - i * 0.45, 0.2 + i * 0.15);
+        walker('dog', 'dog', 0.8 - i * 0.12, wander(home.x, home.y, 30, 5, 0.6 + rand() * 0.3, rand() * TAU), {
+          height: 60,
+          shadow: 22,
+          step: 12,
+          bob: 3,
+          ph: i,
+          rot: (T) => Math.sin(T * 14 + i) * 0.03,
+        });
+      }
+      break;
+    }
+    case 'cat': {
+      ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#A9E07A'));
+      prop('yarn', at(0.35, 0.35), 1);
+      tulips(6, 0.8, 0.8);
+      const sit = at(-0.3, -0.05);
+      movers.push({
+        tag: 'cat',
+        height: 72,
+        path: () => sit,
+        draw(ctx, T) {
+          shadow(ctx, sit.x, sit.y, 16);
+          put(ctx, sprites.cat, sit.x, sit.y, 0.85 * z, false, Math.sin(T * 1.2) * 0.04);
+        },
+      });
+      const pts = Array.from({ length: 4 }, () => inside(0.6));
+      walker('cat', 'cat', 0.65, hopper(pts, 3.2, 0.3, 18, rand() * 4), { height: 56, shadow: 12, bob: 0 });
+      break;
+    }
   }
 
   return { ...h, ground, statics, movers, flyers, rand, last: -1e9, next: 0, call: 0, bubble: null };
@@ -653,6 +834,17 @@ export function createHabitats(ctx, world, sprites) {
         const p = b.m.path(T);
         bubble(ctx, p.x, p.y - (p.lift || 0) - (b.m.height ?? 40) - 6, b.text, age);
       }
+    },
+
+    // 0..1: how deep she is in a night-time habitat (owls and bats)
+    night(me) {
+      let n = 0;
+      for (const h of list) {
+        if (!NIGHT.has(h.type)) continue;
+        const d = Math.hypot(me.x - h.x, me.y - h.y);
+        n = Math.max(n, Math.min(1, Math.max(0, (h.r + 260 - d) / 220)));
+      }
+      return n * n * (3 - 2 * n);
     },
 
     // play the sound of the habitat she is walking past (only the nearest

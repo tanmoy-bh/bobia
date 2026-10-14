@@ -6,6 +6,7 @@ import { createGame } from './game.js';
 import { mountPuzzle, imgSrc, norm } from './puzzles.js';
 import { sound, confetti, isMusicOff, setMusicOff, startMusic, unlockAudio } from './fx.js';
 import { skyHTML, isleHTML } from './title-scene.js';
+import { unlock, restore, forget, loadPhotos } from './vault.js';
 
 // ── State ────────────────────────────────────────────────────────────────
 
@@ -195,9 +196,14 @@ function renderTitle() {
 
   const form = $('#gate');
   const input = $('#pass');
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
-    if (norm(input.value) === norm(config.passphrase)) {
+    const go = form.querySelector('button');
+    go.disabled = true;
+    const ok = norm(input.value) && (await unlock(input.value).catch(() => false));
+    if (ok) await loadAllPhotos();
+    go.disabled = false;
+    if (ok) {
       state.gate = true;
       save();
       sound('open');
@@ -342,6 +348,7 @@ function confirmReset() {
     game = null;
     state = fresh();
     save();
+    forget();
     window.onkeydown = null;
     sound('reveal');
     renderTitle();
@@ -745,6 +752,13 @@ function showLetter() {
         <div class="wax">♥</div>
         <p class="signature">${esc(f.signature)}</p>
       </div>
+      ${
+        f.album?.length
+          ? `<div class="album">${f.album
+              .map((a, i) => `<figure class="snap" style="--tilt:${i % 2 ? 2 : -2}deg"><img src="${imgSrc(a.image, '')}" alt=""/><figcaption>${esc(a.caption)}</figcaption></figure>`)
+              .join('')}</div>`
+          : ''
+      }
     </article>`,
     { cls: 'letter-modal' },
   );
@@ -753,7 +767,25 @@ function showLetter() {
 // ── Boot ─────────────────────────────────────────────────────────────────
 
 document.title = config.intro.title;
-state.gate && state.started ? renderGame() : renderTitle();
+
+// every encrypted photo the game shows
+function loadAllPhotos() {
+  const paths = [
+    ...config.zones.flatMap((z) => [z.treasure.image, z.puzzle.image]),
+    ...config.finale.album.map((a) => a.image),
+  ];
+  return loadPhotos(paths.filter((p) => p?.startsWith('photos/'))).catch(() => {});
+}
+
+(async () => {
+  // the photos need the key from the passphrase, so without it she starts at the gate
+  if (await restore().catch(() => false)) await loadAllPhotos();
+  else if (state.gate) {
+    state.gate = false;
+    save();
+  }
+  state.gate && state.started ? renderGame() : renderTitle();
+})();
 
 // Browsers only allow sound after a tap. Every tap wakes the audio up (so
 // animal calls play even with the music off), and the first one starts the tune.

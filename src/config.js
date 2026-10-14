@@ -5,15 +5,18 @@
 //  Each chest: a puzzle to open it, then a treasure (photo + memory)
 //  that holds the clue for the next chest.
 //
-//  Images: drop files into /public/images and reference them as
-//  'images/your-file.jpg'. Leave `image: null` to show a placeholder.
+//  Photos: they live encrypted in public/photos and are referenced as
+//  'photos/c01.jpg'. To change them, put the .jpg files in photos-src/
+//  (kept out of git) and run: PHOTO_PASS='the passphrase' npm run photos
 //
 //  `landmark` picks the drawing next to the chest. Options:
-//  palms, windmill, lighthouse, lake, falls, cottage, balloon, bench, cake
+//  palms, windmill, lighthouse, lake, falls, cottage, balloon, bench, cake, merlion
+//
+//  `habitat` picks the animals around it: garden, pond, pasture, farm, bees,
+//  mud, beach, birds, fireflies, owl, bat, dragon, dino, pigeon, parrot,
+//  tiger, lion, dog, cat. Owl and bat areas turn the map to night.
 //
 //  Answers are compared loosely: case, spaces and punctuation are ignored.
-//  "(While testing: …)" text in the clues is there so you can play
-//  through. Replace every clue before the big day.
 // ─────────────────────────────────────────────────────────────
 
 export default {
@@ -21,8 +24,8 @@ export default {
   fromName: 'Tan',
   daughterName: 'Innu',
 
-  // Typed on the first screen to enter (case doesn't matter).
-  passphrase: 'HBDJoy',
+  // The passphrase for the first screen is not stored here: it is the key
+  // the photos are encrypted with (npm run photos, see scripts/encrypt-photos.mjs).
 
   // HUD: she starts at level 32 and levels up to 33 at the very end.
   startLevel: 32,
@@ -44,7 +47,7 @@ export default {
     ],
     // The clue for the very first chest.
     firstClue: {
-      text: 'Start where the palm trees lean and the waves come to say hello. Sand between your toes, sun on your face. Where are you? One word.',
+      text: "Every story starts somewhere, and yours starts on someone's lap: a tiny girl in a flowery sun hat, holding her sunglasses like a film star. Who is sitting right beside her? Head to Wood Apple Cove and tell the chest.",
       image: null,
     },
   },
@@ -54,20 +57,20 @@ export default {
     {
       name: "Wood Apple Cove",
       landmark: 'palms',
-      habitat: 'garden', // garden, pond, pasture, farm, bees, mud, beach, birds or fireflies
+      habitat: 'garden',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. What is it?',
-        answers: ["beach"],
-        hints: ['Read your clue again.', 'It starts with "B".'],
+        prompt: "Who sat beside little you in your very first photo? One word, the way you call him.",
+        answers: ["baba", "papa", "dad", "daddy", "father", "bapi", "babai"],
+        hints: ["The man with the moustache, looking proud.", "What do you call your father? It starts with B."],
       },
       treasure: {
-        title: '[Memory #1 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #1, in two or three sentences.]',
+        title: "Where it all began",
+        image: 'photos/c01.jpg',
+        memory: "Tiny you in a flowery sun hat, sunglasses already in hand like a film star, and Baba right beside you trying very hard to look serious for the camera. Nobody could sit next to that face and stay serious for long.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Old Windmill] (While testing: the code is 2274)",
+          text: "Next stop: the Old Windmill. Remember when phones had buttons and every message took real effort? Spell the word TEXT the old way, one number per letter.",
           image: null,
         },
       },
@@ -79,17 +82,17 @@ export default {
       habitat: 'farm',
       puzzle: {
         type: 'code',
-        prompt: 'A four-dial lock holds the chest shut.',
-        answer: '2274',
-        hints: ['Think of a date: day then month.', 'It starts with 22.'],
+        prompt: "Spell TEXT on an old phone keypad: one digit for each letter.",
+        answer: "8398",
+        hints: ["ABC is on 2, DEF is on 3, and so on up to WXYZ on 9.", "T is on 8 and E is on 3."],
       },
       treasure: {
-        title: '[Memory #2 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #2, in two or three sentences.]',
+        title: "Texting in sepia",
+        image: 'photos/c02.jpg',
+        memory: "The age of the sepia filter and the very serious phone face. Somewhere in that message there was a long paragraph, three emojis and a 'wait, calling you'. Some things never change.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Lighthouse Point] (While testing: pick Option D)",
+          text: "Head to Lighthouse Point. Think of a night market, bright lights and a smile that could power the whole street. What was that pink cloud in your hand?",
           image: null,
         },
       },
@@ -101,23 +104,23 @@ export default {
       habitat: 'beach',
       puzzle: {
         type: 'choice',
-        prompt: 'Which one is it?',
+        prompt: "What was the pink cloud in your hand at the night market?",
         options: [
-          { label: 'Option A', image: null },
-          { label: 'Option B', image: null },
-          { label: 'Option C', image: null },
-          { label: 'Option D', image: null },
+          { label: "A balloon" },
+          { label: "Candy floss" },
+          { label: "Ice cream" },
+          { label: "A bunch of flowers" },
         ],
-        answer: 3, // index into options, starting at 0
-        hints: ['Trust your first instinct.', 'It is option D.'],
+        answer: 1, // index into options, starting at 0
+        hints: ["It melts the second it touches your tongue.", "It is spun from sugar."],
       },
       treasure: {
-        title: '[Memory #3 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #3, in two or three sentences.]',
+        title: "Sugar rush",
+        image: 'photos/c03.jpg',
+        memory: "A night market, a fistful of sweets and the happiest grin on the street. Proof that you have always known what matters in life: sugar first, questions later.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Crystal Lake] (While testing: the word is JOYFUL)",
+          text: "Over to Crystal Lake. Your sign that day had the best science lesson ever: Fe is iron, male is man... so what are you? Unscramble it.",
           image: null,
         },
       },
@@ -129,17 +132,17 @@ export default {
       habitat: 'pond',
       puzzle: {
         type: 'scramble',
-        prompt: 'Unscramble the letters.',
-        answer: 'JOYFUL',
-        hints: ['Say the letters out loud.', 'It starts with JOY.'],
+        prompt: "Fe is iron, male is man, so a female is... Unscramble the letters.",
+        answer: "IRONMAN",
+        hints: ["Female = Fe + male.", "Tony Stark would agree."],
       },
       treasure: {
-        title: '[Memory #4 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #4, in two or three sentences.]',
+        title: "Science, but make it sassy",
+        image: 'photos/c04.jpg',
+        memory: "\"I am a female. Fe is iron, male is man, therefore I am Iron Man.\" Still the most accurate thing anyone has ever written on a piece of paper. You were a superhero long before you had a sidekick.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Whisper Falls] (While testing: rebuild the picture, sun top-left)",
+          text: "Whisper Falls is next. Someone turned one of your sunniest afternoons into a cartoon and cut it into pieces. Put the sky back together.",
           image: null,
         },
       },
@@ -151,18 +154,18 @@ export default {
       habitat: 'birds',
       puzzle: {
         type: 'swap',
-        prompt: 'Tap two tiles to swap them until the picture is whole.',
-        image: null, // a square photo works best
+        prompt: "Tap two tiles to swap them until the picture is whole.",
+        image: "photos/c05-toon.jpg", // a cartoon of this chest's photo
         grid: 3,
-        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+        hints: ["Start with the blue sky in the corners.", "Your face is in the middle, looking up at the flowers."],
       },
       treasure: {
-        title: '[Memory #5 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #5, in two or three sentences.]',
+        title: "Looking up",
+        image: 'photos/c05.jpg',
+        memory: "Chin up, flowers in hand, blue sky everywhere. That is how you go through life: always looking for the bright bit, even on a cloudy day.",
         rune: "A", // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Honey Cottage] (While testing: the answer is: coffee)",
+          text: "Off to Honey Cottage. A selfie, a hand pose straight out of a music video, and nails painted just for the occasion. What colour were they? One word.",
           image: null,
         },
       },
@@ -174,17 +177,17 @@ export default {
       habitat: 'bees',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. What is it?',
-        answers: ["coffee"],
-        hints: ['Read your clue again.', 'It starts with "C".'],
+        prompt: "What colour were your nails in that selfie? One word.",
+        answers: ["pink"],
+        hints: ["Same colour as your lipstick that day.", "It rhymes with wink."],
       },
       treasure: {
-        title: '[Memory #6 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #6, in two or three sentences.]',
+        title: "The hand pose era",
+        image: 'photos/c06.jpg',
+        memory: "Every girl had a signature selfie pose, and this was yours: tilted head, fingers fanned out, pink nails and pink lips to match. Iconic. I would like it framed, please.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Balloon Meadow] (While testing: the code is 2959)",
+          text: "Balloon Meadow next. First job, first ID card, first office mirror selfie. Every office swears by the same hours. From what to what?",
           image: null,
         },
       },
@@ -196,17 +199,17 @@ export default {
       habitat: 'pasture',
       puzzle: {
         type: 'code',
-        prompt: 'A four-dial lock holds the chest shut.',
-        answer: '2959',
-        hints: ['Think of a date: day then month.', 'It starts with 29.'],
+        prompt: "Classic office hours: from ? to ?",
+        answer: "95",
+        hints: ["Dolly Parton sang about it.", "Nine, then five."],
       },
       treasure: {
-        title: '[Memory #7 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #7, in two or three sentences.]',
+        title: "First job, first ID card",
+        image: 'photos/c07.jpg',
+        memory: "Office lanyard, new handbag, and the confidence of someone who just got her first salary. The mirror selfie was compulsory, obviously. Look at her, about to conquer the world one meeting at a time.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Moonlight Bench] (While testing: pick Option A)",
+          text: "Find the Moonlight Bench, where the owls keep watch. You were swinging off a gate in your favourite shirt that day. What pattern was on it?",
           image: null,
         },
       },
@@ -215,26 +218,26 @@ export default {
     {
       name: "Moonlight Bench",
       landmark: 'bench',
-      habitat: 'fireflies',
+      habitat: 'owl',
       puzzle: {
         type: 'choice',
-        prompt: 'Which one is it?',
+        prompt: "What pattern was on your shirt the day you swung off the gate?",
         options: [
-          { label: 'Option A', image: null },
-          { label: 'Option B', image: null },
-          { label: 'Option C', image: null },
-          { label: 'Option D', image: null },
+          { label: "Polka dots" },
+          { label: "Stripes" },
+          { label: "Checks" },
+          { label: "Flowers" },
         ],
-        answer: 0, // index into options, starting at 0
-        hints: ['Trust your first instinct.', 'It is option A.'],
+        answer: 2, // index into options, starting at 0
+        hints: ["Lots of little squares.", "Think picnic blanket."],
       },
       treasure: {
-        title: '[Memory #8 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #8, in two or three sentences.]',
+        title: "Hanging around",
+        image: 'photos/c08.jpg',
+        memory: "A check shirt, a big smile, and the only person I know who treats every railing like a playground. Grown-up on paper, ten years old at heart.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Cake Hill] (While testing: the word is PANCAKES)",
+          text: "Climb Cake Hill, where the bats come out after dark. You in a saree, chin on your hand, eyes somewhere far away. What were you doing? Unscramble it.",
           image: null,
         },
       },
@@ -243,20 +246,20 @@ export default {
     {
       name: "Cake Hill",
       landmark: 'cake',
-      habitat: 'bees',
+      habitat: 'bat',
       puzzle: {
         type: 'scramble',
-        prompt: 'Unscramble the letters.',
-        answer: 'PANCAKES',
-        hints: ['Say the letters out loud.', 'It starts with PAN.'],
+        prompt: "Chin on your hand, eyes far away. What were you doing? Unscramble it.",
+        answer: "DAYDREAM",
+        hints: ["Thinking about anything but the here and now.", "Day + ..."],
       },
       treasure: {
-        title: '[Memory #9 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #9, in two or three sentences.]',
+        title: "Somewhere far away",
+        image: 'photos/c09.jpg',
+        memory: "A soft saree, chin on your hand and a faraway look. I would love to know what you were thinking about. I hope it was cake. It is usually cake.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Sunset Beach] (While testing: rebuild the picture, sun top-left)",
+          text: "Down to Sunset Beach. Rocks, waves and a cloudy sky, turned into a cartoon and scrambled. Rebuild the seaside.",
           image: null,
         },
       },
@@ -265,21 +268,21 @@ export default {
     {
       name: "Sunset Beach",
       landmark: 'palms',
-      habitat: 'beach',
+      habitat: 'parrot',
       puzzle: {
         type: 'swap',
-        prompt: 'Tap two tiles to swap them until the picture is whole.',
-        image: null, // a square photo works best
+        prompt: "Tap two tiles to swap them until the picture is whole.",
+        image: "photos/c10-toon.jpg", // a cartoon of this chest's photo
         grid: 3,
-        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+        hints: ["The sea runs across the middle.", "You are standing on the rocks in the centre."],
       },
       treasure: {
-        title: '[Memory #10 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #10, in two or three sentences.]',
+        title: "Rocks and waves",
+        image: 'photos/c10.jpg',
+        memory: "A grey sky, wild waves, and you on the rocks like you owned the whole coastline. Some people hide from the wind. You pose for it.",
         rune: "L", // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Sugar Mill] (While testing: the answer is: rain)",
+          text: "Sugar Mill next. A café, a pout and a chin on your hand, but something is missing from that photo. What did the filter steal? One word.",
           image: null,
         },
       },
@@ -288,20 +291,20 @@ export default {
     {
       name: "Sugar Mill",
       landmark: 'windmill',
-      habitat: 'farm',
+      habitat: 'cat',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. What is it?',
-        answers: ["rain"],
-        hints: ['Read your clue again.', 'It starts with "R".'],
+        prompt: "Something is missing from your café photo. What did the filter take away? One word.",
+        answers: ["colour", "color", "colours", "colors"],
+        hints: ["It is a black and white photo.", "It starts with C."],
       },
       treasure: {
-        title: '[Memory #11 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #11, in two or three sentences.]',
+        title: "Black and white mood",
+        image: 'photos/c11.jpg',
+        memory: "A black and white filter, a dramatic pout, a café table. You look like the poster for an art film nobody understood and everybody loved.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Starlight Tower] (While testing: the code is 3644)",
+          text: "Starlight Tower, where the dogs hang out. You once held a fluffy pup like he was the most precious thing in the world. Count him: paws, then ears, then tail.",
           image: null,
         },
       },
@@ -310,20 +313,20 @@ export default {
     {
       name: "Starlight Tower",
       landmark: 'lighthouse',
-      habitat: 'fireflies',
+      habitat: 'dog',
       puzzle: {
         type: 'code',
-        prompt: 'A four-dial lock holds the chest shut.',
-        answer: '3644',
-        hints: ['Think of a date: day then month.', 'It starts with 36.'],
+        prompt: "Count your fluffy friend: paws, then ears, then tail.",
+        answer: "421",
+        hints: ["Four paws to start.", "Four, two, one."],
       },
       treasure: {
-        title: '[Memory #12 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #12, in two or three sentences.]',
+        title: "Puppy love",
+        image: 'photos/c12.jpg',
+        memory: "That pup knew exactly whose arms were the safest in the room. So do I. So does Innu. You have that effect on everyone, furry or not.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Bubble Pond] (While testing: pick Option B)",
+          text: "Bubble Pond is next. Fairy lights behind you, a big smile and a saree the colour of fresh leaves. Which colour was it?",
           image: null,
         },
       },
@@ -332,26 +335,26 @@ export default {
     {
       name: "Bubble Pond",
       landmark: 'lake',
-      habitat: 'pond',
+      habitat: 'fireflies',
       puzzle: {
         type: 'choice',
-        prompt: 'Which one is it?',
+        prompt: "Which colour was your saree under the fairy lights?",
         options: [
-          { label: 'Option A', image: null },
-          { label: 'Option B', image: null },
-          { label: 'Option C', image: null },
-          { label: 'Option D', image: null },
+          { label: "Red" },
+          { label: "Green" },
+          { label: "Blue" },
+          { label: "Yellow" },
         ],
         answer: 1, // index into options, starting at 0
-        hints: ['Trust your first instinct.', 'It is option B.'],
+        hints: ["The colour of fresh leaves.", "Traffic lights say go."],
       },
       treasure: {
-        title: '[Memory #13 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #13, in two or three sentences.]',
+        title: "Festive glow",
+        image: 'photos/c13.jpg',
+        memory: "Fairy lights, a beautiful saree and that knowing smile. Every festival needs a main character, and you never miss your cue.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Snowcap Peak] (While testing: the word is SUNSHINE)",
+          text: "Up to Snowcap Peak, where the dragon lives. Hair everywhere, laughing so hard your eyes closed. What was messing up your hair? Unscramble it.",
           image: null,
         },
       },
@@ -360,20 +363,20 @@ export default {
     {
       name: "Snowcap Peak",
       landmark: 'falls',
-      habitat: 'birds',
+      habitat: 'dragon',
       puzzle: {
         type: 'scramble',
-        prompt: 'Unscramble the letters.',
-        answer: 'SUNSHINE',
-        hints: ['Say the letters out loud.', 'It starts with SUN.'],
+        prompt: "Hair everywhere, eyes closed, laughing. What was messing up your hair? Unscramble it.",
+        answer: "BREEZE",
+        hints: ["Wind, but gentler.", "It starts with B."],
       },
       treasure: {
-        title: '[Memory #14 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #14, in two or three sentences.]',
+        title: "Wind in your hair",
+        image: 'photos/c14.jpg',
+        memory: "Messy hair, closed eyes, the biggest laugh. Not one strand in place and you have never looked happier. This is my favourite kind of you.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Cocoa Cabin] (While testing: rebuild the picture, sun top-left)",
+          text: "Cocoa Cabin next. A big piece of driftwood by the water and you sitting on it like a throne. It is a cartoon now, in pieces. Fix it.",
           image: null,
         },
       },
@@ -385,18 +388,18 @@ export default {
       habitat: 'garden',
       puzzle: {
         type: 'swap',
-        prompt: 'Tap two tiles to swap them until the picture is whole.',
-        image: null, // a square photo works best
+        prompt: "Tap two tiles to swap them until the picture is whole.",
+        image: "photos/c15-toon.jpg", // a cartoon of this chest's photo
         grid: 3,
-        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+        hints: ["The water fills the top half.", "The driftwood runs along the bottom."],
       },
       treasure: {
-        title: '[Memory #15 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #15, in two or three sentences.]',
+        title: "Driftwood throne",
+        image: 'photos/c15.jpg',
+        memory: "A grey day, a lake, a fallen tree trunk, and you turned it into a photoshoot. You find the fun in everything, even a log.",
         rune: "W", // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Kite Ridge] (While testing: the answer is: paris)",
+          text: "Climb Kite Ridge, where the lion naps. A white saree with a red border, the one every Bengali girl owns. What do we call it? Two words.",
           image: null,
         },
       },
@@ -405,20 +408,20 @@ export default {
     {
       name: "Kite Ridge",
       landmark: 'balloon',
-      habitat: 'pasture',
+      habitat: 'lion',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. What is it?',
-        answers: ["paris"],
-        hints: ['Read your clue again.', 'It starts with "P".'],
+        prompt: "A white saree with a red border. What do we call it? Two words.",
+        answers: ["laal paar", "lal paar", "lal par", "laal par", "laal paad", "lal paad", "red border"],
+        hints: ["It is named after its red edge.", "Laal ..."],
       },
       treasure: {
-        title: '[Memory #16 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #16, in two or three sentences.]',
+        title: "Laal paar",
+        image: 'photos/c16.jpg',
+        memory: "A white saree, a red border and a carved wooden door. Some looks never go out of style, and on you, this one never will.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Firefly Park] (While testing: the code is 4329)",
+          text: "Firefly Park, down by the mud where the frogs sing. You, a café, and something round and hard on the table that kept your head safe on the ride there. What was it?",
           image: null,
         },
       },
@@ -427,20 +430,20 @@ export default {
     {
       name: "Firefly Park",
       landmark: 'bench',
-      habitat: 'fireflies',
+      habitat: 'mud',
       puzzle: {
-        type: 'code',
-        prompt: 'A four-dial lock holds the chest shut.',
-        answer: '4329',
-        hints: ['Think of a date: day then month.', 'It starts with 43.'],
+        type: 'text',
+        prompt: "What was on the café table that kept your head safe on the ride? One word.",
+        answers: ["helmet", "a helmet", "bike helmet"],
+        hints: ["You wear it on a bike.", "It starts with H."],
       },
       treasure: {
-        title: '[Memory #17 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #17, in two or three sentences.]',
+        title: "Ride, then coffee",
+        image: 'photos/c17.jpg',
+        memory: "A helmet on the table, coffee on the way, and the 'do not talk to me yet' face. Every ride needs a café stop, and every café needs you in it.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Cupcake Corner] (While testing: pick Option C)",
+          text: "Cupcake Corner is next, where the bees buzz. A red saree, a balcony, an orange sky. What time of day was it?",
           image: null,
         },
       },
@@ -452,23 +455,23 @@ export default {
       habitat: 'bees',
       puzzle: {
         type: 'choice',
-        prompt: 'Which one is it?',
+        prompt: "Red saree, balcony, orange sky. What time of day was it?",
         options: [
-          { label: 'Option A', image: null },
-          { label: 'Option B', image: null },
-          { label: 'Option C', image: null },
-          { label: 'Option D', image: null },
+          { label: "Sunrise" },
+          { label: "Midday" },
+          { label: "Sunset" },
+          { label: "Midnight" },
         ],
         answer: 2, // index into options, starting at 0
-        hints: ['Trust your first instinct.', 'It is option C.'],
+        hints: ["The sun is going down.", "Golden hour, at the end of the day."],
       },
       treasure: {
-        title: '[Memory #18 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #18, in two or three sentences.]',
+        title: "Golden hour",
+        image: 'photos/c18.jpg',
+        memory: "A red saree, a balcony and the sky putting on a show just for you. The sun was setting, but it was competing with you, and it lost.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Seashell Bay] (While testing: the word is COFFEE)",
+          text: "Seashell Bay, where the fireflies glow. Little flames in a circle, marigolds in the middle, and you smiling over them. Which festival was it? Unscramble it.",
           image: null,
         },
       },
@@ -477,20 +480,20 @@ export default {
     {
       name: "Seashell Bay",
       landmark: 'palms',
-      habitat: 'beach',
+      habitat: 'fireflies',
       puzzle: {
         type: 'scramble',
-        prompt: 'Unscramble the letters.',
-        answer: 'COFFEE',
-        hints: ['Say the letters out loud.', 'It starts with COF.'],
+        prompt: "Little flames in a circle and marigolds in the middle. Which festival? Unscramble it.",
+        answer: "DIWALI",
+        hints: ["The festival of lights.", "D, I, W..."],
       },
       treasure: {
-        title: '[Memory #19 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #19, in two or three sentences.]',
+        title: "Festival of lights",
+        image: 'photos/c19.jpg',
+        memory: "Diyas lit, marigolds floating, and you glowing brighter than all of them. Our home always feels most like home when you are lighting it up.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Breezy Mill] (While testing: rebuild the picture, sun top-left)",
+          text: "Breezy Mill is next, where the pigeons gossip. A swing over the sea, splashes everywhere, a red zigzag dress. It is a cartoon now. Put it back together.",
           image: null,
         },
       },
@@ -499,21 +502,21 @@ export default {
     {
       name: "Breezy Mill",
       landmark: 'windmill',
-      habitat: 'farm',
+      habitat: 'pigeon',
       puzzle: {
         type: 'swap',
-        prompt: 'Tap two tiles to swap them until the picture is whole.',
-        image: null, // a square photo works best
+        prompt: "Tap two tiles to swap them until the picture is whole.",
+        image: "photos/c20-toon.jpg", // a cartoon of this chest's photo
         grid: 3,
-        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+        hints: ["The swing ropes run from top to bottom.", "Sea and sky fill the top."],
       },
       treasure: {
-        title: '[Memory #20 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #20, in two or three sentences.]',
+        title: "Swinging over the sea",
+        image: 'photos/c20.jpg',
+        memory: "A swing over the ocean, water splashing up, sunglasses on, full main-character energy. Some people take holidays. You become the holiday.",
         rune: "A", // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Lantern Rock] (While testing: the answer is: sunset)",
+          text: "Lantern Rock, where the tiger prowls. It looked like snow, but it was warm under your feet. What were you standing on? One word.",
           image: null,
         },
       },
@@ -522,20 +525,20 @@ export default {
     {
       name: "Lantern Rock",
       landmark: 'lighthouse',
-      habitat: 'mud',
+      habitat: 'tiger',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. What is it?',
-        answers: ["sunset"],
-        hints: ['Read your clue again.', 'It starts with "S".'],
+        prompt: "It looked like snow but was warm under your feet. What was it? One word.",
+        answers: ["sand", "sand dunes", "dunes", "dune", "desert"],
+        hints: ["You would find it on a beach.", "It starts with S."],
       },
       treasure: {
-        title: '[Memory #21 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #21, in two or three sentences.]',
+        title: "Not snow",
+        image: 'photos/c21.jpg',
+        memory: "White hills that looked like snow, a blue lake in the distance, and you on top like you had found a new planet. Explorer Joy, reporting for duty.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Swan Lake] (While testing: the code is 5014)",
+          text: "Swan Lake is next. Two silver towers, a sky bridge between them, and you smiling at their feet. How many floors does each tower have?",
           image: null,
         },
       },
@@ -547,17 +550,17 @@ export default {
       habitat: 'pond',
       puzzle: {
         type: 'code',
-        prompt: 'A four-dial lock holds the chest shut.',
-        answer: '5014',
-        hints: ['Think of a date: day then month.', 'It starts with 50.'],
+        prompt: "How many floors does each Petronas Tower have?",
+        answer: "88",
+        hints: ["A lucky number, written twice.", "Eight and eight."],
       },
       treasure: {
-        title: '[Memory #22 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #22, in two or three sentences.]',
+        title: "Twin towers",
+        image: 'photos/c22.jpg',
+        memory: "Kuala Lumpur, the Petronas Towers, and you looking tiny and fabulous in front of them. Big city, bigger smile.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Rainbow Falls] (While testing: pick Option D)",
+          text: "Rainbow Falls, where the dinosaur stomps. A sunny yellow kurti covered in delicate white flowers stitched by hand. What is that embroidery called?",
           image: null,
         },
       },
@@ -566,26 +569,26 @@ export default {
     {
       name: "Rainbow Falls",
       landmark: 'falls',
-      habitat: 'mud',
+      habitat: 'dino',
       puzzle: {
         type: 'choice',
-        prompt: 'Which one is it?',
+        prompt: "The white flowers stitched on your yellow kurti are called...",
         options: [
-          { label: 'Option A', image: null },
-          { label: 'Option B', image: null },
-          { label: 'Option C', image: null },
-          { label: 'Option D', image: null },
+          { label: "Phulkari" },
+          { label: "Chikankari" },
+          { label: "Kantha" },
+          { label: "Zardozi" },
         ],
-        answer: 3, // index into options, starting at 0
-        hints: ['Trust your first instinct.', 'It is option D.'],
+        answer: 1, // index into options, starting at 0
+        hints: ["It comes from Lucknow.", "Chikan..."],
       },
       treasure: {
-        title: '[Memory #23 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #23, in two or three sentences.]',
+        title: "Sunshine in a kurti",
+        image: 'photos/c23.jpg',
+        memory: "A yellow kurti, white chikankari, a little bindi and that calm, knowing look. You make 'I just threw this on' look like a magazine cover.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Cozy Cottage] (While testing: the word is KITTEN)",
+          text: "Cozy Cottage, where the cats nap. Head in your hands at a Korean restaurant, staring at an empty table. The food was late and you were... Unscramble it.",
           image: null,
         },
       },
@@ -594,20 +597,20 @@ export default {
     {
       name: "Cozy Cottage",
       landmark: 'cottage',
-      habitat: 'garden',
+      habitat: 'cat',
       puzzle: {
         type: 'scramble',
-        prompt: 'Unscramble the letters.',
-        answer: 'KITTEN',
-        hints: ['Say the letters out loud.', 'It starts with KIT.'],
+        prompt: "The food was late and you were... Unscramble it.",
+        answer: "HANGRY",
+        hints: ["Hungry plus angry.", "H, A, N..."],
       },
       treasure: {
-        title: '[Memory #24 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #24, in two or three sentences.]',
+        title: "Where is the food?",
+        image: 'photos/c24.jpg',
+        memory: "The face of a woman who ordered twenty minutes ago. A gentle reminder to everyone: feed her first, talk later. Everyone's safety depends on it.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Sky Field] (While testing: rebuild the picture, sun top-left)",
+          text: "Sky Field is next. Brace yourself: it is that face. The scrunchiest, silliest face you have ever pulled, now a cartoon in pieces. Put it back.",
           image: null,
         },
       },
@@ -619,18 +622,18 @@ export default {
       habitat: 'pasture',
       puzzle: {
         type: 'swap',
-        prompt: 'Tap two tiles to swap them until the picture is whole.',
-        image: null, // a square photo works best
+        prompt: "Tap two tiles to swap them until the picture is whole.",
+        image: "photos/c25-toon.jpg", // a cartoon of this chest's photo
         grid: 3,
-        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+        hints: ["Start with the eyes, squeezed shut.", "The grin goes in the middle."],
       },
       treasure: {
-        title: '[Memory #25 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #25, in two or three sentences.]',
+        title: "That face",
+        image: 'photos/c25.jpg',
+        memory: "I married a woman who can pull this face on purpose. No filter, no warning, pure chaos. I love it more than any posed photo.",
         rune: "Y", // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Sunset Bench] (While testing: the answer is: mango)",
+          text: "Find the Sunset Bench, where the dogs play. You, laughing in the sunshine, legs crossed, in a little city garden. What were you sitting on? One word.",
           image: null,
         },
       },
@@ -639,20 +642,20 @@ export default {
     {
       name: "Sunset Bench",
       landmark: 'bench',
-      habitat: 'garden',
+      habitat: 'dog',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. What is it?',
-        answers: ["mango"],
-        hints: ['Read your clue again.', 'It starts with "M".'],
+        prompt: "Laughing in the sunshine in a little city garden. What were you sitting on? One word.",
+        answers: ["bench", "a bench", "park bench", "garden bench"],
+        hints: ["Look at the landmark next to this chest.", "It is wooden and has a backrest."],
       },
       treasure: {
-        title: '[Memory #26 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #26, in two or three sentences.]',
+        title: "Sunshine break",
+        image: 'photos/c26.jpg',
+        memory: "A little garden in the middle of the city, a wooden bench and the happiest laugh. Ten minutes of sun, all for you. More of these, please.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Sweet Spot] (While testing: the code is 5699)",
+          text: "Now to the Sweet Spot. Red and gold, sindoor and a shola crown: the day you said yes to forever, and to me. What do we call that day? One word.",
           image: null,
         },
       },
@@ -663,18 +666,18 @@ export default {
       landmark: 'cake',
       habitat: 'birds',
       puzzle: {
-        type: 'code',
-        prompt: 'A four-dial lock holds the chest shut.',
-        answer: '5699',
-        hints: ['Think of a date: day then month.', 'It starts with 56.'],
+        type: 'text',
+        prompt: "Red and gold, sindoor and a shola crown. What do we call that day? One word.",
+        answers: ["wedding", "biye", "bie", "biyer din", "shaadi", "shadi", "marriage", "wedding day"],
+        hints: ["Red saree, lots of gold, lots of relatives.", "Biye! In English: W..."],
       },
       treasure: {
-        title: '[Memory #27 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #27, in two or three sentences.]',
+        title: "Our wedding",
+        image: 'photos/c27.jpg',
+        memory: "The day you became my wife. Red and gold, the mukut and the mehendi, and a smile that outshone every light in the room. From here on, we walk together. You have been stuck with me ever since.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Merlion Point] (While testing: pick Option A)",
+          text: "Merlion Point is next. A city with a lion's head and a fish's tail, and a ship sitting on top of three towers. Where did we make our new home?",
           image: null,
         },
       },
@@ -686,23 +689,23 @@ export default {
       habitat: 'beach',
       puzzle: {
         type: 'choice',
-        prompt: 'Which one is it?',
+        prompt: "A lion's head, a fish's tail and a ship on three towers. Where did we make our new home?",
         options: [
-          { label: 'Option A', image: null },
-          { label: 'Option B', image: null },
-          { label: 'Option C', image: null },
-          { label: 'Option D', image: null },
+          { label: "Kuala Lumpur" },
+          { label: "Singapore" },
+          { label: "Dubai" },
+          { label: "Bangkok" },
         ],
-        answer: 0, // index into options, starting at 0
-        hints: ['Trust your first instinct.', 'It is option A.'],
+        answer: 1, // index into options, starting at 0
+        hints: ["The Lion City.", "Look at the statue spouting water."],
       },
       treasure: {
-        title: '[Memory #28 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #28, in two or three sentences.]',
+        title: "Hello, Singapore",
+        image: 'photos/c28.jpg',
+        memory: "A new country, a new home, Marina Bay Sands behind you and a whole new life ahead. You packed up everything, smiled, and made it ours.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Flour Mill Farm] (While testing: the word is RAINBOW)",
+          text: "Flour Mill Farm, where Old MacDonald lives. The two of us on a swinging bed, and behind us a mountain with fire inside. What was it? Unscramble it.",
           image: null,
         },
       },
@@ -714,17 +717,17 @@ export default {
       habitat: 'farm',
       puzzle: {
         type: 'scramble',
-        prompt: 'Unscramble the letters.',
-        answer: 'RAINBOW',
-        hints: ['Say the letters out loud.', 'It starts with RAI.'],
+        prompt: "The two of us on a giant swing, and behind us a mountain with fire inside. Unscramble it.",
+        answer: "VOLCANO",
+        hints: ["A mountain that breathes fire.", "V, O, L..."],
       },
       treasure: {
-        title: '[Memory #29 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #29, in two or three sentences.]',
+        title: "On top of the world",
+        image: 'photos/c29.jpg',
+        memory: "A giant swing, a volcano behind us, and you leaning into me like we had all the time in the world. Best seat in the house.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Beacon Hill] (While testing: rebuild the picture, sun top-left)",
+          text: "Climb Beacon Hill, where the parrots chatter. You in white, a hand on your belly, me beside you grinning like an idiot. It is a cartoon now. Put us back together.",
           image: null,
         },
       },
@@ -733,21 +736,21 @@ export default {
     {
       name: "Beacon Hill",
       landmark: 'lighthouse',
-      habitat: 'pasture',
+      habitat: 'parrot',
       puzzle: {
         type: 'swap',
-        prompt: 'Tap two tiles to swap them until the picture is whole.',
-        image: null, // a square photo works best
+        prompt: "Tap two tiles to swap them until the picture is whole.",
+        image: "photos/c30-toon.jpg", // a cartoon of this chest's photo
         grid: 3,
-        hints: ['Start with the corners.', 'The sun sits in the top-left corner.'],
+        hints: ["Our two faces are at the top, looking at each other.", "Your hands rest in the middle."],
       },
       treasure: {
-        title: '[Memory #30 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #30, in two or three sentences.]',
+        title: "Waiting for her",
+        image: 'photos/c30.jpg',
+        memory: "You in white, glowing, our little secret growing under your hands. I have never been so proud, or so nervous, or so in love.",
         rune: "S", // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Wishing Pond] (While testing: the answer is: music)",
+          text: "Wishing Pond is next. Sand, sea, white clothes, and a tiny someone in my arms with your eyes. Who is she? One word.",
           image: null,
         },
       },
@@ -759,17 +762,17 @@ export default {
       habitat: 'mud',
       puzzle: {
         type: 'text',
-        prompt: 'The chest is locked with a word. What is it?',
-        answers: ["music"],
-        hints: ['Read your clue again.', 'It starts with "M".'],
+        prompt: "Sand, sea, and a tiny someone in my arms with your eyes. Who is she? One word.",
+        answers: ["innu", "inaaya", "inaya"],
+        hints: ["Our daughter.", "I... nnu!"],
       },
       treasure: {
-        title: '[Memory #31 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #31, in two or three sentences.]',
+        title: "Then there were three",
+        image: 'photos/c31.jpg',
+        memory: "The beach, the three of us in white, and Innu in my arms looking for you, as always. Our whole world in one photo.",
         rune: null, // a letter for the castle gate, or null
         clue: {
-          text: "[Placeholder clue for Misty Mountain] (While testing: the code is 6384)",
+          text: "Last chest: Misty Mountain. In a pink room full of mirrors, count the people in our selfie, then the phones held up to the glass. Put the two numbers side by side.",
           image: null,
         },
       },
@@ -778,17 +781,17 @@ export default {
     {
       name: "Misty Mountain",
       landmark: 'falls',
-      habitat: 'pond',
+      habitat: 'pigeon',
       puzzle: {
         type: 'code',
-        prompt: 'A four-dial lock holds the chest shut.',
-        answer: '6384',
-        hints: ['Think of a date: day then month.', 'It starts with 63.'],
+        prompt: "In the mirror selfie: count the people, then the phones. Side by side.",
+        answer: "32",
+        hints: ["Three of us.", "Three, then two. Look at this chest's number."],
       },
       treasure: {
-        title: '[Memory #32 title]',
-        image: null,
-        memory: '[Placeholder: the story behind memory #32, in two or three sentences.]',
+        title: "Us, right now",
+        image: 'photos/c32.jpg',
+        memory: "A room full of pink mirrors, two phones, three of us, and Innu stealing the show. This is what home looks like right now, and I would not trade it for anything.",
         rune: null, // a letter for the castle gate, or null
         clue: {
           text: "You have every rune now. Follow the road to Heart Castle and arrange them at the gate.",
@@ -824,6 +827,20 @@ export default {
       'Happy birthday, my love. Level 33 looks beautiful on you.',
     ],
     signature: 'Forever yours, Tan (and Innu)',
+    // More of us, shown under the letter.
+    album: [
+      { image: 'photos/a01.jpg', caption: 'Feet in the sea' },
+      { image: 'photos/a02.jpg', caption: 'Sunset, and you' },
+      { image: 'photos/a03.jpg', caption: 'Pujo with my favourite person' },
+      { image: 'photos/a04.jpg', caption: 'Black sand, blue sky' },
+      { image: 'photos/a05.jpg', caption: 'Caught in the act' },
+      { image: 'photos/a06.jpg', caption: 'Tokyo, with our little one' },
+      { image: 'photos/a07.jpg', caption: 'Best mom ever. Official.' },
+      { image: 'photos/a08.jpg', caption: 'Cuddles by the sea' },
+      { image: 'photos/a09.jpg', caption: 'Twinning in pink' },
+      { image: 'photos/a10.jpg', caption: 'Matching shirts, obviously' },
+      { image: 'photos/a11.jpg', caption: 'Our girl turns one' },
+    ],
   },
 
   // One small charm for every chest, kept in Joy's bag.

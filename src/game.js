@@ -677,6 +677,35 @@ export function createGame(canvas, { world, sprites, names, getProgress, isBlock
     for (const o of items) o.draw();
     habitats.air(vis, T, now);
 
+    // owl and bat country: the map darkens to night around her
+    const night = habitats.night(me);
+    if (night > 0.01) {
+      ctx.save();
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      const g = ctx.createRadialGradient(vw / 2, vh / 2, 40, vw / 2, vh / 2, Math.max(vw, vh) * 0.7);
+      g.addColorStop(0, `rgba(24,32,84,${0.3 * night})`);
+      g.addColorStop(1, `rgba(10,14,48,${0.66 * night})`);
+      ctx.fillStyle = g;
+      ctx.fillRect(0, 0, vw, vh);
+      ctx.globalAlpha = night;
+      ctx.beginPath();
+      ctx.arc(vw - 70, 130, 26, 0, Math.PI * 2);
+      ctx.fillStyle = '#FFF3B0';
+      ctx.fill();
+      ctx.beginPath();
+      ctx.arc(vw - 59, 122, 22, 0, Math.PI * 2);
+      ctx.fillStyle = '#1C2558';
+      ctx.fill();
+      for (let i = 0; i < 18; i++) {
+        const x = ((i * 397) % 1000) / 1000 * vw;
+        const y = ((i * 173) % 1000) / 1000 * vh * 0.45 + 20;
+        ctx.globalAlpha = night * (0.5 + 0.5 * Math.sin(now / 400 + i * 2.3));
+        ctx.fillStyle = '#FFF3B0';
+        ctx.fillRect(x, y, 2.5, 2.5);
+      }
+      ctx.restore();
+    }
+
     // signs + marker for revealed zones
     const p = getProgress();
     for (const c of world.chests) {

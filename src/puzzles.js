@@ -1,6 +1,7 @@
 // Puzzle renderers. Each one mounts into `root` and calls onSolve() / onWrong().
 
 import { sound } from './fx.js';
+import { photo } from './vault.js';
 
 export const norm = (v) => String(v).toLowerCase().normalize('NFKD').replace(/[^a-z0-9]/g, '');
 
@@ -37,7 +38,8 @@ export function placeholderArt(label = 'Your photo here') {
   return `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
 }
 
-export const imgSrc = (src, label) => (src ? src : placeholderArt(label));
+// photos/… are the encrypted photos, decrypted by vault.js after the gate
+export const imgSrc = (src, label) => (src ? photo(src) || (src.startsWith('photos/') ? placeholderArt(label) : src) : placeholderArt(label));
 
 // ── text ─────────────────────────────────────────────────────────────────
 function text(root, p, { onSolve, onWrong }) {

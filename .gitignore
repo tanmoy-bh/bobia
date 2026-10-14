@@ -1,3 +1,5 @@
 node_modules
 dist
 .DS_Store
+# unencrypted photos, used only to build public/photos
+photos-src

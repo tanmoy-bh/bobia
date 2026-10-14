@@ -219,6 +219,47 @@ const ANIMALS = {
   crickets() {
     for (const at of [0, 0.45, 0.9]) voice({ type: 'sine', fs: [4400, 4500], at, dur: 0.3, vol: 0.05, am: 1, amRate: 32 });
   },
+  hoot() {
+    voice({ type: 'sine', fs: [330, 380, 320], dur: 0.32, vol: 0.28, filter: ['lowpass', 900] });
+    voice({ type: 'sine', fs: [340, 390, 300], at: 0.5, dur: 0.6, vol: 0.28, filter: ['lowpass', 900], vib: 6, vibRate: 7 });
+  },
+  squeak() {
+    for (const at of [0, 0.09, 0.18, 0.4]) voice({ type: 'sine', fs: [5200, 7200, 4800], at, dur: 0.05, vol: 0.06 });
+    noise(0, 0.6, 0.05, 1200, 600);
+  },
+  roar() {
+    voice({ fs: [150, 230, 110], dur: 0.9, vol: 0.22, filter: ['lowpass', 900], q: 3, vib: 8, vibRate: 22 });
+    noise(0.35, 0.8, 0.16, 2400, 500);
+  },
+  rumble() {
+    voice({ fs: [80, 105, 60], dur: 1.4, vol: 0.32, filter: ['lowpass', 420], q: 4, am: 0.5, amRate: 18 });
+    for (const at of [1.5, 1.95]) tone(58, at, 0.25, 'triangle', 0.3);
+  },
+  coo() {
+    voice({ type: 'sine', fs: [420, 520, 400], dur: 0.32, vol: 0.2, am: 0.6, amRate: 24 });
+    voice({ type: 'sine', fs: [480, 380], at: 0.42, dur: 0.45, vol: 0.2, am: 0.6, amRate: 24 });
+  },
+  squawk() {
+    // "Hel-lo!"
+    voice({ fs: [900, 1250], dur: 0.17, vol: 0.14, filter: ['bandpass', 1700], q: 3 });
+    voice({ fs: [1300, 1500, 800], at: 0.22, dur: 0.32, vol: 0.14, filter: ['bandpass', 1500], q: 3, vib: 30, vibRate: 15 });
+  },
+  growl() {
+    voice({ fs: [95, 120, 88], dur: 1.1, vol: 0.28, filter: ['lowpass', 520], q: 3, am: 0.7, amRate: 26 });
+  },
+  lionRoar() {
+    voice({ fs: [120, 260, 170, 90], dur: 1.6, vol: 0.32, filter: ['lowpass', 850], q: 3, vib: 6, vibRate: 9 });
+    noise(0.1, 1.4, 0.1, 900, 250);
+  },
+  woof() {
+    for (const at of [0, 0.28]) {
+      voice({ fs: [430, 290], at, dur: 0.15, vol: 0.28, filter: ['bandpass', 750], q: 2 });
+      noise(at, 0.12, 0.06, 1400, 600);
+    }
+  },
+  meow() {
+    voice({ fs: [480, 880, 560], dur: 0.6, vol: 0.16, filter: ['bandpass', 1100], q: 4, vib: 10, vibRate: 7 });
+  },
   // "Old MacDonald had a farm, E-I-E-I-O" (traditional)
   farm() {
     const q = 0.27;
