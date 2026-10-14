@@ -677,7 +677,7 @@ function build(h, sprites, ctx) {
       ground.push((ctx) => blob(ctx, h.x, h.y, rx, ry, '#8CC85E'));
       for (const [fx, fy, k] of [[-0.75, -0.3, 1], [0.7, -0.45, 0.9], [0.6, 0.45, 0.8], [-0.5, 0.5, 0.75]]) prop('fern', at(fx, fy), k);
       const home = at(0, -0.05);
-      walker('dino', 'dino', 0.8, wander(home.x, home.y, 34, 4, 0.16, rand() * TAU), { height: 104, shadow: 40, step: 4, bob: 2 });
+      walker('dino', 'dino', 1.15, wander(home.x, home.y, 34, 4, 0.16, rand() * TAU), { height: 146, shadow: 56, step: 4, bob: 2 });
       break;
     }
     case 'pigeon': {
