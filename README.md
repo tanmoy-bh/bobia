@@ -52,7 +52,10 @@ Open the link on her phone and use **Share → Add to Home Screen** (iPhone) or 
 
 ## Deploy
 
-Pushing to `main` runs `.github/workflows/deploy.yml`, which builds and publishes to GitHub Pages at `https://tanmoy-git.github.io/bobia/`.
+Pushing to `main` runs two workflows:
+
+- `.github/workflows/deploy-cloudflare.yml` deploys to the Cloudflare Pages project `tanmoybh-bobia`, served at `https://projects.tanmoybh.com/bobia/` through the [projects hub](https://github.com/tanmoy-bh/projects). It needs the `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID` secrets.
+- `.github/workflows/deploy.yml` publishes to GitHub Pages at `https://tanmoy-bh.github.io/bobia/`.
 
 One-time setup: repo **Settings → Pages → Build and deployment → Source: GitHub Actions**.
 
